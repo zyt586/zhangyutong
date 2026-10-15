@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>12-1 CSS变量</title>
+  <style>
+    :root {
+      --zyt_primary: #4a90e2;
+      --zyt_primary_light: #e7f0fd;
+      --zyt_radius: 10px;
+      --zyt_font_title: 1.3em;
+      --zyt_shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --zyt_scale: 1;
+    }
+
+    [data-zyt-theme="green"] {
+      --zyt_primary: #2eb872;
+      --zyt_primary_light: #e6f9f0;
+    }
+
+    [data-zyt-theme="orange"] {
+      --zyt_primary: #f0ad4e;
+      --zyt_primary_light: #fff5e6;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+      background-color: #f5f7fb;
+      color: #333;
+      padding: 20px;
+      line-height: 1.6;
+      transition: background-color 0.4s ease;
+    }
+
+    .zyt_page_title {
+      font-size: 1.8em;
+      margin-bottom: 6px;
+    }
+
+    .zyt_subtitle {
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    .zyt_section {
+      background-color: #fff;
+      border-radius: var(--zyt_radius);
+      box-shadow: var(--zyt_shadow);
+      padding: 20px;
+      margin-bottom: 20px;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .zyt_section_title {
+      font-size: var(--zyt_font_title);
+      color: var(--zyt_primary);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--zyt_primary);
+      display: inline-block;
+    }
+
+    .zyt_note {
+      font-size: 0.9em;
+      color: #777;
+      margin-bottom: 10px;
+    }
+
+    .zyt_code_block {
+      background-color: #2d2d2d;
+      color: #f8f8f2;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92em;
+      padding: 14px;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin: 10px 0;
+      line-height: 1.6;
+    }
+
+    .zyt_code_block .zyt_key { color: #f92672; }
+    .zyt_code_block .zyt_val { color: #a6e22e; }
+    .zyt_code_block .zyt_cmt { color: #75715e; }
+    .zyt_code_block .zyt_fn  { color: #66d9ef; }
+
+    .zyt_tip {
+      background-color: #fff8e6;
+      border-left: 5px solid #f0ad4e;
+      padding: 12px 14px;
+      border-radius: 5px;
+      font-size: 0.95em;
+      color: #665200;
+      margin-top: 14px;
+    }
+
+    /* ========== 二、基本用法 ========== */
+    .zyt_basic_grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .zyt_basic_card {
+      background-color: var(--zyt_primary_light);
+      border: 2px solid var(--zyt_primary);
+      border-radius: var(--zyt_radius);
+      padding: 16px;
+      text-align: center;
+      transform: scale(var(--zyt_scale));
+      transition: transform 0.3s ease, background-color 0.4s ease, border-color 0.4s ease;
+    }
+
+    .zyt_basic_card h4 {
+      color: var(--zyt_primary);
+      font-size: 1.05em;
+      margin-bottom: 6px;
+    }
+
+    .zyt_basic_card p {
+      font-size: 0.9em;
+      color: #555;
+    }
+
+    /* ========== 三、作用域 ========== */
+    .zyt_scope_box {
+      background-color: #f8f9fa;
+      border: 1px dashed var(--zyt_primary);
+      border-radius: 6px;
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+
+    .zyt_scope_box h4 {
+      font-size: 1em;
+      margin-bottom: 8px;
+      color: #2c5aa0;
+    }
+
+    .zyt_scope_badge {
+      display: inline-block;
+      background-color: var(--zyt_primary);
+      color: #fff;
+      border-radius: 20px;
+      padding: 4px 16px;
+      font-size: 0.9em;
+      margin-right: 8px;
+    }
+
+    .zyt_scope_local {
+      --zyt_primary: #d9534f;
+      --zyt_primary_light: #fdecea;
+    }
+
+    /* ========== 四、默认值 ========== */
+    .zyt_fallback_row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .zyt_fallback_card {
+      flex: 1;
+      min-width: 220px;
+      border-radius: 6px;
+      padding: 16px;
+      color: #fff;
+      background-color: var(--zyt_undefined_color, #888);
+      box-shadow: var(--zyt_undefined_shadow, none);
+    }
+
+    .zyt_fallback_card h4 { margin-bottom: 6px; }
+
+    .zyt_fallback_card p {
+      font-size: 0.88em;
+      opacity: 0.95;
+    }
+
+    /* ========== 五、主题换肤 ========== */
+    .zyt_toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .zyt_theme_btn {
+      border: none;
+      border-radius: 20px;
+      padding: 7px 20px;
+      font-size: 0.92em;
+      font-family: inherit;
+      color: #fff;
+      cursor: pointer;
+      opacity: 0.55;
+      transition: opacity 0.25s ease, transform 0.2s ease;
+    }
+
+    .zyt_theme_btn:hover {
+      opacity: 0.85;
+      transform: translateY(-2px);
+    }
+
+    .zyt_theme_btn.zyt_active {
+      opacity: 1;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+    }
+
+    .zyt_btn_blue   { background-color: #4a90e2; }
+    .zyt_btn_green  { background-color: #2eb872; }
+    .zyt_btn_orange { background-color: #f0ad4e; }
+
+    .zyt_theme_card {
+      background-color: var(--zyt_primary_light);
+      border-left: 6px solid var(--zyt_primary);
+      border-radius: 6px;
+      padding: 16px;
+      transition: background-color 0.4s ease, border-color 0.4s ease;
+    }
+
+    .zyt_theme_card h4 {
+      color: var(--zyt_primary);
+      font-size: 1.1em;
+      margin-bottom: 6px;
+      transition: color 0.4s ease;
+    }
+
+    .zyt_theme_card p {
+      font-size: 0.92em;
+      color: #555;
+      margin-bottom: 10px;
+    }
+
+    .zyt_theme_btn2 {
+      background-color: var(--zyt_primary);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 22px;
+      font-size: 0.92em;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background-color 0.4s ease;
+    }
+
+    .zyt_theme_btn2:hover { filter: brightness(1.1); }
+
+    /* ========== 六、变量 + calc ========== */
+    .zyt_slider_row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .zyt_slider_row label {
+      font-size: 0.95em;
+      font-weight: bold;
+      color: #2c5aa0;
+    }
+
+    .zyt_slider {
+      flex: 1;
+      min-width: 200px;
+      accent-color: var(--zyt_primary);
+      cursor: pointer;
+    }
+
+    .zyt_slider_value {
+      font-family: Consolas, monospace;
+      font-size: 0.9em;
+      background-color: var(--zyt_primary_light);
+      color: var(--zyt_primary);
+      padding: 2px 10px;
+      border-radius: 12px;
+      min-width: 70px;
+      text-align: center;
+    }
+
+    .zyt_box_row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: flex-end;
+    }
+
+    .zyt_demo_box {
+      background: linear-gradient(135deg, var(--zyt_primary), #764ba2);
+      color: #fff;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85em;
+      transition: width 0.3s ease, height 0.3s ease;
+    }
+
+    .zyt_demo_box1 { width: calc(140px * var(--zyt_scale)); height: calc(140px * var(--zyt_scale)); }
+    .zyt_demo_box2 { width: calc(200px * var(--zyt_scale)); height: calc(90px  * var(--zyt_scale)); }
+    .zyt_demo_box3 { width: calc(90px  * var(--zyt_scale)); height: calc(90px  * var(--zyt_scale)); border-radius: 50%; }
+
+    /* ========== 七、要点 ========== */
+    .zyt_prop_grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+    }
+
+    .zyt_prop_card {
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-left: 5px solid var(--zyt_primary);
+      border-radius: 6px;
+      padding: 12px 14px;
+      transition: border-color 0.4s ease;
+    }
+
+    .zyt_prop_card h4 {
+      color: #2c5aa0;
+      font-size: 1.05em;
+      margin-bottom: 4px;
+    }
+
+    .zyt_prop_card h4 code {
+      background-color: var(--zyt_primary_light);
+      padding: 1px 6px;
+      border-radius: 4px;
+      color: #d9534f;
+    }
+
+    .zyt_prop_card p {
+      font-size: 0.92em;
+      color: #555;
+    }
+
+    .zyt_footer {
+      text-align: center;
+      color: #999;
+      font-size: 0.9em;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .zyt_fallback_row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <h2 class="zyt_page_title">🎨 12-1 CSS变量（自定义属性）</h2>
+  <p class="zyt_subtitle">第12章练习1 - 用 <code>--</code> 定义变量、用 <code>var()</code> 读取变量，一处修改、全页生效</p>
+
+  <!-- 一、什么是CSS变量 -->
+  <section class="zyt_section">
+    <h3 class="zyt_section_title">📘 一、什么是CSS变量</h3>
+    <p class="zyt_note">CSS变量又称"自定义属性"，必须以 <b>--</b> 开头，通过 <b>var()</b> 函数使用；常定义在 <b>:root</b> 上实现全页共享。</p>
+    <div class="zyt_code_block">
+      <span class="zyt_cmt">/* 1. 定义：属性名必须以 -- 开头 */</span><br>
+      <span class="zyt_fn">:root</span> {<br>
+      &nbsp;&nbsp;<span class="zyt_key">--zyt_primary</span>: <span class="zyt_val">#4a90e2</span>;<span class="zyt_cmt">/* 颜色变量 */</span><br>
+      &nbsp;&nbsp;<span class="zyt_key">--zyt_radius</span>: <span class="zyt_val">10px</span>;<span class="zyt_cmt">/* 尺寸变量 */</span><br>
+      }<br>
+      <span class="zyt_cmt">/* 2. 使用：var(变量名) */</span><br>
+      .zyt_card { <span class="zyt_key">border-radius</span>: <span class="zyt_fn">var</span>(<span class="zyt_val">--zyt_radius</span>); <span class="zyt_key">color</span>: <span class="zyt_fn">var</span>(<span class="zyt_val">--zyt_primary</span>); }
+    </div>
+  </section>
+
+  <!-- 二、:root 定义与全局使用 -->
+  <section class="zyt_section">
+    <h3 class="zyt_section_title">🌱 二、:root 全局变量实战</h3>
+    <p class="zyt_note">下面 3 张卡片的边框、背景、标题色、圆角全部来自 <code>:root</code> 中的 4 个变量——改一处，3 张卡片同时变。</p>
+    <div class="zyt_basic_grid">
+      <div class="zyt_basic_card">
+        <h4>变量：--zyt_primary</h4>
+        <p>主题色 #4a90e2<br>控制边框与标题</p>
+      </div>
+      <div class="zyt_basic_card">
+        <h4>变量：--zyt_primary_light</h4>
+        <p>主题浅色 #e7f0fd<br>控制卡片背景</p>
+      </div>
+      <div class="zyt_basic_card">
+        <h4>变量：--zyt_radius</h4>
+        <p>圆角 10px<br>控制卡片圆角</p>
+      </div>
+    </div>
+    <div class="zyt_code_block">
+      <span class="zyt_fn">:root</span> { <span class="zyt_key">--zyt_primary</span>: <span class="zyt_val">#4a90e2</span>; <span class="zyt_key">--zyt_primary_light</span>: <span class="zyt_val">#e7f0fd</span>; <span class="zyt_key">--zyt_radius</span>: <span class="zyt_val">10px</span>; }<br>
+      .zyt_basic_card { <span class="zyt_key">background</span>: <span class="zyt_fn">var</span>(<span class="zyt_val">--zyt_primary_light</span>); <span class="zyt_key">border</span>: 2px solid <span class="zyt_fn">var</span>(<span class="zyt_val">--zyt_primary</span>); }
+    </div>
+  </section>
+
+  <!-- 三、作用域与就近覆盖 -->
+  <section class="zyt_section">
+    <h3 class="zyt_section_title">📍 三、作用域与就近覆盖</h3>
+    <p class="zyt_note">变量和普通CSS属性一样遵循<b>就近原则</b>：子元素/局部类里重新定义后，只覆盖该元素上的值。</p>
+    <div class="zyt_scope_box">
+      <h4>① 全局（继承自 :root）</h4>
+      <span class="zyt_scope_badge">主题蓝 #4a90e2</span>
+      <span class="zyt_scope_badge" style="background-color:#888;">未覆盖，用全局值</span>
+    </div>
+    <div class="zyt_scope_box zyt_scope_local">
+      <h4>② 局部（.zyt_scope_local 重新定义为红色）</h4>
+      <span class="zyt_scope_badge">局部红 #d9534f</span>
+      <span class="zyt_scope_badge" style="background-color:#888;">只影响这个容器内部</span>
+    </div>
+    <div class="zyt_code_block">
+      .zyt_scope_local { <span class="zyt_key">--zyt_primary</span>: <span class="zyt_val">#d9534f</span>; }<span class="zyt_cmt">/* 只在该容器内生效 */</span><br>
+      <span class="zyt_cmt">/* 容器外的元素仍然是 :root 的 #4a90e2 */</span>
+    </div>
+  </section>
+
+  <!-- 四、var() 默认值 -->
+  <section class="zyt_section">
+    <h3 class="zyt_section_title">🛡️ 四、var() 默认值（回退值）</h3>
+    <p class="zyt_note">语法：<code>var(变量, 默认值)</code>。变量未定义时使用默认值——左边卡片用了默认值，右边卡片的变量已在 :root 定义。</p>
+    <div class="zyt_fallback_row">
+      <div class="zyt_fallback_card">
+        <h4>未定义变量 → 用默认值</h4>
+        <p>background-color: var(--zyt_undefined_color, #888)<br>结果：显示灰色 #888</p>
+      </div>
+      <div class="zyt_fallback_card" style="background-color: var(--zyt_primary);">
+        <h4>已定义变量 → 用变量值</h4>
+        <p>background-color: var(--zyt_primary)<br>结果：显示主题色 #4a90e2</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 五、主题换肤 -->
+  <section class="zyt_section">
+    <h3 class="zyt_section_title">🎭 五、综合应用：一键主题换肤</h3>
+    <p class="zyt_note">JS 只负责给 <code>&lt;html&gt;</code> 换 data 属性，颜色全部由CSS变量切换——这正是变量最大的价值。</p>
+    <div class="zyt_toolbar">
+      <span style="font-size:0.95em;color:#555;">选择主题：</span>
+      <button type="button" class="zyt_theme_btn zyt_btn_blue zyt_active" data-zyt-theme="blue">🔵 蓝色主题</button>
+      <button type="button" class="zyt_theme_btn zyt_btn_green" data-zyt-theme="green">🟢 绿色主题</button>
+      <button type="button" class="zyt_theme_btn zyt_btn_orange" data-zyt-theme="orange">🟠 橙色主题</button>
+    </div>
+    <div class="zyt_theme_card">
+      <h4>🎨 换肤效果预览卡片</h4>
+      <p>标题色、背景色、左边框、按钮颜色都取自 <code>--zyt_primary</code> 系列变量，切换主题时整体同步变化（含 0.4s 过渡动画）。</p>
+      <button type="button" class="zyt_theme_btn2">我是取变量色的按钮</button>
+    </div>
+    <div class="zyt_code_block">
+      <span class="zyt_cmt">/* CSS：按 html 上的属性切换整套变量 */</span><br>
+      <span class="zyt_fn">[data-zyt-theme="green"]</span> { <span class="zyt_key">--zyt_primary</span>: <span class="zyt_val">#2eb872</span>; <span class="zyt_key">--zyt_primary_light</span>: <span class="zyt_val">#e6f9f0</span>; }<br>
+      <span class="zyt_cmt">/* JS：只换属性，不碰任何颜色 */</span><br>
+      <span class="zyt_key">var</span> zyt_theme = <span class="zyt_val">"green"</span>;<br>
+      document.documentElement.setAttribute(<span class="zyt_val">"data-zyt-theme"</span>, zyt_theme);
+    </div>
+  </section>
+
+  <!-- 六、变量 + calc -->
+  <section class="zyt_section">
+    <h3 class="zyt_section_title">📏 六、变量参与 calc() 运算</h3>
+    <p class="zyt_note">拖动滑块改变 <code>--zyt_scale</code>，下面三个图形按 <code>calc(基准尺寸 × var(--zyt_scale))</code> 实时缩放。</p>
+    <div class="zyt_slider_row">
+      <label for="zyt_scale_range">缩放变量 --zyt_scale：</label>
+      <input type="range" id="zyt_scale_range" class="zyt_slider" min="0.6" max="1.6" step="0.1" value="1">
+      <span class="zyt_slider_value" id="zyt_scale_value">1.0 倍</span>
+    </div>
+    <div class="zyt_box_row">
+      <div class="zyt_demo_box zyt_demo_box1">140 × 140</div>
+      <div class="zyt_demo_box zyt_demo_box2">200 × 90</div>
+      <div class="zyt_demo_box zyt_demo_box3">圆形</div>
+    </div>
+    <div class="zyt_code_block">
+      <span class="zyt_fn">:root</span> { <span class="zyt_key">--zyt_scale</span>: <span class="zyt_val">1</span>;<span class="zyt_cmt">/* JS 拖动滑块时实时改写它 */</span> }<br>
+      .zyt_demo_box1 { <span class="zyt_key">width</span>: <span class="zyt_fn">calc</span>(<span class="zyt_val">140px * var(--zyt_scale)</span>); <span class="zyt_key">height</span>: <span class="zyt_fn">calc</span>(<span class="zyt_val">140px * var(--zyt_scale)</span>); }
+    </div>
+  </section>
+
+  <!-- 七、实现要点 -->
+  <section class="zyt_section">
+    <h3 class="zyt_section_title">📋 七、实现要点回顾</h3>
+    <div class="zyt_prop_grid">
+      <div class="zyt_prop_card">
+        <h4><code>--前缀</code></h4>
+        <p>自定义属性必须以两个短横线开头，否则是普通属性；本页统一用 --zyt_ 前缀避免冲突。</p>
+      </div>
+      <div class="zyt_prop_card">
+        <h4><code>var() 读取</code></h4>
+        <p>只在属性值位置使用，如 color: var(--zyt_primary)；还可写 var(--zyt_c, #ccc) 提供默认值。</p>
+      </div>
+      <div class="zyt_prop_card">
+        <h4><code>:root 挂载</code></h4>
+        <p>定义在 :root 上全页继承；定义在某个类上则只对该类及其子元素生效（就近覆盖）。</p>
+      </div>
+      <div class="zyt_prop_card">
+        <h4><code>变量可变</code></h4>
+        <p>变量是运行时值，可用 JS 的 setProperty 或切换 class / data 属性整体换肤、联动缩放。</p>
+      </div>
+      <div class="zyt_prop_card">
+        <h4><code>calc 搭配</code></h4>
+        <p>变量可参与 calc() 四则运算，实现"一个滑块控制全页尺寸"这类联动效果。</p>
+      </div>
+      <div class="zyt_prop_card">
+        <h4><code>过渡动画</code></h4>
+        <p>变量本身不支持 transition，但使用它的属性（color、background 等）可以正常过渡。</p>
+      </div>
+    </div>
+
+    <div class="zyt_tip">
+      💡 <strong>小技巧：</strong>①变量名建议小写加中划线并带项目前缀（如 --zyt_primary）；②变量值可以是颜色、长度、字体栈甚至整段 transform；③给元素加 <code>transition</code> 后，换肤时颜色会平滑渐变，观感更好。
+    </div>
+  </section>
+
+  <footer class="zyt_footer">
+    <p>© 2026 张语桐 | 学号：830 | 《高级网页设计》课程实践 · 12-1 CSS变量</p>
+  </footer>
+
+  <script>
+    var zyt_btns = document.querySelectorAll(".zyt_theme_btn");
+    var zyt_theme = "blue";
+
+    zyt_btns.forEach(function (zyt_btn) {
+      zyt_btn.addEventListener("click", function () {
+        zyt_theme = zyt_btn.getAttribute("data-zyt-theme");
+        document.documentElement.setAttribute("data-zyt-theme", zyt_theme);
+        zyt_btns.forEach(function (zyt_b) { zyt_b.classList.remove("zyt_active"); });
+        zyt_btn.classList.add("zyt_active");
+      });
+    });
+
+    var zyt_range = document.getElementById("zyt_scale_range");
+    var zyt_value = document.getElementById("zyt_scale_value");
+
+    zyt_range.addEventListener("input", function () {
+      document.documentElement.style.setProperty("--zyt_scale", zyt_range.value);
+      zyt_value.textContent = Number(zyt_range.value).toFixed(1) + " 倍";
+    });
+  </script>
+</body>
+</html>
