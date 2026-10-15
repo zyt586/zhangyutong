@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    *{
+      margin: 0;
+      padding: 0;
+    }
+    .flex{
+      display: flex;
+      /* 容器，它的子元素在一行显示 */
+      flex-wrap: wrap;
+      justify-content: space-around;
+    }
+    .flex li{
+      /* 项目，容器的子元素 */
+      width: 40%;
+      height: 300px;
+      border: 1px solid #333;
+      /* float: left; */
+      list-style: none;
+      display: flex;
+    }
+    .box{
+      width: 70px;
+      height: 70px;
+      background-color: #4a90e2;
+      border: 3px solid #2c5aa0;
+      border-radius: 8px;
+    }
+    .box1{
+      width: 90px;
+      height: 90px;
+      background-color: #d9534f;
+      border: 3px solid #a93226;
+      border-radius: 8px;
+    }
+    .box2{
+      width: 60px;
+      height: 60px;
+      background-color: #5cb85c;
+      border: 3px solid #3d8b3d;
+      border-radius: 8px;
+    }
+    .box3{
+      width: 70px;
+      height: 70px;
+      background-color: #f0ad4e;
+      border: 3px solid #d58512;
+      border-radius: 8px;
+    }
+    .box4{
+      width: 70px;
+      height: 70px;
+      background-color: #9b59b6;
+      border: 3px solid #7d3c98;
+      border-radius: 8px;
+    }
+    .box5{
+      width: 70px;
+      height: 70px;
+      background-color: #e91e63;
+      border: 3px solid #c2185b;
+      border-radius: 8px;
+    }
+    .box6{
+      width: 70px;
+      height: 70px;
+      background-color: #00bcd4;
+      border: 3px solid #0097a7;
+      border-radius: 8px;
+    }
+    .robot-head{
+      width: 80px;
+      height: 80px;
+      background-color: #4a90e2;
+      border: 3px solid #2c5aa0;
+      border-radius: 10px;
+    }
+    .robot-eye{
+      width: 20px;
+      height: 20px;
+      background-color: white;
+      border: 2px solid #333;
+      border-radius: 50%;
+    }
+    .robot-body{
+      width: 100px;
+      height: 60px;
+      background-color: #5cb85c;
+      border: 3px solid #3d8b3d;
+      border-radius: 8px;
+    }
+    .robot-arm{
+      width: 25px;
+      height: 50px;
+      background-color: #f0ad4e;
+      border: 3px solid #d58512;
+      border-radius: 5px;
+    }
+    .robot-leg{
+      width: 30px;
+      height: 40px;
+      background-color: #d9534f;
+      border: 3px solid #a93226;
+      border-radius: 5px;
+    }
+    .flex li:nth-child(1){
+      /* 水平垂直对齐 */
+      justify-content: center;
+      align-items: center;
+    }
+    .flex li:nth-child(2){
+      /* 垂直居中排列，盒子大小不同 */
+      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    .flex li:nth-child(3){
+      /* 三个盒子水平排列，均匀分布 */
+      justify-content: space-around;
+      align-items: center;
+    }
+    .flex li:nth-child(4){
+      /* 机器人布局 - 垂直排列 */
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+    }
+    .robot-eyes{
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+    .robot-arms{
+      display: flex;
+      gap: 50px;
+      justify-content: center;
+    }
+    .robot-legs{
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+    }
+    </style>
+</head>
+<body>
+  <h2>张语桐的flex</h2>
+  <ul class="flex">
+    <li><div class="box">张语桐</div></li>
+    <li><div class="box1">张语桐</div>
+      <div class="box2">张语桐</div></li>
+    <li>
+      <div class="box3">张语桐</div>
+      <div class="box4">张语桐</div>
+      <div class="box5">张语桐</div>
+    </li>
+    <li>
+      <!-- 机器人头部 -->
+      <div class="robot-head"></div>
+      <!-- 机器人身体 -->
+      <div class="robot-body"></div>
+      <!-- 机器人手臂 -->
+      <div class="robot-arms">
+        <div class="robot-arm"></div>
+        <div class="robot-arm"></div>
+      </div>
+      <!-- 机器人腿 -->
+      <div class="robot-legs">
+        <div class="robot-leg"></div>
+        <div class="robot-leg"></div>
+      </div>
+    </li>
+  </ul>
+</body>
+</html>

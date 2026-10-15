@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>张语桐 - 响应式视口演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px; /* 基准字体大小 */
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+            transition: background-color 0.5s ease;
+        }
+
+        .fullscreen-box {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .content {
+            text-align: center;
+            z-index: 10;
+            padding: 2rem;
+        }
+
+        .name {
+            color: white;
+            font-weight: bold;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+            letter-spacing: 0.5rem;
+            margin-bottom: 1rem;
+            transition: font-size 0.3s ease;
+        }
+
+        .description {
+            color: rgba(255,255,255,0.9);
+            transition: font-size 0.3s ease;
+        }
+
+        .viewport-info {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.5);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            z-index: 10;
+        }
+
+        .viewport-info p {
+            margin: 5px 0;
+            font-size: 0.875rem;
+        }
+
+        /* 装饰元素 */
+        .decoration {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            transition: all 0.5s ease;
+        }
+
+        .decoration:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            background: white;
+            top: -100px;
+            right: -100px;
+        }
+
+        .decoration:nth-child(2) {
+            width: 200px;
+            height: 200px;
+            background: white;
+            bottom: -50px;
+            left: -50px;
+        }
+
+        /*
+        =====================================================
+        Media Query 媒体查询 - 视口变化响应
+        =====================================================
+        */
+
+        /* 默认样式：小屏幕 (< 576px) - 手机竖屏 */
+        .fullscreen-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .name {
+            font-size: 2rem; /* 32px */
+        }
+
+        .description {
+            font-size: 0.875rem; /* 14px */
+        }
+
+        /* 小屏幕横屏 (≥ 576px) - 大手机/小平板 */
+        @media (min-width: 576px) {
+            html {
+                font-size: 16px;
+            }
+
+            .fullscreen-box {
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            }
+
+            .name {
+                font-size: 2.5rem; /* 40px */
+            }
+
+            .description {
+                font-size: 1rem; /* 16px */
+            }
+        }
+
+        /* 平板 (≥ 768px) */
+        @media (min-width: 768px) {
+            html {
+                font-size: 17px;
+            }
+
+            .fullscreen-box {
+                background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            }
+
+            .name {
+                font-size: 3rem; /* 51px */
+            }
+
+            .description {
+                font-size: 1.125rem; /* 19.125px */
+            }
+
+            .decoration:nth-child(1) {
+                width: 400px;
+                height: 400px;
+            }
+
+            .decoration:nth-child(2) {
+                width: 300px;
+                height: 300px;
+            }
+        }
+
+        /* 桌面显示器 (≥ 992px) */
+        @media (min-width: 992px) {
+            html {
+                font-size: 18px;
+            }
+
+            .fullscreen-box {
+                background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            }
+
+            .name {
+                font-size: 3.5rem; /* 63px */
+            }
+
+            .description {
+                font-size: 1.25rem; /* 22.5px */
+            }
+        }
+
+        /* 大桌面显示器 (≥ 1200px) */
+        @media (min-width: 1200px) {
+            html {
+                font-size: 19px;
+            }
+
+            .fullscreen-box {
+                background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            }
+
+            .name {
+                font-size: 4rem; /* 76px */
+                letter-spacing: 0.8rem;
+            }
+
+            .description {
+                font-size: 1.375rem; /* 26.125px */
+            }
+
+            .decoration:nth-child(1) {
+                width: 500px;
+                height: 500px;
+            }
+
+            .decoration:nth-child(2) {
+                width: 400px;
+                height: 400px;
+            }
+        }
+
+        /* 超大屏幕 (≥ 1400px) */
+        @media (min-width: 1400px) {
+            html {
+                font-size: 20px;
+            }
+
+            .fullscreen-box {
+                background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            }
+
+            .name {
+                font-size: 5rem; /* 100px */
+                letter-spacing: 1rem;
+            }
+
+            .description {
+                font-size: 1.5rem; /* 30px */
+            }
+        }
+
+        /* 打印样式 */
+        @media print {
+            .fullscreen-box {
+                background: white !important;
+                color: black !important;
+            }
+
+            .name, .description {
+                color: black !important;
+                text-shadow: none !important;
+            }
+
+            .viewport-info, .decoration {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="fullscreen-box" id="box">
+        <!-- 装饰圆圈 -->
+        <div class="decoration"></div>
+        <div class="decoration"></div>
+
+        <!-- 主要内容 -->
+        <div class="content">
+            <h1 class="name">张 语 桐</h1>
+            <p class="description">响应式视口演示 · Media Query · REM单位</p>
+        </div>
+
+        <!-- 视口信息显示 -->
+        <div class="viewport-info">
+            <p>📐 当前视口宽度：<span id="viewportWidth">0</span>px</p>
+            <p>📏 HTML根字体大小：<span id="htmlFontSize">0</span>px</p>
+            <p>📱 设备类型：<span id="deviceType">检测中...</span></p>
+        </div>
+    </div>
+
+    <script>
+        // 实时更新视口信息
+        function updateViewportInfo() {
+            const width = window.innerWidth;
+            const htmlFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+            const viewportWidthEl = document.getElementById('viewportWidth');
+            const htmlFontSizeEl = document.getElementById('htmlFontSize');
+            const deviceTypeEl = document.getElementById('deviceType');
+
+            // 更新数值
+            viewportWidthEl.textContent = width;
+            htmlFontSizeEl.textContent = htmlFontSize.toFixed(2);
+
+            // 判断设备类型
+            let deviceType = '';
+            if (width < 576) {
+                deviceType = '📱 手机竖屏';
+            } else if (width < 768) {
+                deviceType = '📱 手机横屏/大手机';
+            } else if (width < 992) {
+                deviceType = '📱 平板电脑';
+            } else if (width < 1200) {
+                deviceType = '💻 笔记本电脑';
+            } else if (width < 1400) {
+                deviceType = '🖥️ 桌面显示器';
+            } else {
+                deviceType = '🖥️ 大屏显示器';
+            }
+
+            deviceTypeEl.textContent = deviceType;
+        }
+
+        // 初始化
+        updateViewportInfo();
+
+        // 监听窗口大小变化
+        window.addEventListener('resize', updateViewportInfo);
+
+        // 监听方向变化（移动设备）
+        window.addEventListener('orientationchange', function() {
+            setTimeout(updateViewportInfo, 100);
+        });
+    </script>
+</body>
+</html>

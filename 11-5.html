@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>11-5 3D画廊</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+      background-color: #f5f7fb;
+      color: #333;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    .zyt_page_title {
+      font-size: 1.8em;
+      margin-bottom: 6px;
+    }
+
+    .zyt_subtitle {
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    .zyt_section {
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .zyt_section_title {
+      font-size: 1.3em;
+      color: #4a90e2;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #4a90e2;
+      display: inline-block;
+    }
+
+    .zyt_demo_title {
+      font-size: 1.05em;
+      font-weight: bold;
+      color: #333;
+      margin: 16px 0 8px;
+    }
+
+    .zyt_note {
+      font-size: 0.9em;
+      color: #777;
+      margin-bottom: 10px;
+    }
+
+    /* ========== 一、圆柱旋转画廊 ========== */
+    @keyframes zyt_cyl_spin {
+      from { transform: rotateY(0deg); }
+      to   { transform: rotateY(360deg); }
+    }
+
+    .zyt_cyl_stage {
+      position: relative;
+      height: 300px;
+      perspective: 1100px;
+      background-color: #eef4ff;
+      border: 1px dashed #4a90e2;
+      border-radius: 6px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .zyt_cylinder {
+      position: relative;
+      width: 150px;
+      height: 200px;
+      transform-style: preserve-3d;
+      animation: zyt_cyl_spin 30s linear infinite;
+    }
+
+    .zyt_cyl_stage:hover .zyt_cylinder {
+      animation-play-state: paused;
+    }
+
+    .zyt_cyl_card {
+      position: absolute;
+      inset: 0;
+      border: 3px solid #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+      transform: rotateY(var(--zyt_a)) translateZ(290px);
+      transition: transform 0.4s ease;
+      backface-visibility: hidden;
+    }
+
+    .zyt_cyl_card:hover {
+      transform: rotateY(var(--zyt_a)) translateZ(370px);
+    }
+
+    .zyt_cyl_card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .zyt_cyl_card:nth-child(1)  { --zyt_a: 0deg; }
+    .zyt_cyl_card:nth-child(2)  { --zyt_a: 30deg; }
+    .zyt_cyl_card:nth-child(3)  { --zyt_a: 60deg; }
+    .zyt_cyl_card:nth-child(4)  { --zyt_a: 90deg; }
+    .zyt_cyl_card:nth-child(5)  { --zyt_a: 120deg; }
+    .zyt_cyl_card:nth-child(6)  { --zyt_a: 150deg; }
+    .zyt_cyl_card:nth-child(7)  { --zyt_a: 180deg; }
+    .zyt_cyl_card:nth-child(8)  { --zyt_a: 210deg; }
+    .zyt_cyl_card:nth-child(9)  { --zyt_a: 240deg; }
+    .zyt_cyl_card:nth-child(10) { --zyt_a: 270deg; }
+    .zyt_cyl_card:nth-child(11) { --zyt_a: 300deg; }
+    .zyt_cyl_card:nth-child(12) { --zyt_a: 330deg; }
+
+    .zyt_hover_hint {
+      position: absolute;
+      right: 10px;
+      bottom: 6px;
+      font-size: 12px;
+      color: #888;
+      z-index: 2;
+    }
+
+    /* ========== 二、3D 房间画廊 ========== */
+    @keyframes zyt_room_sway {
+      from { transform: rotateX(-10deg) rotateY(6deg); }
+      to   { transform: rotateX(-5deg) rotateY(24deg); }
+    }
+
+    .zyt_room_stage {
+      position: relative;
+      height: 340px;
+      perspective: 900px;
+      background: linear-gradient(180deg, #1b2735, #2c3e50);
+      border-radius: 6px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .zyt_room {
+      position: relative;
+      width: 300px;
+      height: 200px;
+      transform-style: preserve-3d;
+      animation: zyt_room_sway 9s ease-in-out infinite alternate;
+    }
+
+    .zyt_room_stage:hover .zyt_room {
+      animation-play-state: paused;
+    }
+
+    .zyt_wall {
+      position: absolute;
+      background-color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      padding: 8px;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .zyt_wall img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 4px;
+    }
+
+    /* 后墙：300×200，与父容器同尺寸，直接定位 0,0 */
+    .zyt_wall_back {
+      left: 0;
+      top: 0;
+      width: 300px;
+      height: 200px;
+      transform: translateZ(-100px);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 8px;
+    }
+
+    /* 左右墙：200×200（宽 = 房间进深），水平居中后旋转 */
+    .zyt_wall_left {
+      left: 50%;
+      top: 0;
+      margin-left: -100px;
+      width: 200px;
+      height: 200px;
+      transform: rotateY(-90deg) translateZ(150px);
+    }
+
+    .zyt_wall_right {
+      left: 50%;
+      top: 0;
+      margin-left: -100px;
+      width: 200px;
+      height: 200px;
+      transform: rotateY(90deg) translateZ(150px);
+    }
+
+    /* 地板 / 天花板：300×200（宽 × 进深） */
+    .zyt_wall_floor {
+      left: 0;
+      top: 0;
+      width: 300px;
+      height: 200px;
+      transform: rotateX(-90deg) translateZ(100px);
+    }
+
+    .zyt_wall_ceiling {
+      left: 0;
+      top: 0;
+      width: 300px;
+      height: 200px;
+      transform: rotateX(90deg) translateZ(100px);
+      opacity: 0.9;
+    }
+
+    /* ========== 三、翻转画廊 ========== */
+    .zyt_flip_grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: center;
+      background-color: #eef4ff;
+      border: 1px dashed #4a90e2;
+      border-radius: 6px;
+      padding: 18px;
+    }
+
+    .zyt_fg_card {
+      width: 180px;
+      height: 130px;
+      perspective: 600px;
+      cursor: pointer;
+    }
+
+    .zyt_fg_inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.6s ease;
+    }
+
+    .zyt_fg_card:hover .zyt_fg_inner {
+      transform: rotateX(180deg);
+    }
+
+    .zyt_fg_face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .zyt_fg_front img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .zyt_fg_back {
+      transform: rotateX(180deg);
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .zyt_fg_back strong {
+      font-size: 1.1em;
+      margin-bottom: 4px;
+    }
+
+    .zyt_fg_back span {
+      font-size: 0.85em;
+      opacity: 0.9;
+    }
+
+    /* ========== 四、实现要点 ========== */
+    .zyt_prop_grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+    }
+
+    .zyt_prop_card {
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-left: 5px solid #4a90e2;
+      border-radius: 6px;
+      padding: 12px 14px;
+    }
+
+    .zyt_prop_card h4 {
+      color: #2c5aa0;
+      font-size: 1.05em;
+      margin-bottom: 4px;
+    }
+
+    .zyt_prop_card h4 code {
+      background-color: #e7f0fd;
+      padding: 1px 6px;
+      border-radius: 4px;
+      color: #d9534f;
+    }
+
+    .zyt_prop_card p {
+      font-size: 0.92em;
+      color: #555;
+    }
+
+    .zyt_code_block {
+      background-color: #2d2d2d;
+      color: #f8f8f2;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92em;
+      padding: 14px;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin: 10px 0;
+      line-height: 1.5;
+    }
+
+    .zyt_code_block .zyt_key { color: #f92672; }
+    .zyt_code_block .zyt_val { color: #a6e22e; }
+    .zyt_code_block .zyt_cmt { color: #75715e; }
+
+    .zyt_tip {
+      background-color: #fff8e6;
+      border-left: 5px solid #f0ad4e;
+      padding: 12px 14px;
+      border-radius: 5px;
+      font-size: 0.95em;
+      color: #665200;
+      margin-top: 14px;
+    }
+
+    .zyt_footer {
+      text-align: center;
+      color: #999;
+      font-size: 0.9em;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2 class="zyt_page_title">🖼️ 11-5 3D画廊</h2>
+  <p class="zyt_subtitle">第11章练习5 - 用 CSS3 3D 技术展示 img 目录下的全部图片（10.jpg ~ 34.jpg，共 25 张）</p>
+
+  <!-- 一、圆柱旋转画廊 -->
+  <section class="zyt_section">
+    <h3 class="zyt_section_title">🎠 一、圆柱旋转画廊（img/10.jpg ~ 21.jpg，12 张）</h3>
+    <p class="zyt_note">12 张图片绕 Y 轴均匀排成圆柱（每张 rotateY 相差 30°），整体自动旋转；<b>悬停暂停，点住某张卡片会向你"走近"</b>。</p>
+    <div class="zyt_cyl_stage">
+      <div class="zyt_cylinder">
+        <div class="zyt_cyl_card"><img src="img/10.jpg" alt="图片10"></div>
+        <div class="zyt_cyl_card"><img src="img/11.jpg" alt="图片11"></div>
+        <div class="zyt_cyl_card"><img src="img/12.jpg" alt="图片12"></div>
+        <div class="zyt_cyl_card"><img src="img/13.jpg" alt="图片13"></div>
+        <div class="zyt_cyl_card"><img src="img/14.jpg" alt="图片14"></div>
+        <div class="zyt_cyl_card"><img src="img/15.jpg" alt="图片15"></div>
+        <div class="zyt_cyl_card"><img src="img/16.jpg" alt="图片16"></div>
+        <div class="zyt_cyl_card"><img src="img/17.jpg" alt="图片17"></div>
+        <div class="zyt_cyl_card"><img src="img/18.jpg" alt="图片18"></div>
+        <div class="zyt_cyl_card"><img src="img/19.jpg" alt="图片19"></div>
+        <div class="zyt_cyl_card"><img src="img/20.jpg" alt="图片20"></div>
+        <div class="zyt_cyl_card"><img src="img/21.jpg" alt="图片21"></div>
+      </div>
+      <span class="zyt_hover_hint">hover 暂停 + 卡片前移 →</span>
+    </div>
+
+    <div class="zyt_code_block">
+      <span class="zyt_cmt">/* 圆柱半径公式：r = (卡片宽 ÷ 2) ÷ tan(180° ÷ 张数) */</span><br>
+      <span class="zyt_cmt">/* 12 张：r = 75 ÷ tan(15°) ≈ 280px，取 290px 留缝隙 */</span><br>
+      .zyt_cyl_card { <span class="zyt_key">transform</span>: <span class="zyt_val">rotateY(var(--zyt_a)) translateZ(290px)</span>; }
+    </div>
+  </section>
+
+  <!-- 二、3D 房间画廊 -->
+  <section class="zyt_section">
+    <h3 class="zyt_section_title">🏠 二、3D 房间画廊（img/22.jpg ~ 29.jpg，8 张）</h3>
+    <p class="zyt_note">后墙 4 张（2×2）、左右墙各 1 张、地板和天花板各 1 张，围成一个敞口房间；视角自动缓慢摇摆，悬停暂停。</p>
+    <div class="zyt_room_stage">
+      <div class="zyt_room">
+        <div class="zyt_wall zyt_wall_back">
+          <img src="img/22.jpg" alt="后墙图片22">
+          <img src="img/23.jpg" alt="后墙图片23">
+          <img src="img/24.jpg" alt="后墙图片24">
+          <img src="img/25.jpg" alt="后墙图片25">
+        </div>
+        <div class="zyt_wall zyt_wall_left">
+          <img src="img/26.jpg" alt="左墙图片26">
+        </div>
+        <div class="zyt_wall zyt_wall_right">
+          <img src="img/27.jpg" alt="右墙图片27">
+        </div>
+        <div class="zyt_wall zyt_wall_floor">
+          <img src="img/28.jpg" alt="地板图片28">
+        </div>
+        <div class="zyt_wall zyt_wall_ceiling">
+          <img src="img/29.jpg" alt="天花板图片29">
+        </div>
+      </div>
+      <span class="zyt_hover_hint">hover 定格视角 →</span>
+    </div>
+
+    <div class="zyt_code_block">
+      <span class="zyt_cmt">/* 房间 300×200×200（半：150 / 100 / 100），敞口朝向观众 */</span><br>
+      .zyt_wall_back&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="zyt_key">transform</span>: <span class="zyt_val">translateZ(-100px)</span>; }<br>
+      .zyt_wall_left&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="zyt_key">transform</span>: <span class="zyt_val">rotateY(-90deg) translateZ(150px)</span>; }<br>
+      .zyt_wall_right&nbsp;&nbsp;&nbsp;{ <span class="zyt_key">transform</span>: <span class="zyt_val">rotateY(90deg) translateZ(150px)</span>; }<br>
+      .zyt_wall_floor&nbsp;&nbsp;&nbsp;{ <span class="zyt_key">transform</span>: <span class="zyt_val">rotateX(-90deg) translateZ(100px)</span>; }<br>
+      .zyt_wall_ceiling { <span class="zyt_key">transform</span>: <span class="zyt_val">rotateX(90deg) translateZ(100px)</span>; }
+    </div>
+  </section>
+
+  <!-- 三、翻转画廊 -->
+  <section class="zyt_section">
+    <h3 class="zyt_section_title">🃏 三、翻转画廊（img/30.jpg ~ 34.jpg，5 张）</h3>
+    <p class="zyt_note">正面是图片，<b>悬停沿 X 轴翻面</b>，背面显示文件名说明（backface-visibility: hidden 保证不穿帮）。</p>
+    <div class="zyt_flip_grid">
+      <div class="zyt_fg_card">
+        <div class="zyt_fg_inner">
+          <div class="zyt_fg_face zyt_fg_front">
+            <img src="img/30.jpg" alt="图片30">
+          </div>
+          <div class="zyt_fg_face zyt_fg_back">
+            <strong>30.jpg</strong>
+            <span>翻转画廊 · 正面欣赏，hover 看名片</span>
+          </div>
+        </div>
+      </div>
+      <div class="zyt_fg_card">
+        <div class="zyt_fg_inner">
+          <div class="zyt_fg_face zyt_fg_front">
+            <img src="img/31.jpg" alt="图片31">
+          </div>
+          <div class="zyt_fg_face zyt_fg_back">
+            <strong>31.jpg</strong>
+            <span>翻转画廊 · 正面欣赏，hover 看名片</span>
+          </div>
+        </div>
+      </div>
+      <div class="zyt_fg_card">
+        <div class="zyt_fg_inner">
+          <div class="zyt_fg_face zyt_fg_front">
+            <img src="img/32.jpg" alt="图片32">
+          </div>
+          <div class="zyt_fg_face zyt_fg_back">
+            <strong>32.jpg</strong>
+            <span>翻转画廊 · 正面欣赏，hover 看名片</span>
+          </div>
+        </div>
+      </div>
+      <div class="zyt_fg_card">
+        <div class="zyt_fg_inner">
+          <div class="zyt_fg_face zyt_fg_front">
+            <img src="img/33.jpg" alt="图片33">
+          </div>
+          <div class="zyt_fg_face zyt_fg_back">
+            <strong>33.jpg</strong>
+            <span>翻转画廊 · 正面欣赏，hover 看名片</span>
+          </div>
+        </div>
+      </div>
+      <div class="zyt_fg_card">
+        <div class="zyt_fg_inner">
+          <div class="zyt_fg_face zyt_fg_front">
+            <img src="img/34.jpg" alt="图片34">
+          </div>
+          <div class="zyt_fg_face zyt_fg_back">
+            <strong>34.jpg</strong>
+            <span>翻转画廊 · 正面欣赏，hover 看名片</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 四、实现要点 -->
+  <section class="zyt_section">
+    <h3 class="zyt_section_title">📋 四、实现要点回顾</h3>
+    <div class="zyt_prop_grid">
+      <div class="zyt_prop_card">
+        <h4><code>透视放舞台</code></h4>
+        <p>perspective 写在最外层舞台（stage）上，整个场景才有统一景深。</p>
+      </div>
+      <div class="zyt_prop_card">
+        <h4><code>preserve-3d 放容器</code></h4>
+        <p>圆柱、房间这些"装配体"必须 transform-style: preserve-3d，否则子元素被压平。</p>
+      </div>
+      <div class="zyt_prop_card">
+        <h4><code>--zyt_a 自定义属性</code></h4>
+        <p>每张卡片只存自己的角度，hover 时只需改 translateZ 就能向前移动，不用重复写整串 transform。</p>
+      </div>
+      <div class="zyt_prop_card">
+        <h4><code>backface-visibility</code></h4>
+        <p>圆柱背面的图片和翻转卡背面自动隐藏，转过去不穿帮、不显示镜像。</p>
+      </div>
+    </div>
+
+    <div class="zyt_tip">
+      💡 <strong>小技巧：</strong>①图片统一 <code>object-fit: cover</code>，无论原图比例如何都能填满卡片不变形；②圆柱张数变化时用公式重算半径即可（如 16 张 → r = 75 ÷ tan(11.25°) ≈ 377px）；③3D 容器上不要加 <code>overflow: hidden</code> / <code>filter</code>，会被强制压平——裁剪要留给外层舞台做。
+    </div>
+  </section>
+
+  <footer class="zyt_footer">
+    <p>© 2026 张语桐 | 学号：830 | 《高级网页设计》课程实践 · 11-5 3D画廊</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>张语桐 - 响应式盒子布局</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+        }
+
+        body {
+            min-width: 320px;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+            transition: background 0.5s ease;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* 标题区域 */
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: 3px;
+        }
+
+        .header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            letter-spacing: 1px;
+        }
+
+        /* 盒子容器 - 使用CSS Grid */
+        .grid-container {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(1, 1fr);
+            transition: all 0.3s ease;
+        }
+
+        /* 单个盒子样式 */
+        .box {
+            background: white;
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .box:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .box-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .box-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .box-name {
+            font-size: 1rem;
+            color: #764ba2;
+            font-weight: 600;
+        }
+
+        .box-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        /* 不同盒子的渐变背景 */
+        .box:nth-child(1) { border-top: 4px solid #ff6b6b; }
+        .box:nth-child(2) { border-top: 4px solid #4ecdc4; }
+        .box:nth-child(3) { border-top: 4px solid #45b7d1; }
+        .box:nth-child(4) { border-top: 4px solid #f9ca24; }
+        .box:nth-child(5) { border-top: 4px solid #a55eea; }
+        .box:nth-child(6) { border-top: 4px solid #26de81; }
+        .box:nth-child(7) { border-top: 4px solid #fd9644; }
+        .box:nth-child(8) { border-top: 4px solid #fc5c65; }
+
+        /* 视口信息面板 */
+        .viewport-info {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .viewport-info h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.25rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        /*
+        =====================================================
+        Media Query 媒体查询 - 3个主要断点
+        =====================================================
+        */
+
+        /* 默认样式：< 576px (手机竖屏) - 每行1个盒子 */
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .grid-container {
+            grid-template-columns: repeat(1, 1fr);
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+        }
+
+        .box {
+            padding: 25px 15px;
+        }
+
+        .box-number {
+            font-size: 2rem;
+        }
+
+        .box-icon {
+            font-size: 2.5rem;
+        }
+
+        /*
+        ============================================
+        Media Query 1: ≥ 576px (手机横屏/大手机)
+        每行显示 2 个盒子
+        ============================================
+        */
+        @media (min-width: 576px) {
+            body {
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            }
+
+            .grid-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 25px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .box {
+                padding: 30px 20px;
+            }
+
+            .box-number {
+                font-size: 2.25rem;
+            }
+
+            .box-icon {
+                font-size: 2.75rem;
+            }
+        }
+
+        /*
+        ============================================
+        Media Query 2: ≥ 768px (平板)
+        每行显示 3 个盒子
+        ============================================
+        */
+        @media (min-width: 768px) {
+            html {
+                font-size: 17px;
+            }
+
+            body {
+                background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            }
+
+            .grid-container {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 25px;
+            }
+
+            .header h1 {
+                font-size: 2.25rem;
+            }
+
+            .box {
+                padding: 35px 25px;
+            }
+
+            .box-number {
+                font-size: 2.5rem;
+            }
+
+            .box-icon {
+                font-size: 3rem;
+            }
+
+            .info-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /*
+        ============================================
+        Media Query 3: ≥ 992px (桌面显示器)
+        每行显示 4 个盒子
+        ============================================
+        */
+        @media (min-width: 992px) {
+            html {
+                font-size: 18px;
+            }
+
+            body {
+                background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            }
+
+            .container {
+                padding: 0 20px;
+            }
+
+            .grid-container {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 30px;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 2.5rem;
+                letter-spacing: 5px;
+            }
+
+            .header p {
+                font-size: 1rem;
+            }
+
+            .box {
+                padding: 40px 25px;
+            }
+
+            .box-number {
+                font-size: 2.75rem;
+            }
+
+            .box-icon {
+                font-size: 3.25rem;
+            }
+
+            .viewport-info {
+                padding: 25px;
+            }
+
+            .info-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        /* 额外优化：超大屏幕 */
+        @media (min-width: 1200px) {
+            html {
+                font-size: 19px;
+            }
+
+            .grid-container {
+                gap: 35px;
+            }
+
+            .box {
+                padding: 45px 30px;
+            }
+
+            .box-number {
+                font-size: 3rem;
+            }
+
+            .box-icon {
+                font-size: 3.5rem;
+            }
+        }
+
+        /* 打印样式 */
+        @media print {
+            body {
+                background: white !important;
+                min-width: auto !important;
+            }
+
+            .box {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+
+            .viewport-info {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 标题 -->
+        <div class="header">
+            <h1>张 语 桐</h1>
+            <p>Media Query 响应式布局 · 8个盒子 · 3个断点</p>
+        </div>
+
+        <!-- 视口信息面板 -->
+        <div class="viewport-info">
+            <h3>📊 当前视口信息</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">📐 视口宽度</div>
+                    <div class="info-value"><span id="width">0</span>px</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">📦 每行盒子数</div>
+                    <div class="info-value"><span id="columns">1</span>个</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">📱 设备类型</div>
+                    <div class="info-value" id="device">手机</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">🎨 背景主题</div>
+                    <div class="info-value" id="theme">紫色</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8个盒子容器 -->
+        <div class="grid-container">
+            <!-- 盒子 1 -->
+            <div class="box">
+                <div class="box-icon">🎨</div>
+                <div class="box-number">01</div>
+                <div class="box-title">创意设计</div>
+                <div class="box-name">张语桐</div>
+            </div>
+
+            <!-- 盒子 2 -->
+            <div class="box">
+                <div class="box-icon">💻</div>
+                <div class="box-number">02</div>
+                <div class="box-title">前端开发</div>
+                <div class="box-name">张语桐</div>
+            </div>
+
+            <!-- 盒子 3 -->
+            <div class="box">
+                <div class="box-icon">📱</div>
+                <div class="box-number">03</div>
+                <div class="box-title">移动应用</div>
+                <div class="box-name">张语桐</div>
+            </div>
+
+            <!-- 盒子 4 -->
+            <div class="box">
+                <div class="box-icon">🎯</div>
+                <div class="box-number">04</div>
+                <div class="box-title">用户体验</div>
+                <div class="box-name">张语桐</div>
+            </div>
+
+            <!-- 盒子 5 -->
+            <div class="box">
+                <div class="box-icon">⚡</div>
+                <div class="box-number">05</div>
+                <div class="box-title">性能优化</div>
+                <div class="box-name">张语桐</div>
+            </div>
+
+            <!-- 盒子 6 -->
+            <div class="box">
+                <div class="box-icon">🔧</div>
+                <div class="box-number">06</div>
+                <div class="box-title">技术架构</div>
+                <div class="box-name">张语桐</div>
+            </div>
+
+            <!-- 盒子 7 -->
+            <div class="box">
+                <div class="box-icon">🚀</div>
+                <div class="box-number">07</div>
+                <div class="box-title">项目部署</div>
+                <div class="box-name">张语桐</div>
+            </div>
+
+            <!-- 盒子 8 -->
+            <div class="box">
+                <div class="box-icon">💡</div>
+                <div class="box-number">08</div>
+                <div class="box-title">创新思维</div>
+                <div class="box-name">张语桐</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateInfo() {
+            const width = window.innerWidth;
+            
+            // 更新宽度
+            document.getElementById('width').textContent = width;
+
+            // 判断列数和设备类型
+            let columns = 1;
+            let device = '手机';
+            let theme = '紫蓝';
+
+            if (width >= 992) {
+                columns = 4;
+                device = '桌面';
+                theme = '粉黄';
+            } else if (width >= 768) {
+                columns = 3;
+                device = '平板';
+                theme = '蓝青';
+            } else if (width >= 576) {
+                columns = 2;
+                device = '大手机';
+                theme = '粉红';
+            }
+
+            // 更新显示
+            document.getElementById('columns').textContent = columns;
+            document.getElementById('device').textContent = device;
+            document.getElementById('theme').textContent = theme;
+        }
+
+        // 初始化
+        updateInfo();
+
+        // 监听窗口变化
+        window.addEventListener('resize', updateInfo);
+
+        // 监听方向变化
+        window.addEventListener('orientationchange', function() {
+            setTimeout(updateInfo, 100);
+        });
+    </script>
+</body>
+</html>

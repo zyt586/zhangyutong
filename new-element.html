@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>图书分类导航</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body { height: 100%; }
+      body {
+        font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+        background: #f5f3f0;
+        color: #333;
+      }
+
+      .page-shell {
+        width: 1120px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+        padding: 18px 0 20px;
+      }
+
+      .layout {
+        display: flex;
+        align-items: flex-start;
+        min-height: 600px;
+      }
+
+      .category-nav {
+        position: relative;
+        width: 260px;
+        background: #fff;
+        padding: 8px 0;
+        border-right: 1px solid #f1ece7;
+      }
+
+      .nav-list {
+        list-style: none;
+      }
+
+      .nav-item {
+        position: relative;
+        padding: 0 18px;
+      }
+
+      .nav-trigger {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 16px 18px 16px 14px;
+        border-radius: 8px;
+        color: #d73d3d;
+        font-size: 16px;
+        font-weight: 700;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        transition: background 0.18s ease, color 0.18s ease;
+        text-align: left;
+      }
+
+      .nav-trigger:hover,
+      .nav-item.active .nav-trigger {
+        background: #fff6f6;
+      }
+
+      .nav-trigger .arrow {
+        color: #d73d3d;
+        font-size: 18px;
+        line-height: 1;
+      }
+
+      .nav-panel {
+        position: absolute;
+        top: 50%;
+        left: calc(100% + 10px);
+        transform: translateY(-50%);
+        width: 560px;
+        background: #fff;
+        border: 1px solid #f1ece7;
+        border-radius: 10px;
+        box-shadow: 0 16px 28px rgba(107, 67, 66, 0.09);
+        padding: 18px 20px;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.16s ease, visibility 0.16s ease;
+        z-index: 10;
+      }
+
+      .nav-item.active .nav-panel,
+      .nav-item:hover .nav-panel {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .panel-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px 18px;
+      }
+
+      .panel-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 7px 14px;
+        border-radius: 999px;
+        background: #fff;
+        color: #2b2b2b;
+        font-size: 14px;
+        text-decoration: none;
+        border: 1px solid #f0efed;
+        transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+      }
+
+      .panel-link:hover {
+        background: #fff5f5;
+        color: #d33b3b;
+        border-color: #f7d7d7;
+      }
+
+      .content {
+        flex: 1;
+        min-height: 560px;
+        background: linear-gradient(180deg, #fffaf7 0%, #fff 100%);
+        padding: 30px;
+      }
+
+      .content-card {
+        background: #fff;
+        border: 1px solid #f3eee9;
+        border-radius: 16px;
+        padding: 28px 26px;
+        min-height: 500px;
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4);
+      }
+
+      .content-card h2 {
+        font-size: 28px;
+        color: #2c2c2c;
+        margin-bottom: 14px;
+      }
+
+      .content-card p {
+        color: #666;
+        font-size: 15px;
+        line-height: 1.9;
+      }
+
+      .mini-list {
+        margin-top: 22px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 14px;
+      }
+
+      .mini-item {
+        padding: 12px 14px;
+        border-radius: 10px;
+        background: #fff7f7;
+        border: 1px solid #f8e5e5;
+        color: #5a5a5a;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app" class="page-shell">
+      <div class="layout">
+        <aside class="category-nav">
+          <ul class="nav-list">
+            <li
+              v-for="item in categories"
+              :key="item.id"
+              class="nav-item"
+              :class="{ active: activeId === item.id }"
+              @mouseenter="setActive(item.id)"
+              @mouseleave="clearActive()"
+            >
+              <button type="button" class="nav-trigger" @click="goToList(item)">
+                <span>{{ item.name }}</span>
+                <span class="arrow">→</span>
+              </button>
+
+              <div class="nav-panel">
+                <div class="panel-grid">
+                  <a
+                    v-for="sub in item.children"
+                    :key="sub"
+                    href="#"
+                    class="panel-link"
+                    @click.prevent="goToList(item, sub)"
+                  >
+                    {{ sub }}
+                  </a>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </aside>
+
+        <main class="content">
+          <div class="content-card">
+            <h2>图书分类</h2>
+            <p>精选文学、社科、少儿、艺术、生活和文教类图书，点击左侧分类可查看对应列表页。</p>
+            <div class="mini-list">
+              <div class="mini-item" v-for="item in categories.slice(0, 4)" :key="item.id">
+                {{ item.name }} · {{ item.children.length }} 个细分方向
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script src="./node_modules/vue/dist/vue.global.prod.js"></script>
+    <script>
+      const { createApp, ref } = Vue;
+
+      createApp({
+        setup() {
+          const categories = ref([
+            {
+              id: 'wenxue',
+              name: '文学',
+              children: ['小说', '青春文学', '中国散文', '外国散文', '悬疑推理', '文学理论', '文集', '世界名著']
+            },
+            {
+              id: 'sheke',
+              name: '社科',
+              children: ['历史', '哲学', '宗教', '社会科学', '政治军事', '传记', '文化', '古籍', '管理', '经济', '成功励志', '法律', '语言文字']
+            },
+            {
+              id: 'shaoer',
+              name: '少儿',
+              children: ['中国儿童文学', '外国儿童文学', '科普读物', '绘本', '动漫/卡通', '幼儿启蒙']
+            },
+            {
+              id: 'yishu',
+              name: '艺术',
+              children: ['绘画', '书法篆刻', '艺术理论', '摄影', '音乐']
+            },
+            {
+              id: 'shenghuo',
+              name: '生活',
+              children: ['美食', '保健/心理健康', '旅游', '家庭教育', '家居休闲']
+            },
+            {
+              id: 'wenjiao',
+              name: '文教',
+              children: ['中小学教辅', '外语', '教材', '医学', '计算机', '自然科学']
+            }
+          ]);
+
+          const activeId = ref('');
+
+          const setActive = (id) => {
+            activeId.value = id;
+          };
+
+          const clearActive = () => {
+            activeId.value = '';
+          };
+
+          const goToList = (item, sub) => {
+            const target = sub ? `${item.name}-${sub}` : item.name;
+            window.location.href = `new-element-list.html?category=${encodeURIComponent(target)}`;
+          };
+
+          return {
+            categories,
+            activeId,
+            setActive,
+            clearActive,
+            goToList
+          };
+        }
+      }).mount('#app');
+    </script>
+  </body>
+</html>

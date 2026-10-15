@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>张语桐 - CSS Animation 幻灯片</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+        }
+
+        .slideshow-container {
+            width: 900px;
+            max-width: 100%;
+            background: #fff;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+        }
+
+        .title-area {
+            padding: 30px;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .title-area h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: 4px;
+        }
+
+        .title-area p {
+            font-size: 14px;
+            opacity: 0.9;
+            letter-spacing: 2px;
+        }
+
+        .slideshow {
+            position: relative;
+            width: 100%;
+            height: 550px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .slide img {
+            width: 100%;
+            height: 450px;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* 文字叠加：透明背景、黑底白字 */
+        .slide-text {
+            position: absolute;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(0, 0, 0, 0.75);
+            color: white;
+            padding: 18px 50px;
+            font-size: 28px;
+            font-weight: bold;
+            border-radius: 15px;
+            text-align: center;
+            backdrop-filter: blur(8px);
+            border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            letter-spacing: 3px;
+            z-index: 5;
+        }
+
+        /* 幻灯片动画 - 使用位置变换而非透明度 */
+        .slide:nth-child(1) {
+            animation: slideRightIn 15s ease-in-out infinite;
+            z-index: 3;
+        }
+
+        .slide:nth-child(2) {
+            animation: slideLeftIn 15s ease-in-out infinite;
+            animation-delay: -10s;  /* 负延迟：动画已进行到第2张的时间点 */
+            z-index: 2;
+        }
+
+        .slide:nth-child(3) {
+            animation: slideZoomIn 15s ease-in-out infinite;
+            animation-delay: -5s;   /* 负延迟：动画已进行到第3张的时间点 */
+            z-index: 1;
+        }
+
+        @keyframes slideRightIn {
+            0% { transform: translateX(100%); opacity: 1; }
+            6.66%, 33.33% { transform: translateX(0); opacity: 1; pointer-events: auto; }
+            40%, 93.33% { transform: translateX(-100%); opacity: 1; pointer-events: none; }
+            100% { transform: translateX(-100%); opacity: 0; }
+        }
+
+        @keyframes slideLeftIn {
+            0%, 33.33% { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+            40%, 66.66% { transform: translateX(0); opacity: 1; pointer-events: auto; }
+            73.33%, 93.33% { transform: translateX(100%); opacity: 1; pointer-events: none; }
+            100% { transform: translateX(100%); opacity: 0; }
+        }
+
+        @keyframes slideZoomIn {
+            0%, 66.66% { transform: scale(0) rotate(-10deg); opacity: 0; pointer-events: none; }
+            73.33%, 93.33% { transform: scale(1) rotate(0deg); opacity: 1; pointer-events: auto; }
+            100% { transform: scale(1.2) rotate(5deg); opacity: 0; pointer-events: none; }
+        }
+
+        /* 扩展功能：进度条 */
+        .progress-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            z-index: 15;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00d9ff, #667eea, #764ba2);
+            width: 0%;
+            animation: progressMove 15s linear infinite;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.8);
+            transition: width 0.3s ease;
+        }
+
+        @keyframes progressMove {
+            0% { width: 0%; }
+            33.33% { width: 33.33%; }
+            66.66% { width: 66.66%; }
+            100% { width: 100%; }
+        }
+
+        /* 扩展功能：缩略图导航 */
+        .thumbnail-nav {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 10;
+            padding: 15px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .thumb {
+            width: 80px;
+            height: 60px;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            opacity: 0.6;
+            transform: scale(0.9);
+        }
+
+        .thumb:hover {
+            opacity: 0.9;
+            transform: scale(1);
+        }
+
+        .thumb.active {
+            border-color: #00d9ff;
+            opacity: 1;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.6);
+        }
+
+        .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* 导航按钮 */
+        .nav-btn {
+            position: absolute;
+            top: 200px;
+            width: 55px;
+            height: 55px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            font-size: 28px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 12;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .nav-btn:hover {
+            background: rgba(102, 126, 234, 0.9);
+            border-color: #00d9ff;
+            transform: scale(1.15);
+            box-shadow: 0 0 25px rgba(0, 217, 255, 0.6);
+        }
+
+        .nav-prev { left: 20px; }
+        .nav-next { right: 20px; }
+
+        /* 幻灯片计数器 */
+        .slide-counter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            z-index: 10;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* 自动播放控制 */
+        .autoplay-toggle {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            cursor: pointer;
+            z-index: 10;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+
+        .autoplay-toggle:hover {
+            background: rgba(102, 126, 234, 0.9);
+            border-color: #00d9ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- 标题区域 -->
+        <div class="title-area">
+            <h1>张 语 桐</h1>
+            <p>CSS Animation 图片位置动画切换 · 纯CSS实现</p>
+        </div>
+
+        <!-- 幻灯片主体 -->
+        <div class="slideshow" id="slideshow">
+            <!-- 幻灯片1：从右滑入 -->
+            <div class="slide">
+                <img src="img/11.jpg" alt="图片1">
+                <div class="slide-text">张 语 桐</div>
+            </div>
+
+            <!-- 幻灯片2：从左滑入 -->
+            <div class="slide">
+                <img src="img/12.jpg" alt="图片2">
+                <div class="slide-text">张 语 桐</div>
+            </div>
+
+            <!-- 幻灯片3：缩放旋转进入 -->
+            <div class="slide">
+                <img src="img/13.jpg" alt="图片3">
+                <div class="slide-text">张 语 桐</div>
+            </div>
+
+            <!-- 控制按钮 -->
+            <button class="nav-btn nav-prev" onclick="prevSlide()">❮</button>
+            <button class="nav-btn nav-next" onclick="nextSlide()">❯</button>
+
+            <!-- 计数器 -->
+            <div class="slide-counter">
+                <span id="currentNum">1</span> / 3
+            </div>
+
+            <!-- 自动播放开关 -->
+            <button class="autoplay-toggle" onclick="toggleAutoplay()" id="autoBtn">
+                ⏸️ 暂停
+            </button>
+
+            <!-- 缩略图导航（扩展） -->
+            <div class="thumbnail-nav">
+                <div class="thumb active" onclick="goToSlide(0)">
+                    <img src="img/11.jpg" alt="缩略图1">
+                </div>
+                <div class="thumb" onclick="goToSlide(1)">
+                    <img src="img/12.jpg" alt="缩略图2">
+                </div>
+                <div class="thumb" onclick="goToSlide(2)">
+                    <img src="img/13.jpg" alt="缩略图3">
+                </div>
+            </div>
+
+            <!-- 进度条（扩展） -->
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 3;
+        const slides = document.querySelectorAll('.slide');
+        const thumbs = document.querySelectorAll('.thumb');
+        const progressBar = document.getElementById('progressBar');
+        const currentNumEl = document.getElementById('currentNum');
+        let isAutoplay = true;
+
+        function updateUI() {
+            // 更新缩略图
+            thumbs.forEach((thumb, index) => {
+                thumb.classList.toggle('active', index === currentSlide);
+            });
+            
+            // 更新计数器
+            currentNumEl.textContent = currentSlide + 1;
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            resetAnimation();
+            updateUI();
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            resetAnimation();
+            updateUI();
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            resetAnimation();
+            updateUI();
+        }
+
+        function resetAnimation() {
+            // 重置所有幻灯片动画
+            slides.forEach((slide, index) => {
+                slide.style.animation = 'none';
+                slide.offsetHeight; // 触发重排
+
+                // 根据当前幻灯片计算负延迟（确保立即显示）
+                const positiveDelay = ((index - currentSlide + totalSlides) % totalSlides) * 5;
+                const delay = positiveDelay - 15; // 转换为负延迟
+
+                if (index === 0) {
+                    slide.style.animation = `slideRightIn 15s ease-in-out ${delay}s infinite`;
+                } else if (index === 1) {
+                    slide.style.animation = `slideLeftIn 15s ease-in-out ${delay}s infinite`;
+                } else {
+                    slide.style.animation = `slideZoomIn 15s ease-in-out ${delay}s infinite`;
+                }
+            });
+
+            // 重置进度条
+            progressBar.style.animation = 'none';
+            progressBar.offsetHeight;
+            progressBar.style.animation = 'progressMove 15s linear infinite';
+        }
+
+        function toggleAutoplay() {
+            isAutoplay = !isAutoplay;
+            const btn = document.getElementById('autoBtn');
+            
+            if (isAutoplay) {
+                btn.innerHTML = '⏸️ 暂停';
+                slides.forEach(slide => {
+                    slide.style.animationPlayState = 'running';
+                });
+                progressBar.style.animationPlayState = 'running';
+            } else {
+                btn.innerHTML = '▶️ 播放';
+                slides.forEach(slide => {
+                    slide.style.animationPlayState = 'paused';
+                });
+                progressBar.style.animationPlayState = 'paused';
+            }
+        }
+
+        // 自动更新UI（每5秒）
+        setInterval(() => {
+            if (isAutoplay) {
+                currentSlide = (currentSlide + 1) % totalSlides;
+                updateUI();
+            }
+        }, 5000);
+
+        // 键盘控制
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') prevSlide();
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === ' ') toggleAutoplay();
+        });
+    </script>
+</body>
+</html>

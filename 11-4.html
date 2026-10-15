@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>11-4 CSS3 3D动画</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+      background-color: #f5f7fb;
+      color: #333;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    .zyt_page_title {
+      font-size: 1.8em;
+      margin-bottom: 6px;
+    }
+
+    .zyt_subtitle {
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    .zyt_section {
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .zyt_section_title {
+      font-size: 1.3em;
+      color: #4a90e2;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #4a90e2;
+      display: inline-block;
+    }
+
+    .zyt_prop_grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+    }
+
+    .zyt_prop_card {
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-left: 5px solid #4a90e2;
+      border-radius: 6px;
+      padding: 12px 14px;
+    }
+
+    .zyt_prop_card h4 {
+      color: #2c5aa0;
+      font-size: 1.05em;
+      margin-bottom: 4px;
+    }
+
+    .zyt_prop_card h4 code {
+      background-color: #e7f0fd;
+      padding: 1px 6px;
+      border-radius: 4px;
+      color: #d9534f;
+    }
+
+    .zyt_prop_card p {
+      font-size: 0.92em;
+      color: #555;
+    }
+
+    .zyt_code_block {
+      background-color: #2d2d2d;
+      color: #f8f8f2;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92em;
+      padding: 14px;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin: 10px 0;
+      line-height: 1.5;
+    }
+
+    .zyt_code_block .zyt_key { color: #f92672; }
+    .zyt_code_block .zyt_val { color: #a6e22e; }
+    .zyt_code_block .zyt_cmt { color: #75715e; }
+
+    .zyt_demo_title {
+      font-size: 1.05em;
+      font-weight: bold;
+      color: #333;
+      margin: 16px 0 8px;
+    }
+
+    .zyt_stage {
+      position: relative;
+      min-height: 130px;
+      background-color: #eef4ff;
+      border: 1px dashed #4a90e2;
+      border-radius: 6px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      padding: 16px;
+    }
+
+    /* ========== 一、坐标轴旋转 ========== */
+    @keyframes zyt_spin_x {
+      to { transform: rotateX(360deg); }
+    }
+
+    @keyframes zyt_spin_y {
+      to { transform: rotateY(360deg); }
+    }
+
+    @keyframes zyt_spin_z {
+      to { transform: rotateZ(360deg); }
+    }
+
+    @keyframes zyt_spin_3d {
+      to { transform: rotate3d(1, 1, 0, 360deg); }
+    }
+
+    .zyt_axis_cell {
+      text-align: center;
+    }
+
+    .zyt_axis_cell p {
+      font-size: 0.85em;
+      color: #666;
+      margin-top: 10px;
+    }
+
+    .zyt_axis_box {
+      width: 90px;
+      height: 90px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      font-size: 13px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+    }
+
+    .zyt_ax_x   { animation: zyt_spin_x 4s linear infinite; }
+    .zyt_ax_y   { animation: zyt_spin_y 4s linear infinite; }
+    .zyt_ax_z   { animation: zyt_spin_z 4s linear infinite; }
+    .zyt_ax_3d  { animation: zyt_spin_3d 4s linear infinite; }
+
+    /* ========== 二、perspective 透视对比 ========== */
+    .zyt_persp_grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .zyt_persp_cell {
+      text-align: center;
+    }
+
+    .zyt_persp_cell > p {
+      font-size: 0.85em;
+      color: #666;
+      margin-bottom: 6px;
+    }
+
+    .zyt_persp_track {
+      height: 130px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    @keyframes zyt_wobble_y {
+      0%, 100% { transform: rotateY(-45deg); }
+      50%      { transform: rotateY(45deg); }
+    }
+
+    .zyt_persp_card {
+      width: 110px;
+      height: 90px;
+      background: linear-gradient(135deg, #f0ad4e, #e91e63);
+      color: #fff;
+      font-size: 13px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: zyt_wobble_y 2.5s ease-in-out infinite alternate;
+    }
+
+    .zyt_p_none   { perspective: none; }
+    .zyt_p_100    { perspective: 100px; }
+    .zyt_p_400    { perspective: 400px; }
+    .zyt_p_800    { perspective: 800px; }
+
+    .zyt_origin_top { perspective: 400px; perspective-origin: 20% 10%; }
+    .zyt_origin_br  { perspective: 400px; perspective-origin: 90% 90%; }
+
+    /* ========== 三、translateZ 近大远小 ========== */
+    .zyt_depth_track {
+      width: 100%;
+      height: 150px;
+      perspective: 500px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .zyt_depth_box {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 130px;
+      height: 70px;
+      margin: -35px 0 0 -65px;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .zyt_depth_near { transform: translateZ(120px); background-color: #e91e63; }
+    .zyt_depth_zero { transform: translateZ(0);     background-color: #4a90e2; }
+    .zyt_depth_far  { transform: translateZ(-150px); background-color: #999; }
+
+    /* ========== 四、旋转立方体 ========== */
+    @keyframes zyt_cube_spin {
+      from { transform: rotateX(-25deg) rotateY(0deg); }
+      to   { transform: rotateX(-25deg) rotateY(360deg); }
+    }
+
+    .zyt_cube {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      transform-style: preserve-3d;
+      transform: rotateX(-25deg);
+      animation: zyt_cube_spin 9s linear infinite;
+    }
+
+    .zyt_cube_stage {
+      perspective: 800px;
+    }
+
+    .zyt_cube_stage:hover .zyt_cube {
+      animation-duration: 2s;
+    }
+
+    .zyt_cube_face {
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #fff;
+      border: 2px solid rgba(255, 255, 255, 0.7);
+      border-radius: 8px;
+      opacity: 0.9;
+    }
+
+    .zyt_face_front  { background: rgba(74, 144, 226, 0.85);  transform: translateZ(75px); }
+    .zyt_face_back   { background: rgba(233, 30, 99, 0.85);   transform: rotateY(180deg) translateZ(75px); }
+    .zyt_face_right  { background: rgba(92, 184, 92, 0.85);   transform: rotateY(90deg) translateZ(75px); }
+    .zyt_face_left   { background: rgba(240, 173, 78, 0.85);  transform: rotateY(-90deg) translateZ(75px); }
+    .zyt_face_top    { background: rgba(155, 89, 182, 0.85);  transform: rotateX(90deg) translateZ(75px); }
+    .zyt_face_bottom { background: rgba(0, 188, 212, 0.85);   transform: rotateX(-90deg) translateZ(75px); }
+
+    .zyt_cube_hint {
+      font-size: 12px;
+      color: #888;
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    /* ========== 五、3D 图片轮播 ========== */
+    @keyframes zyt_carousel_spin {
+      to { transform: rotateY(360deg); }
+    }
+
+    .zyt_carousel_stage {
+      width: 100%;
+      height: 260px;
+      perspective: 900px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .zyt_carousel {
+      position: relative;
+      width: 200px;
+      height: 140px;
+      transform-style: preserve-3d;
+      animation: zyt_carousel_spin 14s linear infinite;
+    }
+
+    .zyt_carousel_stage:hover .zyt_carousel {
+      animation-play-state: paused;
+    }
+
+    .zyt_carousel_item {
+      position: absolute;
+      width: 200px;
+      height: 140px;
+      border: 3px solid #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+      backface-visibility: hidden;
+    }
+
+    .zyt_carousel_item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .zyt_car_item_1 { transform: rotateY(0deg)   translateZ(260px); }
+    .zyt_car_item_2 { transform: rotateY(90deg)  translateZ(260px); }
+    .zyt_car_item_3 { transform: rotateY(180deg) translateZ(260px); }
+    .zyt_car_item_4 { transform: rotateY(270deg) translateZ(260px); }
+
+    /* ========== 六、翻转卡片 + backface 对比 ========== */
+    @keyframes zyt_flip_y {
+      0%, 35%  { transform: rotateY(0deg); }
+      50%, 85% { transform: rotateY(180deg); }
+      100%     { transform: rotateY(360deg); }
+    }
+
+    .zyt_flip_demo {
+      perspective: 700px;
+    }
+
+    .zyt_flip_box {
+      position: relative;
+      width: 170px;
+      height: 110px;
+      transform-style: preserve-3d;
+      animation: zyt_flip_y 5s ease-in-out infinite;
+    }
+
+    .zyt_flip_side {
+      position: absolute;
+      inset: 0;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #fff;
+      font-size: 1.05em;
+    }
+
+    .zyt_flip_f {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      transform: translateZ(1px);
+    }
+
+    .zyt_flip_b {
+      background: linear-gradient(135deg, #f0ad4e, #e91e63);
+      transform: rotateY(180deg) translateZ(1px);
+    }
+
+    /* 不隐藏背面：背面朝向观众时，还能"透视"看到镜像的正面 */
+    .zyt_flip_bad .zyt_flip_side {
+      backface-visibility: visible;
+    }
+
+    .zyt_flip_good .zyt_flip_side {
+      backface-visibility: hidden;
+    }
+
+    .zyt_flip_caption {
+      font-size: 0.85em;
+      color: #666;
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    .zyt_hover_label {
+      position: absolute;
+      right: 10px;
+      bottom: 6px;
+      font-size: 12px;
+      color: #888;
+    }
+
+    /* ========== 图片翻转卡（正/背面照片） ========== */
+    @keyframes zyt_photo_flip {
+      0%, 40%  { transform: rotateY(0deg); }
+      50%, 90% { transform: rotateY(180deg); }
+      100%     { transform: rotateY(360deg); }
+    }
+
+    .zyt_photo_card {
+      position: relative;
+      width: 200px;
+      height: 140px;
+      transform-style: preserve-3d;
+      animation: zyt_photo_flip 6s ease-in-out infinite;
+    }
+
+    .zyt_photo_side {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .zyt_photo_side img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .zyt_photo_front {
+      transform: translateZ(1px);
+    }
+
+    .zyt_photo_back {
+      transform: rotateY(180deg) translateZ(1px);
+    }
+
+    /* ========== 属性表 / 提示 ========== */
+    .zyt_table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      font-size: 0.95em;
+    }
+
+    .zyt_table th,
+    .zyt_table td {
+      border: 1px solid #ddd;
+      padding: 8px 10px;
+      text-align: left;
+    }
+
+    .zyt_table th {
+      background-color: #4a90e2;
+      color: #fff;
+    }
+
+    .zyt_table tr:nth-child(even) {
+      background-color: #f2f6fc;
+    }
+
+    .zyt_table code {
+      color: #d9534f;
+      background-color: #f8f0f0;
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+
+    .zyt_tip {
+      background-color: #fff8e6;
+      border-left: 5px solid #f0ad4e;
+      padding: 12px 14px;
+      border-radius: 5px;
+      font-size: 0.95em;
+      color: #665200;
+      margin-top: 14px;
+    }
+
+    .zyt_footer {
+      text-align: center;
+      color: #999;
+      font-size: 0.9em;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .zyt_car_item_1 { transform: rotateY(0deg)   translateZ(180px); }
+      .zyt_car_item_2 { transform: rotateY(90deg)  translateZ(180px); }
+      .zyt_car_item_3 { transform: rotateY(180deg) translateZ(180px); }
+      .zyt_car_item_4 { transform: rotateY(270deg) translateZ(180px); }
+    }
+  </style>
+</head>
+<body>
+  <h2 class="zyt_page_title">🧊 11-4 CSS3 3D动画</h2>
+  <p class="zyt_subtitle">第11章练习4 - 透视、preserve-3d 与立体变换：立方体 / 轮播 / 翻转卡片</p>
+
+  <!-- 一、3D 基础 -->
+  <section class="zyt_section">
+    <h3 class="zyt_section_title">📖 一、3D 动画三件套</h3>
+    <div class="zyt_code_block">
+      <span class="zyt_cmt">/* 1. 父元素开透视（近大远小的景深） */</span><br>
+      <span class="zyt_key">perspective</span>: <span class="zyt_val">800px</span>; <span class="zyt_cmt">/* 默认 none = 平行投影，没有立体感 */</span><br><br>
+      <span class="zyt_cmt">/* 2. 父容器声明"子元素保留 3D 空间"（否则子元素会被压平成 2D） */</span><br>
+      <span class="zyt_key">transform-style</span>: <span class="zyt_val">preserve-3d</span>;<br><br>
+      <span class="zyt_cmt">/* 3. 子元素做 3D 变换并串起来 */</span><br>
+      <span class="zyt_key">transform</span>: <span class="zyt_val">rotateY(45deg) translateZ(100px)</span>;
+    </div>
+
+    <div class="zyt_prop_grid">
+      <div class="zyt_prop_card">
+        <h4><code>perspective</code></h4>
+        <p>透视距离（观察点到 z=0 平面的距离）。值越小透视越夸张，none 则无景深。</p>
+      </div>
+      <div class="zyt_prop_card">
+        <h4><code>perspective-origin</code></h4>
+        <p>观察点位置，默认 50% 50%（正中）。改成角落能模拟仰视/俯视视角。</p>
+      </div>
+      <div class="zyt_prop_card">
+        <h4><code>transform-style: preserve-3d</code></h4>
+        <p>让子元素在同一 3D 空间里叠加，而不是各自被压平。3D 结构的必备属性。</p>
+      </div>
+      <div class="zyt_prop_card">
+        <h4><code>backface-visibility</code></h4>
+        <p>背面是否可见：hidden 时元素转到背面就"消失"，翻转卡片靠它避免镜像穿帮。</p>
+      </div>
+    </div>
+
+    <p class="zyt_demo_title">坐标轴：rotateX（左右翻）/ rotateY（水平门轴）/ rotateZ（平面转）/ rotate3d（任意轴）</p>
+    <div class="zyt_stage">
+      <div class="zyt_axis_cell">
+        <div class="zyt_axis_box zyt_ax_x">rotateX</div>
+        <p>绕 X 轴（红）</p>
+      </div>
+      <div class="zyt_axis_cell">
+        <div class="zyt_axis_box zyt_ax_y">rotateY</div>
+        <p>绕 Y 轴（绿）</p>
+      </div>
+      <div class="zyt_axis_cell">
+        <div class="zyt_axis_box zyt_ax_z">rotateZ</div>
+        <p>绕 Z 轴（蓝）</p>
+      </div>
+      <div class="zyt_axis_cell">
+        <div class="zyt_axis_box zyt_ax_3d">rotate3d</div>
+        <p>轴 (1,1,0) 斜转</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 二、perspective 对比 -->
+  <section class="zyt_section">
+    <h3 class="zyt_section_title">🔍 二、perspective 透视对比（同一个 rotateY 摆动）</h3>
+    <div class="zyt_persp_grid">
+      <div class="zyt_persp_cell">
+        <p>perspective: none（压扁成 2D）</p>
+        <div class="zyt_persp_track zyt_p_none">
+          <div class="zyt_persp_card">无透视</div>
+        </div>
+      </div>
+      <div class="zyt_persp_cell">
+        <p>perspective: 100px（夸张）</p>
+        <div class="zyt_persp_track zyt_p_100">
+          <div class="zyt_persp_card">100px</div>
+        </div>
+      </div>
+      <div class="zyt_persp_cell">
+        <p>perspective: 400px（适中）</p>
+        <div class="zyt_persp_track zyt_p_400">
+          <div class="zyt_persp_card">400px</div>
+        </div>
+      </div>
+      <div class="zyt_persp_cell">
+        <p>perspective: 800px（平缓）</p>
+        <div class="zyt_persp_track zyt_p_800">
+          <div class="zyt_persp_card">800px</div>
+        </div>
+      </div>
+      <div class="zyt_persp_cell">
+        <p>origin: 20% 10%（左上观察）</p>
+        <div class="zyt_persp_track zyt_origin_top">
+          <div class="zyt_persp_card">左上视角</div>
+        </div>
+      </div>
+      <div class="zyt_persp_cell">
+        <p>origin: 90% 90%（右下观察）</p>
+        <div class="zyt_persp_track zyt_origin_br">
+          <div class="zyt_persp_card">右下视角</div>
+        </div>
+      </div>
+    </div>
+
+    <p class="zyt_demo_title">translateZ 近大远小（三个盒子实际尺寸完全相同）</p>
+    <div class="zyt_depth_track">
+      <div class="zyt_depth_box zyt_depth_near">translateZ(120px)<br>离你更近 → 显得最大</div>
+      <div class="zyt_depth_box zyt_depth_zero">translateZ(0)<br>基准平面</div>
+      <div class="zyt_depth_box zyt_depth_far">translateZ(-150px)<br>离你更远 → 显得最小</div>
+    </div>
+  </section>
+
+  <!-- 三、旋转立方体 -->
+  <section class="zyt_section">
+    <h3 class="zyt_section_title">🎲 三、综合案例1：旋转立方体（6 个面拼装）</h3>
+    <p class="zyt_demo_title">六个面各 rotate 定位到立方体表面，容器 preserve-3d 持续 rotateY（悬停加速）</p>
+    <div class="zyt_stage zyt_cube_stage">
+      <div>
+        <div class="zyt_cube">
+          <div class="zyt_cube_face zyt_face_front">前面</div>
+          <div class="zyt_cube_face zyt_face_back">后面</div>
+          <div class="zyt_cube_face zyt_face_right">右面</div>
+          <div class="zyt_cube_face zyt_face_left">左面</div>
+          <div class="zyt_cube_face zyt_face_top">顶面</div>
+          <div class="zyt_cube_face zyt_face_bottom">底面</div>
+        </div>
+        <p class="zyt_cube_hint">鼠标移入 → 转速加快</p>
+      </div>
+    </div>
+    <div class="zyt_code_block">
+      <span class="zyt_cmt">/* 面 = 150×150 盒子，半边长 75px，转 90° 后向内推 75px 恰好围成正方体 */</span><br>
+      .zyt_face_front&nbsp;{ <span class="zyt_key">transform</span>: <span class="zyt_val">translateZ(75px)</span>; }<br>
+      .zyt_face_right&nbsp;&nbsp;{ <span class="zyt_key">transform</span>: <span class="zyt_val">rotateY(90deg) translateZ(75px)</span>; }<br>
+      .zyt_face_top&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="zyt_key">transform</span>: <span class="zyt_val">rotateX(90deg) translateZ(75px)</span>; }
+    </div>
+  </section>
+
+  <!-- 四、3D 轮播 -->
+  <section class="zyt_section">
+    <h3 class="zyt_section_title">🎠 四、综合案例2：3D 图片轮播（旋转木马）</h3>
+    <p class="zyt_demo_title">4 张图片围成一圈：每张 rotateY(0/90/180/270°) + translateZ(260px)，整体匀速转圈（悬停暂停）</p>
+    <div class="zyt_stage">
+      <div class="zyt_carousel_stage">
+        <div class="zyt_carousel">
+          <div class="zyt_carousel_item zyt_car_item_1"><img src="img/26.jpg" alt="轮播图片1"></div>
+          <div class="zyt_carousel_item zyt_car_item_2"><img src="img/27.jpg" alt="轮播图片2"></div>
+          <div class="zyt_carousel_item zyt_car_item_3"><img src="img/28.jpg" alt="轮播图片3"></div>
+          <div class="zyt_carousel_item zyt_car_item_4"><img src="img/29.jpg" alt="轮播图片4"></div>
+        </div>
+      </div>
+      <span class="zyt_hover_label">hover 暂停 →</span>
+    </div>
+  </section>
+
+  <!-- 五、翻转卡片与 backface 对比 -->
+  <section class="zyt_section">
+    <h3 class="zyt_section_title">🃏 五、综合案例3：翻转卡片与 backface-visibility 对比</h3>
+
+    <p class="zyt_demo_title">左右两个卡片动画完全相同，唯一区别是 backface-visibility</p>
+    <div class="zyt_stage">
+      <div class="zyt_flip_demo">
+        <div class="zyt_flip_box zyt_flip_bad">
+          <div class="zyt_flip_side zyt_flip_f">正面</div>
+          <div class="zyt_flip_side zyt_flip_b">背面</div>
+        </div>
+        <p class="zyt_flip_caption">visible（默认）：翻到背面时还能看到镜像的正面，文字穿帮</p>
+      </div>
+      <div class="zyt_flip_demo">
+        <div class="zyt_flip_box zyt_flip_good">
+          <div class="zyt_flip_side zyt_flip_f">正面</div>
+          <div class="zyt_flip_side zyt_flip_b">背面</div>
+        </div>
+        <p class="zyt_flip_caption">hidden：背面朝外时正面自动隐藏，干净利落 ✓</p>
+      </div>
+    </div>
+
+    <p class="zyt_demo_title">实战：双面照片卡（正面 img/30.jpg，背面 img/31.jpg）</p>
+    <div class="zyt_stage zyt_flip_demo">
+      <div class="zyt_photo_card">
+        <div class="zyt_photo_side zyt_photo_front">
+          <img src="img/30.jpg" alt="卡片正面照片">
+        </div>
+        <div class="zyt_photo_side zyt_photo_back">
+          <img src="img/31.jpg" alt="卡片背面照片">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 六、速查表 -->
+  <section class="zyt_section">
+    <h3 class="zyt_section_title">📋 六、3D 属性速查表</h3>
+    <table class="zyt_table">
+      <tr>
+        <th>属性 / 函数</th>
+        <th>作用</th>
+        <th>常用值</th>
+        <th>默认值</th>
+      </tr>
+      <tr>
+        <td><code>perspective</code></td>
+        <td>父元素设置景深</td>
+        <td>500px / 800px / none</td>
+        <td>none</td>
+      </tr>
+      <tr>
+        <td><code>perspective-origin</code></td>
+        <td>观察点位置</td>
+        <td>50% 50% / 20% 0%</td>
+        <td>50% 50%</td>
+      </tr>
+      <tr>
+        <td><code>transform-style</code></td>
+        <td>子元素是否保留 3D 空间</td>
+        <td>preserve-3d / flat</td>
+        <td>flat</td>
+      </tr>
+      <tr>
+        <td><code>backface-visibility</code></td>
+        <td>背面是否可见</td>
+        <td>hidden / visible</td>
+        <td>visible</td>
+      </tr>
+      <tr>
+        <td><code>translateZ / translate3d</code></td>
+        <td>沿 Z 轴前后移动</td>
+        <td>translateZ(100px)</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td><code>rotateX / rotateY / rotateZ</code></td>
+        <td>绕三轴旋转</td>
+        <td>rotateY(180deg)</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td><code>rotate3d</code></td>
+        <td>绕任意轴旋转</td>
+        <td>rotate3d(1, 1, 0, 45deg)</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td><code>scale3d</code></td>
+        <td>三轴缩放</td>
+        <td>scale3d(1, 1, 2)</td>
+        <td>1</td>
+      </tr>
+    </table>
+
+    <div class="zyt_tip">
+      💡 <strong>避坑指南：</strong>①父容器忘了写 <code>preserve-3d</code>，子元素会被压平，立体结构瞬间变 2D；②<b>不要在 3D 容器上加 <code>overflow: hidden</code>、<code>filter</code>、<code>opacity &lt; 1</code></b>——浏览器会强制把该层压平（会生成新的层叠上下文）；③<code>perspective</code> 写在<b>直接父元素</b>上才生效；④拼立方体时 face 尺寸的一半就是 translateZ 的距离。
+    </div>
+  </section>
+
+  <footer class="zyt_footer">
+    <p>© 2026 张语桐 | 学号：830 | 《高级网页设计》课程实践 · 11-4 CSS3 3D动画</p>
+  </footer>
+</body>
+</html>

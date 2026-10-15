@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>图书列表</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        background: #f7f3ef;
+        font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+        color: #333;
+      }
+      .container {
+        max-width: 1180px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 14px;
+        padding: 30px 24px 40px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+      }
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 28px;
+        padding-bottom: 18px;
+        border-bottom: 1px solid #f1e9e3;
+      }
+      .title {
+        font-size: 28px;
+        color: #1f1f1f;
+        font-weight: 700;
+      }
+      .back {
+        display: inline-block;
+        text-decoration: none;
+        color: #d53d3d;
+        font-weight: 700;
+      }
+      .book-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+        gap: 28px 22px;
+      }
+      .book-card {
+        background: #fff;
+        border: 1px solid #f2ece6;
+        border-radius: 12px;
+        padding: 14px;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+      }
+      .book-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
+      }
+      .cover {
+        width: 100%;
+        height: 220px;
+        border-radius: 10px;
+        overflow: hidden;
+        background: #f9f5f1;
+      }
+      .cover img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .name {
+        margin-top: 12px;
+        font-size: 16px;
+        font-weight: 700;
+        color: #2b2b2b;
+      }
+      .meta {
+        margin-top: 8px;
+        color: #7c7c7c;
+        font-size: 13px;
+      }
+      .price-box {
+        margin-top: 12px;
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+      }
+      .price {
+        color: #d63c3c;
+        font-weight: 700;
+        font-size: 26px;
+      }
+      .old {
+        color: #a5a5a5;
+        text-decoration: line-through;
+        font-size: 13px;
+      }
+      .tag {
+        display: inline-block;
+        margin-top: 10px;
+        background: #f9dc77;
+        color: #8a5a00;
+        font-size: 11px;
+        padding: 5px 8px;
+        border-radius: 8px;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="topbar">
+        <div class="title" id="categoryTitle">图书列表</div>
+        <a href="new-element.html" class="back">← 返回分类</a>
+      </div>
+
+      <div class="book-grid" id="bookGrid"></div>
+    </div>
+
+    <script>
+      const books = {
+        '文学-小说': [
+          { name: '白夜行', price: 34, old: 52, tag: '热销', cover: 'img/19.jpg' },
+          { name: '活着', price: 29, old: 46, tag: '推荐', cover: 'img/22.jpg' },
+          { name: '百年孤独', price: 42, old: 68, tag: '经典', cover: 'img/23.jpg' },
+          { name: '追风筝的人', price: 31, old: 49, tag: '热门', cover: 'img/25.jpg' }
+        ],
+        '文学-青春文学': [
+          { name: '你好，旧时光', price: 36, old: 58, tag: '推荐', cover: 'img/24.jpg' },
+          { name: '愿你慢慢长大', price: 28, old: 42, tag: '热销', cover: 'img/26.jpg' },
+          { name: '我们仨', price: 24, old: 39, tag: '经典', cover: 'img/27.jpg' },
+          { name: '夏日告白', price: 33, old: 49, tag: '热门', cover: 'img/28.jpg' }
+        ],
+        '社科-历史': [
+          { name: '中国通史', price: 48, old: 79, tag: '精选', cover: 'img/29.jpg' },
+          { name: '大秦帝国', price: 56, old: 88, tag: '推荐', cover: 'img/30.jpg' },
+          { name: '南渡北归', price: 39, old: 65, tag: '热销', cover: 'img/31.jpg' },
+          { name: '历史深处的忧虑', price: 52, old: 79, tag: '经典', cover: 'img/32.jpg' }
+        ],
+        '少儿-绘本': [
+          { name: '小王子绘本', price: 26, old: 39, tag: '推荐', cover: 'img/33.jpg' },
+          { name: '好好长大', price: 30, old: 45, tag: '热销', cover: 'img/34.jpg' },
+          { name: '十万个为什么', price: 43, old: 69, tag: '精选', cover: 'img/10.jpg' },
+          { name: '我和小伙伴', price: 27, old: 39, tag: '推荐', cover: 'img/11.jpg' }
+        ],
+        '艺术-绘画': [
+          { name: '色彩的秘密', price: 41, old: 66, tag: '经典', cover: 'img/12.jpg' },
+          { name: '设计的力量', price: 54, old: 82, tag: '人气', cover: 'img/13.jpg' },
+          { name: '艺术欣赏', price: 38, old: 60, tag: '精选', cover: 'img/14.jpg' },
+          { name: '绘画基础', price: 33, old: 49, tag: '热销', cover: 'img/15.jpg' }
+        ],
+        '生活-美食': [
+          { name: '舌尖上的中国', price: 35, old: 54, tag: '推荐', cover: 'img/16.jpg' },
+          { name: '料理中的温度', price: 31, old: 48, tag: '热销', cover: 'img/17.jpg' },
+          { name: '人间烟火', price: 28, old: 42, tag: '精选', cover: 'img/18.jpg' },
+          { name: '家常菜谱', price: 26, old: 39, tag: '热门', cover: 'img/19.jpg' }
+        ],
+        '文教-外语': [
+          { name: '新概念英语', price: 32, old: 49, tag: '经典', cover: 'img/20.jpg' },
+          { name: '英语口语速成', price: 29, old: 45, tag: '热销', cover: 'img/21.jpg' },
+          { name: '日语入门', price: 37, old: 56, tag: '推荐', cover: 'img/22.jpg' },
+          { name: '英语语法', price: 30, old: 48, tag: '精选', cover: 'img/23.jpg' }
+        ]
+      };
+
+      const params = new URLSearchParams(window.location.search);
+      const category = params.get('category') || '文学-小说';
+      document.getElementById('categoryTitle').textContent = category;
+
+      const list = books[category] || books['文学-小说'];
+      const grid = document.getElementById('bookGrid');
+
+      grid.innerHTML = list.map(item => `
+        <article class="book-card">
+          <div class="cover"><img src="${item.cover}" alt="${item.name}" /></div>
+          <div class="name">${item.name}</div>
+          <div class="meta">精选好书 · 立即阅读</div>
+          <div class="price-box">
+            <span class="price">¥${item.price}</span>
+            <span class="old">¥${item.old}</span>
+          </div>
+          <span class="tag">${item.tag}</span>
+        </article>
+      `).join('');
+    </script>
+  </body>
+</html>

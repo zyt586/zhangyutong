@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>图书榜单</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #f5f2ee;
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      color: #333;
+    }
+
+    .page {
+      width: 1200px;
+      margin: 36px auto;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 10px 28px rgba(112, 77, 67, 0.07);
+      overflow: hidden;
+    }
+
+    .tabs {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      height: 80px;
+      padding: 0 28px;
+      border-bottom: 1px solid #f0eee8;
+      background: #fff;
+    }
+
+    .tab {
+      position: relative;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 14px;
+      font-size: 18px;
+      color: #4b4b4b;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .tab.active {
+      color: #d92d2d;
+    }
+
+    .tab.active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 3px;
+      background: #d92d2d;
+      border-radius: 3px 3px 0 0;
+    }
+
+    .tab:hover {
+      color: #d92d2d;
+    }
+
+    .content {
+      padding: 26px 22px 34px;
+      background: #fff;
+    }
+
+    .book-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px 18px;
+    }
+
+    .hot-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .feature-book {
+      display: flex;
+      align-items: stretch;
+      background: #fff;
+      border: 1px solid #f1e8e1;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 6px 18px rgba(100, 74, 68, 0.04);
+    }
+
+    .feature-cover {
+      position: relative;
+      width: 245px;
+      min-width: 245px;
+      height: 270px;
+      background: #f9f5f1;
+    }
+
+    .feature-cover img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .feature-body {
+      flex: 1;
+      padding: 20px 22px 18px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .feature-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .feature-title {
+      font-size: 28px;
+      color: #2d2d2d;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .feature-book .promo-badge {
+      position: static;
+      display: inline-block;
+      margin-left: 4px;
+      box-shadow: none;
+      border-radius: 10px;
+    }
+
+    .feature-desc {
+      color: #7e7e7e;
+      font-size: 15px;
+      line-height: 1.9;
+      margin-bottom: 18px;
+    }
+
+    .feature-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #8f8f8f;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    .feature-meta .stars {
+      font-size: 16px;
+    }
+
+    .feature-price-box {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .feature-price-box .current-price {
+      font-size: 34px;
+    }
+
+    .feature-price-box .old-price {
+      font-size: 15px;
+    }
+
+    .mini-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .mini-card {
+      position: relative;
+      width: 214px;
+      background: #fff;
+      border: 1px solid #f2ece7;
+      border-radius: 16px;
+      padding: 12px 12px 16px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .mini-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 20px rgba(0, 0, 0, 0.04);
+    }
+
+    .book-card,
+    .mini-card {
+      position: relative;
+      background: #fff;
+      border: 1px solid #f2ece7;
+      border-radius: 16px;
+      padding: 14px 14px 18px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .book-card:hover,
+    .mini-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 20px rgba(0, 0, 0, 0.04);
+    }
+
+    .book-card {
+      width: 224px;
+    }
+
+    .cover-wrap {
+      position: relative;
+      width: 100%;
+      height: 222px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #f9f5f1;
+    }
+
+    .mini-card .cover-wrap {
+      height: 200px;
+    }
+
+    .cover-wrap img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .promo-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: linear-gradient(135deg, #ff5b5b, #df2929);
+      color: #fff;
+      font-size: 12px;
+      line-height: 1;
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-weight: 700;
+      box-shadow: 0 6px 12px rgba(217, 37, 37, 0.18);
+      z-index: 2;
+    }
+
+    .card-tag {
+      position: absolute;
+      left: 14px;
+      bottom: 10px;
+      background: #f9d96d;
+      color: #8f5a00;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 8px;
+      z-index: 2;
+    }
+
+    .book-info {
+      padding-top: 14px;
+    }
+
+    .book-title {
+      font-size: 18px;
+      line-height: 1.45;
+      color: #2f2f2f;
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .book-desc {
+      color: #a0a0a0;
+      font-size: 12px;
+      line-height: 1.5;
+      min-height: 36px;
+      margin-bottom: 10px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .rating-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      color: #9e9e9e;
+      font-size: 12px;
+    }
+
+    .stars {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      letter-spacing: 1px;
+      color: #ffb11d;
+      font-size: 13px;
+    }
+
+    .stars .off {
+      color: #d7d7d7;
+    }
+
+    .price-box {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .price-label {
+      font-size: 12px;
+      color: #999;
+      margin-right: 2px;
+    }
+
+    .current-price {
+      color: #e43939;
+      font-weight: 700;
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    .old-price {
+      font-size: 12px;
+      color: #b4b4b4;
+      text-decoration: line-through;
+      text-decoration-thickness: 1.5px;
+    }
+
+    @media (max-width: 1280px) {
+      .page {
+        width: calc(100% - 32px);
+      }
+    }
+
+    @media (max-width: 760px) {
+      .tabs {
+        justify-content: space-between;
+        gap: 12px;
+        padding: 0 16px;
+      }
+
+      .tab {
+        font-size: 16px;
+        padding: 0 8px;
+      }
+
+      .book-grid {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="tabs" id="tabs"></div>
+    <div class="content">
+      <div class="book-grid" id="bookGrid"></div>
+    </div>
+  </div>
+
+  <script>
+    const bookData = {
+      new: {
+        feature: {
+          title: '《樱花雨后的故事》',
+          subtitle: '治愈系少女成长小说，暖心满溢',
+          rating: 4.8,
+          reviews: 1324,
+          cover: 'img/10.jpg',
+          current: 48,
+          old: 78,
+          badge: '满79减30',
+          intro: '故事围绕青春成长、友情与自我认知展开，温柔却不失力量。文字细腻，情绪真实，适合在闲暇时光里静静翻阅，带来治愈与反思。'
+        },
+        list: [
+          {
+            title: '考拉与城市的边界',
+            rating: 4.7,
+            reviews: 923,
+            cover: 'img/11.jpg',
+            current: 52,
+            old: 82,
+            badge: '满79减30',
+            tag: '销量飙升'
+          },
+          {
+            title: '从零开始学写作',
+            rating: 4.9,
+            reviews: 2414,
+            cover: 'img/12.jpg',
+            current: 59,
+            old: 89,
+            badge: '满79减30',
+            tag: '书友热评'
+          },
+          {
+            title: '万物的温柔法则',
+            rating: 4.6,
+            reviews: 870,
+            cover: 'img/13.jpg',
+            current: 45,
+            old: 69,
+            badge: '满79减30'
+          },
+          {
+            title: '一口气读完中国历史',
+            rating: 4.8,
+            reviews: 1588,
+            cover: 'img/14.jpg',
+            current: 61,
+            old: 96,
+            badge: '满79减30',
+            tag: '销量飙升'
+          },
+          {
+            title: '亲爱的生活，别太急',
+            rating: 4.7,
+            reviews: 986,
+            cover: 'img/15.jpg',
+            current: 43,
+            old: 68,
+            badge: '满79减30'
+          },
+          {
+            title: '轻读百年文学',
+            rating: 4.8,
+            reviews: 1432,
+            cover: 'img/29.jpg',
+            current: 57,
+            old: 86,
+            badge: '满79减30',
+            tag: '书友热评'
+          }
+        ]
+      },
+      week: {
+        feature: {
+          title: '《把时间当朋友》',
+          subtitle: '时间管理经典，适合职场人学习',
+          rating: 4.9,
+          reviews: 3562,
+          cover: 'img/16.jpg',
+          current: 37,
+          old: 59,
+          badge: '满79减30',
+          intro: '作者以通俗语言阐述时间管理理念，帮助读者在现实生活中提升效率与认知，适合每一位希望更好规划生活与工作的你。'
+        },
+        list: [
+          {
+            title: '深入理解JavaScript',
+            rating: 4.8,
+            reviews: 2437,
+            cover: 'img/17.jpg',
+            current: 72,
+            old: 109,
+            badge: '满79减30',
+            tag: '销量飙升'
+          },
+          {
+            title: '晚风说',
+            rating: 4.7,
+            reviews: 814,
+            cover: 'img/18.jpg',
+            current: 49,
+            old: 74,
+            badge: '满79减30'
+          },
+          {
+            title: '你值得过更好的人生',
+            rating: 4.6,
+            reviews: 1056,
+            cover: 'img/19.jpg',
+            current: 39,
+            old: 62,
+            badge: '满79减30',
+            tag: '书友热评'
+          },
+          {
+            title: '看见孩子的力量',
+            rating: 4.8,
+            reviews: 1660,
+            cover: 'img/20.jpg',
+            current: 55,
+            old: 86,
+            badge: '满79减30'
+          },
+          {
+            title: '不必慌张，慢慢来',
+            rating: 4.5,
+            reviews: 653,
+            cover: 'img/21.jpg',
+            current: 42,
+            old: 70,
+            badge: '满79减30',
+            tag: '销量飙升'
+          },
+          {
+            title: '晨间阅读日记',
+            rating: 4.7,
+            reviews: 1214,
+            cover: 'img/30.jpg',
+            current: 46,
+            old: 75,
+            badge: '满79减30',
+            tag: '书友热评'
+          }
+        ]
+      },
+      hot: {
+        feature: {
+          title: '《追风筝的人》',
+          subtitle: '全新修订版，感动你我每一位读者',
+          rating: 4.9,
+          reviews: 18542,
+          cover: 'img/28.jpg',
+          current: 39,
+          old: 66,
+          badge: '满79减30',
+          intro: '故事以友情、背叛与救赎为主线，穿越阿富汗与美国两地，描绘出一段关于成长、苦难与宽恕的深刻旅程。文本克制而动人，情感强烈，适合所有追求文学力量与精神成长的读者。'
+        },
+        list: [
+          {
+            title: '活着',
+            rating: 4.9,
+            reviews: 4285,
+            cover: 'img/22.jpg',
+            current: 32,
+            old: 49,
+            badge: '满79减30',
+            tag: '书友热评'
+          },
+          {
+            title: '最好的我们',
+            rating: 4.8,
+            reviews: 1978,
+            cover: 'img/23.jpg',
+            current: 46,
+            old: 71,
+            badge: '满79减30'
+          },
+          {
+            title: '国学入门全知道',
+            rating: 4.7,
+            reviews: 1620,
+            cover: 'img/24.jpg',
+            current: 58,
+            old: 88,
+            badge: '满79减30',
+            tag: '销量飙升'
+          },
+          {
+            title: '微微一笑很倾城',
+            rating: 4.6,
+            reviews: 1188,
+            cover: 'img/25.jpg',
+            current: 41,
+            old: 66,
+            badge: '满79减30'
+          },
+          {
+            title: '设计的力量',
+            rating: 4.8,
+            reviews: 1495,
+            cover: 'img/26.jpg',
+            current: 68,
+            old: 99,
+            badge: '满79减30',
+            tag: '书友热评'
+          },
+          {
+            title: '夏日告白',
+            rating: 4.7,
+            reviews: 914,
+            cover: 'img/27.jpg',
+            current: 44,
+            old: 72,
+            badge: '满79减30',
+            tag: '销量飙升'
+          }
+        ]
+      }
+    };
+
+    const tabs = [
+      { id: 'new', label: '新品特惠' },
+      { id: 'week', label: '本周精选' },
+      { id: 'hot', label: '读者热评' }
+    ];
+
+    const tabsEl = document.getElementById('tabs');
+    const gridEl = document.getElementById('bookGrid');
+
+    function renderStars(rating) {
+      const full = Math.round(rating);
+      let stars = '';
+      for (let i = 1; i <= 5; i++) {
+        stars += `<span class="${i <= full ? '' : 'off'}">★</span>`;
+      }
+      return stars;
+    }
+
+    function renderPromoCard(item) {
+      const starHtml = renderStars(item.rating);
+      return `
+        <article class="book-card">
+          <div class="cover-wrap">
+            <img src="${item.cover}" alt="${item.title}" />
+            <span class="promo-badge">${item.badge}</span>
+            ${item.tag ? `<span class="card-tag">${item.tag}</span>` : ''}
+          </div>
+          <div class="book-info">
+            <div class="book-title">${item.title}</div>
+            <div class="book-desc">${item.desc || ''}</div>
+            <div class="rating-row">
+              <span class="stars">${starHtml}</span>
+              <span>${item.rating.toFixed(1)}</span>
+              <span>(${item.reviews})</span>
+            </div>
+            <div class="price-box">
+              <span class="price-label">预估到手价</span>
+              <span class="current-price">¥${item.current}</span>
+              <span class="old-price">¥${item.old}</span>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderHotTab() {
+      const feature = bookData.hot.feature;
+      const list = bookData.hot.list;
+      const featureStars = renderStars(feature.rating);
+
+      gridEl.innerHTML = `
+        <div class="hot-layout">
+          <article class="feature-book">
+            <div class="feature-cover">
+              <img src="${feature.cover}" alt="${feature.title}" />
+              <span class="promo-badge">${feature.badge}</span>
+            </div>
+            <div class="feature-body">
+              <div class="feature-header">
+                <h3 class="feature-title">${feature.title}</h3>
+                <span class="promo-badge">${feature.badge}</span>
+              </div>
+              <div class="feature-desc">${feature.subtitle}</div>
+              <div class="feature-meta">
+                <span class="stars">${featureStars}</span>
+                <span>${feature.rating.toFixed(1)}</span>
+                <span>(${feature.reviews})</span>
+              </div>
+              <div class="feature-price-box">
+                <span class="price-label">预估到手价</span>
+                <span class="current-price">¥${feature.current}</span>
+                <span class="old-price">¥${feature.old}</span>
+              </div>
+              <div class="feature-desc" style="margin-top: 16px; margin-bottom: 0;">${feature.intro}</div>
+            </div>
+          </article>
+
+          <div class="mini-grid">
+            ${list.map((item) => {
+              const starHtml = renderStars(item.rating);
+              return `
+                <article class="mini-card">
+                  <div class="cover-wrap">
+                    <img src="${item.cover}" alt="${item.title}" />
+                    <span class="promo-badge">${item.badge}</span>
+                    ${item.tag ? `<span class="card-tag">${item.tag}</span>` : ''}
+                  </div>
+                  <div class="book-info">
+                    <div class="book-title">${item.title}</div>
+                    <div class="rating-row">
+                      <span class="stars">${starHtml}</span>
+                      <span>${item.rating.toFixed(1)}</span>
+                      <span>(${item.reviews})</span>
+                    </div>
+                    <div class="price-box">
+                      <span class="price-label">预估到手价</span>
+                      <span class="current-price">¥${item.current}</span>
+                      <span class="old-price">¥${item.old}</span>
+                    </div>
+                  </div>
+                </article>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderFeatureTab(tabId) {
+      const section = bookData[tabId];
+      if (!section) return;
+
+      const feature = section.feature;
+      const list = section.list;
+      const featureStars = renderStars(feature.rating);
+
+      gridEl.innerHTML = `
+        <div class="hot-layout">
+          <article class="feature-book">
+            <div class="feature-cover">
+              <img src="${feature.cover}" alt="${feature.title}" />
+              <span class="promo-badge">${feature.badge}</span>
+            </div>
+            <div class="feature-body">
+              <div class="feature-header">
+                <h3 class="feature-title">${feature.title}</h3>
+                <span class="promo-badge">${feature.badge}</span>
+              </div>
+              <div class="feature-desc">${feature.subtitle}</div>
+              <div class="feature-meta">
+                <span class="stars">${featureStars}</span>
+                <span>${feature.rating.toFixed(1)}</span>
+                <span>(${feature.reviews})</span>
+              </div>
+              <div class="feature-price-box">
+                <span class="price-label">预估到手价</span>
+                <span class="current-price">¥${feature.current}</span>
+                <span class="old-price">¥${feature.old}</span>
+              </div>
+              <div class="feature-desc" style="margin-top: 16px; margin-bottom: 0;">${feature.intro}</div>
+            </div>
+          </article>
+
+          <div class="mini-grid">
+            ${list.map((item) => {
+              const starHtml = renderStars(item.rating);
+              return `
+                <article class="mini-card">
+                  <div class="cover-wrap">
+                    <img src="${item.cover}" alt="${item.title}" />
+                    <span class="promo-badge">${item.badge}</span>
+                    ${item.tag ? `<span class="card-tag">${item.tag}</span>` : ''}
+                  </div>
+                  <div class="book-info">
+                    <div class="book-title">${item.title}</div>
+                    <div class="rating-row">
+                      <span class="stars">${starHtml}</span>
+                      <span>${item.rating.toFixed(1)}</span>
+                      <span>(${item.reviews})</span>
+                    </div>
+                    <div class="price-box">
+                      <span class="price-label">预估到手价</span>
+                      <span class="current-price">¥${item.current}</span>
+                      <span class="old-price">¥${item.old}</span>
+                    </div>
+                  </div>
+                </article>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderBooks(tabId) {
+      if (tabId === 'hot' || tabId === 'new' || tabId === 'week') {
+        renderFeatureTab(tabId);
+        return;
+      }
+    }
+
+    function setActiveTab(tabId) {
+      document.querySelectorAll('.tab').forEach((tab) => {
+        tab.classList.toggle('active', tab.dataset.id === tabId);
+      });
+      renderBooks(tabId);
+    }
+
+    tabsEl.innerHTML = tabs.map((tab) => `
+      <div class="tab ${tab.id === 'new' ? 'active' : ''}" data-id="${tab.id}">${tab.label}</div>
+    `).join('');
+
+    document.querySelectorAll('.tab').forEach((tab) => {
+      tab.addEventListener('click', () => setActiveTab(tab.dataset.id));
+    });
+
+    renderBooks('new');
+  </script>
+</body>
+</html>

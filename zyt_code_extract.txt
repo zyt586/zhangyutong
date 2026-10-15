@@ -1,0 +1,604 @@
+【zyt_new_element_list.html】
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>zyt 图书列表</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #f7f3ef;
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      color: #333;
+    }
+    .zyt_container {
+      max-width: 1180px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 14px;
+      padding: 30px 24px 40px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+    }
+    .zyt_topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid #f1e9e3;
+    }
+    .zyt_title {
+      font-size: 28px;
+      color: #1f1f1f;
+      font-weight: 700;
+    }
+    .zyt_back {
+      text-decoration: none;
+      color: #d53d3d;
+      font-weight: 700;
+    }
+    .zyt_bookGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 28px 22px;
+    }
+    .zyt_bookCard {
+      background: #fff;
+      border: 1px solid #f2ece6;
+      border-radius: 12px;
+      padding: 14px;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .zyt_bookCard:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
+    }
+    .zyt_cover {
+      width: 100%;
+      height: 220px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #f9f5f1;
+    }
+    .zyt_cover img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .zyt_name {
+      margin-top: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #2b2b2b;
+    }
+    .zyt_meta {
+      margin-top: 8px;
+      color: #7c7c7c;
+      font-size: 13px;
+    }
+    .zyt_priceBox {
+      margin-top: 12px;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .zyt_price {
+      color: #d63c3c;
+      font-weight: 700;
+      font-size: 26px;
+    }
+    .zyt_oldPrice {
+      color: #a5a5a5;
+      text-decoration: line-through;
+      font-size: 13px;
+    }
+    .zyt_tag {
+      display: inline-block;
+      margin-top: 10px;
+      background: #f9dc77;
+      color: #8a5a00;
+      font-size: 11px;
+      padding: 5px 8px;
+      border-radius: 8px;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="zyt_container">
+    <div class="zyt_topbar">
+      <div class="zyt_title" id="zyt_categoryTitle">图书列表</div>
+      <a href="new-element.html" class="zyt_back">← 返回分类</a>
+    </div>
+    <div class="zyt_bookGrid" id="zyt_bookGrid"></div>
+  </div>
+
+  <script>
+    const zytBooks = {
+      '文学-小说': [
+        { name: '白夜行', price: 34, old: 52, tag: '热销', cover: 'img/19.jpg' },
+        { name: '活着', price: 29, old: 46, tag: '推荐', cover: 'img/22.jpg' }
+      ],
+      '文学-青春文学': [
+        { name: '你好，旧时光', price: 36, old: 58, tag: '推荐', cover: 'img/24.jpg' },
+        { name: '夏日告白', price: 33, old: 49, tag: '热门', cover: 'img/28.jpg' }
+      ]
+    };
+
+    const zytParams = new URLSearchParams(window.location.search);
+    const zytCategory = zytParams.get('category') || '文学-小说';
+    document.getElementById('zyt_categoryTitle').textContent = zytCategory;
+
+    const zytList = zytBooks[zytCategory] || zytBooks['文学-小说'];
+    const zytGrid = document.getElementById('zyt_bookGrid');
+    zytGrid.innerHTML = zytList.map(item => `
+      <article class="zyt_bookCard">
+        <div class="zyt_cover"><img src="${item.cover}" alt="${item.name}" /></div>
+        <div class="zyt_name">${item.name}</div>
+        <div class="zyt_meta">精选好书 · 立即阅读</div>
+        <div class="zyt_priceBox">
+          <span class="zyt_price">¥${item.price}</span>
+          <span class="zyt_oldPrice">¥${item.old}</span>
+        </div>
+        <span class="zyt_tag">${item.tag}</span>
+      </article>
+    `).join('');
+  </script>
+</body>
+</html>
+
+
+【zyt_new_element2.html】
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>zyt 图书展销 - 分类展示</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background-color: #f9f7f4;
+            color: #5a5a5a;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .zyt_container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .zyt_categorySection {
+            margin-bottom: 50px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .zyt_categoryTitle {
+            font-size: 24px;
+            font-weight: bold;
+            color: #d9534f;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e8e8e8;
+        }
+        .zyt_booksGrid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 25px;
+            margin-top: 25px;
+        }
+        .zyt_bookCard {
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .zyt_bookCard:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+        .zyt_bookCover {
+            width: 100%;
+            height: 240px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #fafafa;
+            padding: 15px;
+        }
+        .zyt_bookCover img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .zyt_bookInfo {
+            padding: 15px;
+            text-align: center;
+        }
+        .zyt_bookName {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 500;
+            line-height: 1.4;
+            height: 40px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        .zyt_bookPrice {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 10px;
+        }
+        .zyt_bookDiscount {
+            background-color: #d9534f;
+            color: #ffffff;
+            font-size: 13px;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="zyt_container">
+        <section class="zyt_categorySection">
+            <h2 class="zyt_categoryTitle">【文学】</h2>
+            <div class="zyt_booksGrid">
+                <div class="zyt_bookCard">
+                    <div class="zyt_bookCover">
+                        <img src="/img/19.jpg" alt="zyt 图书封面">
+                    </div>
+                    <div class="zyt_bookInfo">
+                        <div class="zyt_bookName">瓦尔登湖</div>
+                        <div class="zyt_bookPrice">定价：￥55.00</div>
+                        <div class="zyt_bookDiscount">批发折扣：65.00%</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
+
+
+【zyt_new_element3.html】
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>zyt 图书榜单</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #f5f2ee;
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      color: #333;
+    }
+    .zyt_page {
+      width: 1200px;
+      margin: 36px auto;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 10px 28px rgba(112, 77, 67, 0.07);
+      overflow: hidden;
+    }
+    .zyt_tabs {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      height: 80px;
+      padding: 0 28px;
+      border-bottom: 1px solid #f0eee8;
+      background: #fff;
+    }
+    .zyt_tab {
+      position: relative;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 14px;
+      font-size: 18px;
+      color: #4b4b4b;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+    }
+    .zyt_tab.active {
+      color: #d92d2d;
+    }
+    .zyt_tab.active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 3px;
+      background: #d92d2d;
+      border-radius: 3px 3px 0 0;
+    }
+    .zyt_content {
+      padding: 26px 22px 34px;
+      background: #fff;
+    }
+    .zyt_hotLayout {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .zyt_featureBook {
+      display: flex;
+      align-items: stretch;
+      background: #fff;
+      border: 1px solid #f1e8e1;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 6px 18px rgba(100, 74, 68, 0.04);
+    }
+    .zyt_featureCover {
+      position: relative;
+      width: 245px;
+      min-width: 245px;
+      height: 270px;
+      background: #f9f5f1;
+    }
+    .zyt_featureCover img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+    .zyt_featureBody {
+      flex: 1;
+      padding: 20px 22px 18px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .zyt_featureTitle {
+      font-size: 28px;
+      color: #2d2d2d;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    .zyt_featureDesc {
+      color: #7e7e7e;
+      font-size: 15px;
+      line-height: 1.9;
+      margin-bottom: 18px;
+    }
+    .zyt_featureMeta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #8f8f8f;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+    .zyt_stars {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      letter-spacing: 1px;
+      color: #ffb11d;
+      font-size: 13px;
+    }
+    .zyt_stars .off { color: #d7d7d7; }
+    .zyt_promoBadge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: linear-gradient(135deg, #ff5b5b, #df2929);
+      color: #fff;
+      font-size: 12px;
+      line-height: 1;
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-weight: 700;
+    }
+    .zyt_cardTag {
+      position: absolute;
+      left: 14px;
+      bottom: 10px;
+      background: #f9d96d;
+      color: #8f5a00;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 8px;
+    }
+    .zyt_miniGrid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .zyt_miniCard {
+      position: relative;
+      width: 214px;
+      background: #fff;
+      border: 1px solid #f2ece7;
+      border-radius: 16px;
+      padding: 12px 12px 16px;
+    }
+    .zyt_coverWrap {
+      position: relative;
+      width: 100%;
+      height: 200px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #f9f5f1;
+    }
+    .zyt_coverWrap img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .zyt_bookTitle {
+      font-size: 18px;
+      line-height: 1.45;
+      color: #2f2f2f;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .zyt_ratingRow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      color: #9e9e9e;
+      font-size: 12px;
+    }
+    .zyt_priceBox {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .zyt_priceLabel {
+      font-size: 12px;
+      color: #999;
+    }
+    .zyt_currentPrice {
+      color: #e43939;
+      font-weight: 700;
+      font-size: 26px;
+      line-height: 1;
+    }
+    .zyt_oldPrice {
+      font-size: 12px;
+      color: #b4b4b4;
+      text-decoration: line-through;
+    }
+  </style>
+</head>
+<body>
+  <div class="zyt_page">
+    <div class="zyt_tabs" id="zyt_tabs"></div>
+    <div class="zyt_content">
+      <div class="zyt_bookGrid" id="zyt_bookGrid"></div>
+    </div>
+  </div>
+
+  <script>
+    const zytBookData = {
+      hot: {
+        feature: {
+          title: '《追风筝的人》',
+          subtitle: '全新修订版，感动你我每一位读者',
+          rating: 4.9,
+          reviews: 18542,
+          cover: 'img/28.jpg',
+          current: 39,
+          old: 66,
+          badge: '满79减30',
+          intro: '故事以友情、背叛与救赎为主线，穿越阿富汗与美国两地。'
+        },
+        list: [
+          { title: '活着', rating: 4.9, reviews: 4285, cover: 'img/22.jpg', current: 32, old: 49, badge: '满79减30', tag: '书友热评' },
+          { title: '最好的我们', rating: 4.8, reviews: 1978, cover: 'img/23.jpg', current: 46, old: 71, badge: '满79减30' }
+        ]
+      }
+    };
+
+    const zytTabs = [
+      { id: 'new', label: '新品特惠' },
+      { id: 'week', label: '本周精选' },
+      { id: 'hot', label: '读者热评' }
+    ];
+
+    function zytRenderStars(rating) {
+      const full = Math.round(rating);
+      let stars = '';
+      for (let i = 1; i <= 5; i++) {
+        stars += `<span class="${i <= full ? '' : 'off'}">★</span>`;
+      }
+      return stars;
+    }
+
+    function zytRenderHotTab() {
+      const feature = zytBookData.hot.feature;
+      const list = zytBookData.hot.list;
+      const featureStars = zytRenderStars(feature.rating);
+
+      document.getElementById('zyt_bookGrid').innerHTML = `
+        <div class="zyt_hotLayout">
+          <article class="zyt_featureBook">
+            <div class="zyt_featureCover">
+              <img src="${feature.cover}" alt="${feature.title}" />
+              <span class="zyt_promoBadge">${feature.badge}</span>
+            </div>
+            <div class="zyt_featureBody">
+              <div class="zyt_featureTitle">${feature.title}</div>
+              <div class="zyt_featureDesc">${feature.subtitle}</div>
+              <div class="zyt_featureMeta">
+                <span class="zyt_stars">${featureStars}</span>
+                <span>${feature.rating.toFixed(1)}</span>
+                <span>(${feature.reviews})</span>
+              </div>
+              <div class="zyt_priceBox">
+                <span class="zyt_priceLabel">预估到手价</span>
+                <span class="zyt_currentPrice">¥${feature.current}</span>
+                <span class="zyt_oldPrice">¥${feature.old}</span>
+              </div>
+              <div class="zyt_featureDesc" style="margin-top: 16px; margin-bottom: 0;">${feature.intro}</div>
+            </div>
+          </article>
+
+          <div class="zyt_miniGrid">
+            ${list.map(item => {
+              const starHtml = zytRenderStars(item.rating);
+              return `
+                <article class="zyt_miniCard">
+                  <div class="zyt_coverWrap">
+                    <img src="${item.cover}" alt="${item.title}" />
+                    <span class="zyt_promoBadge">${item.badge}</span>
+                    ${item.tag ? `<span class="zyt_cardTag">${item.tag}</span>` : ''}
+                  </div>
+                  <div class="zyt_bookTitle">${item.title}</div>
+                  <div class="zyt_ratingRow">
+                    <span class="zyt_stars">${starHtml}</span>
+                    <span>${item.rating.toFixed(1)}</span>
+                    <span>(${item.reviews})</span>
+                  </div>
+                  <div class="zyt_priceBox">
+                    <span class="zyt_priceLabel">预估到手价</span>
+                    <span class="zyt_currentPrice">¥${item.current}</span>
+                    <span class="zyt_oldPrice">¥${item.old}</span>
+                  </div>
+                </article>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    zytTabs.forEach(tab => {
+      const el = document.createElement('div');
+      el.className = 'zyt_tab' + (tab.id === 'new' ? ' active' : '');
+      el.textContent = tab.label;
+      el.addEventListener('click', () => {
+        document.querySelectorAll('.zyt_tab').forEach(item => item.classList.remove('active'));
+        el.classList.add('active');
+        if (tab.id === 'hot') zytRenderHotTab();
+      });
+      document.getElementById('zyt_tabs').appendChild(el);
+    });
+
+    zytRenderHotTab();
+  </script>
+</body>
+</html>

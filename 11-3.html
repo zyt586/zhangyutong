@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>11-3 CSS3动画</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+      background-color: #f5f7fb;
+      color: #333;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    .zyt_page_title {
+      font-size: 1.8em;
+      margin-bottom: 6px;
+    }
+
+    .zyt_subtitle {
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    .zyt_section {
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .zyt_section_title {
+      font-size: 1.3em;
+      color: #4a90e2;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #4a90e2;
+      display: inline-block;
+    }
+
+    /* 属性速查卡片 */
+    .zyt_prop_grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+    }
+
+    .zyt_prop_card {
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-left: 5px solid #4a90e2;
+      border-radius: 6px;
+      padding: 12px 14px;
+    }
+
+    .zyt_prop_card h4 {
+      color: #2c5aa0;
+      font-size: 1.05em;
+      margin-bottom: 4px;
+    }
+
+    .zyt_prop_card h4 code {
+      background-color: #e7f0fd;
+      padding: 1px 6px;
+      border-radius: 4px;
+      color: #d9534f;
+    }
+
+    .zyt_prop_card p {
+      font-size: 0.92em;
+      color: #555;
+    }
+
+    .zyt_code_block {
+      background-color: #2d2d2d;
+      color: #f8f8f2;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92em;
+      padding: 14px;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin: 10px 0;
+      line-height: 1.5;
+    }
+
+    .zyt_code_block .zyt_key { color: #f92672; }
+    .zyt_code_block .zyt_val { color: #a6e22e; }
+    .zyt_code_block .zyt_cmt { color: #75715e; }
+
+    /* 演示通用舞台 */
+    .zyt_demo_title {
+      font-size: 1.05em;
+      font-weight: bold;
+      color: #333;
+      margin: 16px 0 8px;
+    }
+
+    .zyt_stage {
+      position: relative;
+      height: 110px;
+      background-color: #eef4ff;
+      border: 1px dashed #4a90e2;
+      border-radius: 6px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+    }
+
+    /* 1. 平移动画 */
+    @keyframes zyt_move {
+      0%   { left: 0; background-color: #4a90e2; }
+      50%  { background-color: #e91e63; }
+      100% { left: calc(100% - 60px); background-color: #5cb85c; }
+    }
+
+    .zyt_mover {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: zyt_move 3s ease-in-out infinite alternate;
+    }
+
+    /* 2. 弹跳动画 */
+    @keyframes zyt_bounce {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-60px); }
+    }
+
+    .zyt_bouncer {
+      width: 56px;
+      height: 56px;
+      background-color: #f0ad4e;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: zyt_bounce 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+    }
+
+    /* 3. 旋转动画 */
+    @keyframes zyt_spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    .zyt_spinner {
+      width: 70px;
+      height: 70px;
+      border: 8px solid #e9ecef;
+      border-top-color: #4a90e2;
+      border-radius: 50%;
+      animation: zyt_spin 1s linear infinite;
+    }
+
+    /* 4. 缩放心跳 */
+    @keyframes zyt_heartbeat {
+      0%, 100% { transform: scale(1); }
+      25%      { transform: scale(1.3); }
+      40%      { transform: scale(1); }
+      60%      { transform: scale(1.25); }
+      75%      { transform: scale(1); }
+    }
+
+    .zyt_heart {
+      font-size: 44px;
+      color: #e91e63;
+      animation: zyt_heartbeat 1.2s ease-in-out infinite;
+      display: inline-block;
+    }
+
+    /* 5. 时序函数对比 */
+    @keyframes zyt_slide {
+      from { transform: translateX(0); }
+      to   { transform: translateX(calc(100% - 70px)); }
+    }
+
+    .zyt_timing_row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .zyt_timing_label {
+      width: 120px;
+      font-size: 0.85em;
+      color: #555;
+      flex-shrink: 0;
+      text-align: right;
+    }
+
+    .zyt_timing_track {
+      position: relative;
+      flex: 1;
+      height: 34px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .zyt_timing_dot {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 60px;
+      height: 24px;
+      background-color: #9b59b6;
+      color: #fff;
+      font-size: 11px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: zyt_slide 2.5s infinite alternate;
+    }
+
+    .zyt_t_linear   { animation-timing-function: linear; }
+    .zyt_t_ease     { animation-timing-function: ease; }
+    .zyt_t_easein   { animation-timing-function: ease-in; }
+    .zyt_t_easeout  { animation-timing-function: ease-out; }
+    .zyt_t_easeinout{ animation-timing-function: ease-in-out; }
+    .zyt_t_bezier   { animation-timing-function: cubic-bezier(0.68, -0.55, 0.27, 1.55); }
+
+    /* 6. direction 对比 */
+    @keyframes zyt_color {
+      from { background-color: #4a90e2; }
+      to   { background-color: #e91e63; }
+    }
+
+    .zyt_dir_box {
+      width: 100%;
+      height: 40px;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: zyt_color 2s linear infinite;
+    }
+
+    .zyt_dir_normal   { animation-direction: normal; }
+    .zyt_dir_reverse  { animation-direction: reverse; }
+    .zyt_dir_alt      { animation-direction: alternate; }
+    .zyt_dir_altrev   { animation-direction: alternate-reverse; }
+
+    /* 7. delay / fill-mode */
+    @keyframes zyt_grow {
+      from { width: 0; background-color: #ccc; }
+      to   { width: 100%; background-color: #5cb85c; }
+    }
+
+    .zyt_progress {
+      height: 26px;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 12px;
+      line-height: 26px;
+      text-align: center;
+      animation: zyt_grow 2s ease-out forwards;
+    }
+
+    .zyt_progress_wait {
+      animation-delay: 1s;
+      animation-fill-mode: both;
+    }
+
+    /* 8. hover 暂停 */
+    .zyt_pause_stage:hover .zyt_runner {
+      animation-play-state: paused;
+    }
+
+    .zyt_runner {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+      width: 70px;
+      height: 50px;
+      background-color: #00bcd4;
+      color: #fff;
+      font-size: 12px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: zyt_move 3s linear infinite alternate;
+    }
+
+    .zyt_pause_hint {
+      position: absolute;
+      right: 10px;
+      bottom: 6px;
+      font-size: 12px;
+      color: #888;
+    }
+
+    /* 9. 综合案例：加载小球（stagger 延迟） */
+    .zyt_loader {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    @keyframes zyt_jump {
+      0%, 100% { transform: translateY(0); opacity: 0.5; }
+      50%      { transform: translateY(-24px); opacity: 1; }
+    }
+
+    .zyt_loader span {
+      width: 22px;
+      height: 22px;
+      background-color: #4a90e2;
+      border-radius: 50%;
+      animation: zyt_jump 0.9s ease-in-out infinite;
+    }
+
+    .zyt_loader span:nth-child(2) { animation-delay: 0.15s; background-color: #e91e63; }
+    .zyt_loader span:nth-child(3) { animation-delay: 0.30s; background-color: #f0ad4e; }
+    .zyt_loader span:nth-child(4) { animation-delay: 0.45s; background-color: #5cb85c; }
+
+    /* 10. 综合案例：翻转图片卡 */
+    @keyframes zyt_flip {
+      0%   { transform: rotateY(0deg); }
+      50%  { transform: rotateY(180deg); }
+      100% { transform: rotateY(360deg); }
+    }
+
+    .zyt_flip_card {
+      width: 160px;
+      height: 110px;
+      perspective: 600px;
+    }
+
+    .zyt_flip_inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      animation: zyt_flip 4s ease-in-out infinite;
+    }
+
+    .zyt_flip_face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .zyt_flip_front {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      font-size: 1.1em;
+    }
+
+    .zyt_flip_back {
+      transform: rotateY(180deg);
+    }
+
+    .zyt_flip_back img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* 属性表 */
+    .zyt_table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      font-size: 0.95em;
+    }
+
+    .zyt_table th,
+    .zyt_table td {
+      border: 1px solid #ddd;
+      padding: 8px 10px;
+      text-align: left;
+    }
+
+    .zyt_table th {
+      background-color: #4a90e2;
+      color: #fff;
+    }
+
+    .zyt_table tr:nth-child(even) {
+      background-color: #f2f6fc;
+    }
+
+    .zyt_table code {
+      color: #d9534f;
+      background-color: #f8f0f0;
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+
+    .zyt_tip {
+      background-color: #fff8e6;
+      border-left: 5px solid #f0ad4e;
+      padding: 12px 14px;
+      border-radius: 5px;
+      font-size: 0.95em;
+      color: #665200;
+      margin-top: 14px;
+    }
+
+    .zyt_footer {
+      text-align: center;
+      color: #999;
+      font-size: 0.9em;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .zyt_timing_label {
+        width: 84px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h2 class="zyt_page_title">🎬 11-3 CSS3动画</h2>
+  <p class="zyt_subtitle">第11章练习3 - 使用 @keyframes 关键帧与 animation 属性制作动画</p>
+
+  <!-- 一、语法基础 -->
+  <section class="zyt_section">
+    <h3 class="zyt_section_title">📖 一、CSS3 动画语法</h3>
+    <div class="zyt_code_block">
+      <span class="zyt_cmt">/* 1. 用 @keyframes 定义关键帧 */</span><br>
+      <span class="zyt_key">@keyframes</span> <span class="zyt_val">zyt_move</span> {<br>
+      &nbsp;&nbsp;0%&nbsp;&nbsp;&nbsp;{ left: 0; }<br>
+      &nbsp;&nbsp;50%&nbsp;&nbsp;{ background: pink; }<br>
+      &nbsp;&nbsp;100% { left: 100%; }<br>
+      }<br><br>
+      <span class="zyt_cmt">/* 2. 在选择器上应用动画（简写） */</span><br>
+      .zyt_box { <span class="zyt_key">animation</span>: <span class="zyt_val">zyt_move 3s ease-in-out 0s infinite alternate forwards</span>; }
+    </div>
+
+    <div class="zyt_prop_grid">
+      <div class="zyt_prop_card">
+        <h4><code>animation-name</code></h4>
+        <p>绑定的 @keyframes 名称，多个用逗号分隔。</p>
+      </div>
+      <div class="zyt_prop_card">
+        <h4><code>animation-duration</code></h4>
+        <p>完成一次动画的时长，如 3s、500ms。</p>
+      </div>
+      <div class="zyt_prop_card">
+        <h4><code>animation-timing-function</code></h4>
+        <p>速度曲线：linear、ease、ease-in、ease-out、ease-in-out、cubic-bezier()。</p>
+      </div>
+      <div class="zyt_prop_card">
+        <h4><code>animation-delay</code></h4>
+        <p>动画开始前的等待时间，可为负值（直接跳到中途）。</p>
+      </div>
+      <div class="zyt_prop_card">
+        <h4><code>animation-iteration-count</code></h4>
+        <p>播放次数，数字或 infinite（无限循环）。</p>
+      </div>
+      <div class="zyt_prop_card">
+        <h4><code>animation-direction</code></h4>
+        <p>播放方向：normal、reverse、alternate、alternate-reverse。</p>
+      </div>
+      <div class="zyt_prop_card">
+        <h4><code>animation-fill-mode</code></h4>
+        <p>结束后保留状态：forwards、backwards、both；默认 none（回到初始）。</p>
+      </div>
+      <div class="zyt_prop_card">
+        <h4><code>animation-play-state</code></h4>
+        <p>运行状态：running、paused，可配合 :hover 做暂停交互。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 二、基础动画演示 -->
+  <section class="zyt_section">
+    <h3 class="zyt_section_title">✨ 二、基础动画演示</h3>
+
+    <p class="zyt_demo_title">1. 位移 + 变色（translate + background，alternate 往返）</p>
+    <div class="zyt_stage">
+      <div class="zyt_mover">zyt_mover</div>
+    </div>
+
+    <p class="zyt_demo_title">2. 弹跳（cubic-bezier 超调回弹效果）</p>
+    <div class="zyt_stage">
+      <div class="zyt_bouncer">弹跳</div>
+    </div>
+
+    <p class="zyt_demo_title">3. 旋转 loading（border-top 网状圆环，linear 匀速）</p>
+    <div class="zyt_stage">
+      <div class="zyt_spinner"></div>
+    </div>
+
+    <p class="zyt_demo_title">4. 心跳缩放（scale 多段关键帧）</p>
+    <div class="zyt_stage">
+      <span class="zyt_heart">❤</span>
+    </div>
+  </section>
+
+  <!-- 三、时序函数对比 -->
+  <section class="zyt_section">
+    <h3 class="zyt_section_title">🚦 三、时序函数对比（同动画不同速度曲线）</h3>
+    <p style="font-size: 0.92em; color: #666; margin-bottom: 10px;">
+      每行都是同一个 <code>zyt_slide</code> 动画，只改 animation-timing-function，观察起步/刹车的差别：
+    </p>
+
+    <div class="zyt_timing_row">
+      <div class="zyt_timing_label">linear</div>
+      <div class="zyt_timing_track"><div class="zyt_timing_dot zyt_t_linear">匀速</div></div>
+    </div>
+    <div class="zyt_timing_row">
+      <div class="zyt_timing_label">ease（默认）</div>
+      <div class="zyt_timing_track"><div class="zyt_timing_dot zyt_t_ease">慢快慢</div></div>
+    </div>
+    <div class="zyt_timing_row">
+      <div class="zyt_timing_label">ease-in</div>
+      <div class="zyt_timing_track"><div class="zyt_timing_dot zyt_t_easein">慢起步</div></div>
+    </div>
+    <div class="zyt_timing_row">
+      <div class="zyt_timing_label">ease-out</div>
+      <div class="zyt_timing_track"><div class="zyt_timing_dot zyt_t_easeout">慢刹车</div></div>
+    </div>
+    <div class="zyt_timing_row">
+      <div class="zyt_timing_label">ease-in-out</div>
+      <div class="zyt_timing_track"><div class="zyt_timing_dot zyt_t_easeinout">两头慢</div></div>
+    </div>
+    <div class="zyt_timing_row">
+      <div class="zyt_timing_label">cubic-bezier</div>
+      <div class="zyt_timing_track"><div class="zyt_timing_dot zyt_t_bezier">回弹</div></div>
+    </div>
+  </section>
+
+  <!-- 四、播放控制 -->
+  <section class="zyt_section">
+    <h3 class="zyt_section_title">🎛️ 四、播放控制：direction / delay / fill-mode / play-state</h3>
+
+    <p class="zyt_demo_title">1. animation-direction 四种模式（蓝→红 单向渐变）</p>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px;">
+      <div class="zyt_dir_box zyt_dir_normal">normal：始终正向</div>
+      <div class="zyt_dir_box zyt_dir_reverse">reverse：始终反向</div>
+      <div class="zyt_dir_box zyt_dir_alt">alternate：正→反 往返</div>
+      <div class="zyt_dir_box zyt_dir_altrev">alternate-reverse：反→正</div>
+    </div>
+
+    <p class="zyt_demo_title">2. animation-delay + fill-mode: both（延迟 1 秒后才开始生长）</p>
+    <div class="zyt_progress zyt_progress_wait">延迟 1s 启动，启动前保持 0 宽度（fill-mode: both）</div>
+    <div class="zyt_progress" style="margin-top: 8px;">对比：无 delay，立即从 0 生长到 100%（forwards）</div>
+
+    <p class="zyt_demo_title">3. animation-play-state（把鼠标移入舞台 → 暂停）</p>
+    <div class="zyt_stage zyt_pause_stage">
+      <div class="zyt_runner">鼠标悬停暂停</div>
+      <span class="zyt_pause_hint">hover 我试试 →</span>
+    </div>
+  </section>
+
+  <!-- 五、综合案例 -->
+  <section class="zyt_section">
+    <h3 class="zyt_section_title">🎁 五、综合案例</h3>
+
+    <p class="zyt_demo_title">1. 加载动画：4 个小球 + 递增 animation-delay（错峰跳动）</p>
+    <div class="zyt_stage">
+      <div class="zyt_loader">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+
+    <p class="zyt_demo_title">2. 3D 翻转图片卡：rotateY 关键帧 + preserve-3d（图片来自 img/25.jpg）</p>
+    <div class="zyt_stage">
+      <div class="zyt_flip_card">
+        <div class="zyt_flip_inner">
+          <div class="zyt_flip_face zyt_flip_front">CSS3<br>rotateY</div>
+          <div class="zyt_flip_face zyt_flip_back">
+            <img src="img/25.jpg" alt="翻转卡片背面图片">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 六、速查表 -->
+  <section class="zyt_section">
+    <h3 class="zyt_section_title">📋 六、animation 简写属性速查</h3>
+    <table class="zyt_table">
+      <tr>
+        <th>顺序</th>
+        <th>属性</th>
+        <th>常用值</th>
+        <th>默认值</th>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td><code>animation-name</code></td>
+        <td>@keyframes 名称</td>
+        <td>none</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td><code>animation-duration</code></td>
+        <td>3s / 500ms</td>
+        <td>0s（不播放）</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td><code>animation-timing-function</code></td>
+        <td>linear / ease / ease-in-out / cubic-bezier()</td>
+        <td>ease</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td><code>animation-delay</code></td>
+        <td>1s / -0.5s</td>
+        <td>0s</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td><code>animation-iteration-count</code></td>
+        <td>3 / infinite</td>
+        <td>1</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td><code>animation-direction</code></td>
+        <td>normal / reverse / alternate / alternate-reverse</td>
+        <td>normal</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td><code>animation-fill-mode</code></td>
+        <td>none / forwards / backwards / both</td>
+        <td>none</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td><code>animation-play-state</code></td>
+        <td>running / paused</td>
+        <td>running</td>
+      </tr>
+    </table>
+
+    <div class="zyt_tip">
+      💡 <strong>小技巧：</strong>①简写时 <code>duration</code> 必须写在 <code>delay</code> 前面，顺序反了会被当成 delay；②动画只改 <code>transform</code> / <code>opacity</code> 最流畅（GPU 加速），避免频繁改 width/left；③只改一个属性时可以写 <code>from / to</code> 代替百分比。
+    </div>
+  </section>
+
+  <footer class="zyt_footer">
+    <p>© 2026 张语桐 | 学号：830 | 《高级网页设计》课程实践 · 11-3 CSS3动画</p>
+  </footer>
+</body>
+</html>

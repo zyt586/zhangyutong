@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS动画演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            gap: 60px;
+            font-family: 'Arial', sans-serif;
+        }
+
+        h1 {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 50px;
+            justify-content: center;
+            align-items: center;
+            max-width: 1200px;
+        }
+
+        .box {
+            width: 200px;
+            height: 200px;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 基础：背景颜色变化动画 - 4种颜色 */
+        .color-change {
+            animation: colorChange 6s ease-in-out infinite;
+        }
+
+        @keyframes colorChange {
+            0%, 25% { background-color: #ff6b6b; }
+            26%, 50% { background-color: #4ecdc4; }
+            51%, 75% { background-color: #45b7d1; }
+            76%, 100% { background-color: #f9ca24; }
+        }
+
+        /* 扩展动画1：旋转 + 缩放 */
+        .rotate-scale {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            animation: rotateScale 4s ease-in-out infinite;
+        }
+
+        @keyframes rotateScale {
+            0%, 100% {
+                transform: rotate(0deg) scale(1);
+                border-radius: 20px;
+            }
+            25% {
+                transform: rotate(90deg) scale(1.1);
+                border-radius: 50%;
+            }
+            50% {
+                transform: rotate(180deg) scale(1);
+                border-radius: 20px;
+            }
+            75% {
+                transform: rotate(270deg) scale(1.1);
+                border-radius: 50%;
+            }
+        }
+
+        /* 扩展动画2：弹跳效果 */
+        .bounce-effect {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% {
+                transform: translateY(0) scale(1);
+            }
+            10%, 45% {
+                transform: translateY(-30px) scale(1.05);
+            }
+            33%, 66% {
+                transform: translateY(-15px) scale(1.02);
+            }
+        }
+
+        /* 扩展动画3：脉冲光晕 */
+        .pulse-glow {
+            background: #00d9ff;
+            animation: pulseGlow 2s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(0, 217, 255, 0.5),
+                            0 0 40px rgba(0, 217, 255, 0.3);
+            }
+            50% {
+                transform: scale(1.08);
+                box-shadow: 0 0 40px rgba(0, 217, 255, 0.8),
+                            0 0 80px rgba(0, 217, 255, 0.5),
+                            0 0 120px rgba(0, 217, 255, 0.3);
+            }
+        }
+
+        /* 扩展动画4：波浪形变 */
+        .wave-morph {
+            background: linear-gradient(45deg, #fa709a, #fee140);
+            animation: waveMorph 3s ease-in-out infinite;
+        }
+
+        @keyframes waveMorph {
+            0%, 100% {
+                border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+                transform: rotate(0deg);
+            }
+            25% {
+                border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+                transform: rotate(90deg);
+            }
+            50% {
+                border-radius: 50% 60% 30% 60% / 30% 60% 70% 40%;
+                transform: rotate(180deg);
+            }
+            75% {
+                border-radius: 60% 30% 60% 40% / 70% 40% 50% 60%;
+                transform: rotate(270deg);
+            }
+        }
+
+        /* 扩展动画5：3D翻转 */
+        .flip-3d {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            animation: flip3d 3s ease-in-out infinite;
+            transform-style: preserve-3d;
+        }
+
+        @keyframes flip3d {
+            0% {
+                transform: perspective(600px) rotateY(0deg);
+            }
+            50% {
+                transform: perspective(600px) rotateY(180deg);
+            }
+            100% {
+                transform: perspective(360deg) rotateY(360deg);
+            }
+        }
+
+        /* 扩展动画6：抖动效果 */
+        .shake {
+            background: linear-gradient(45deg, #ff9a56, #ff6b6b);
+            animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) infinite;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translateX(-1px); }
+            20%, 80% { transform: translateX(2px); }
+            30%, 50%, 70% { transform: translateX(-4px); }
+            40%, 60% { transform: translateX(4px); }
+        }
+
+        /* 标签样式 */
+        .label {
+            color: #fff;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .animation-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 组合动画：颜色变化 + 多种效果 */
+        .combo-animation {
+            animation:
+                colorChange 6s ease-in-out infinite,
+                bounce 2s ease-in-out infinite,
+                rotateScale 4s ease-in-out infinite;
+        }
+
+        /* 第九个盒子：点击气泡效果 + 颜色变化 */
+        .bubble-box {
+            animation: colorChange 6s ease-in-out infinite;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        .bubble-box:active {
+            transform: scale(0.95);
+        }
+
+        /* 气泡样式 */
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(255,255,255,0.2));
+            pointer-events: none;
+            animation: bubbleRise 1.5s ease-out forwards;
+        }
+
+        @keyframes bubbleRise {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(0.5);
+            }
+            50% {
+                opacity: 0.8;
+                transform: translateY(-60px) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-120px) scale(0.8);
+            }
+        }
+
+        /* 小气泡装饰（自动生成） */
+        .bubble-box::before,
+        .bubble-box::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.6), rgba(255,255,255,0.1));
+            animation: floatBubble 3s ease-in-out infinite;
+        }
+
+        .bubble-box::before {
+            width: 20px;
+            height: 20px;
+            bottom: 20px;
+            left: 30px;
+            animation-delay: 0s;
+        }
+
+        .bubble-box::after {
+            width: 15px;
+            height: 15px;
+            bottom: 40px;
+            right: 40px;
+            animation-delay: 1.5s;
+        }
+
+        @keyframes floatBubble {
+            0%, 100% {
+                transform: translateY(0) scale(1);
+                opacity: 0.6;
+            }
+            50% {
+                transform: translateY(-30px) scale(1.2);
+                opacity: 0.3;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>CSS Animation 动画演示</h1>
+
+    <div class="container">
+        <!-- 基础动画：背景颜色变化 -->
+        <div class="animation-item">
+            <div class="box color-change"></div>
+            <p class="label">1. 颜色渐变 (4色)</p>
+        </div>
+
+        <!-- 扩展动画1：旋转+缩放 -->
+        <div class="animation-item">
+            <div class="box rotate-scale"></div>
+            <p class="label">2. 旋转 + 缩放</p>
+        </div>
+
+        <!-- 扩展动画2：弹跳 -->
+        <div class="animation-item">
+            <div class="box bounce-effect"></div>
+            <p class="label">3. 弹跳效果</p>
+        </div>
+
+        <!-- 扩展动画3：脉冲光晕 -->
+        <div class="animation-item">
+            <div class="box pulse-glow"></div>
+            <p class="label">4. 脉冲光晕</p>
+        </div>
+
+        <!-- 扩展动画4：波浪形变 -->
+        <div class="animation-item">
+            <div class="box wave-morph"></div>
+            <p class="label">5. 波浪形变</p>
+        </div>
+
+        <!-- 扩展动画5：3D翻转 -->
+        <div class="animation-item">
+            <div class="box flip-3d"></div>
+            <p class="label">6. 3D翻转</p>
+        </div>
+
+        <!-- 扩展动画6：抖动 -->
+        <div class="animation-item">
+            <div class="box shake"></div>
+            <p class="label">7. 抖动效果</p>
+        </div>
+
+        <!-- 组合动画 -->
+        <div class="animation-item">
+            <div class="box combo-animation"></div>
+            <p class="label">8. 组合动画 (多效叠加)</p>
+        </div>
+
+        <!-- 第九个：点击气泡效果 + 颜色变化 -->
+        <div class="animation-item">
+            <div class="box bubble-box" id="bubbleBox"></div>
+            <p class="label">9. 点击气泡效果</p>
+        </div>
+    </div>
+
+    <script>
+        // 获取气泡盒子
+        const bubbleBox = document.getElementById('bubbleBox');
+
+        // 点击事件：创建气泡
+        bubbleBox.addEventListener('click', function(e) {
+            // 获取点击位置相对于盒子的坐标
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // 创建多个气泡
+            const bubbleCount = 5 + Math.floor(Math.random() * 5); // 5-9个气泡
+
+            for (let i = 0; i < bubbleCount; i++) {
+                createBubble(x, y, this);
+            }
+        });
+
+        // 创建单个气泡
+        function createBubble(x, y, container) {
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+
+            // 随机大小 (10-30px)
+            const size = 10 + Math.random() * 20;
+            bubble.style.width = size + 'px';
+            bubble.style.height = size + 'px';
+
+            // 随机偏移位置（围绕点击点）
+            const offsetX = (Math.random() - 0.5) * 60;
+            const offsetY = (Math.random() - 0.5) * 40;
+
+            bubble.style.left = (x - size/2 + offsetX) + 'px';
+            bubble.style.top = (y - size/2 + offsetY) + 'px';
+
+            // 添加到容器
+            container.appendChild(bubble);
+
+            // 动画结束后移除气泡
+            setTimeout(() => {
+                bubble.remove();
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
