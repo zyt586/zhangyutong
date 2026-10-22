@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>13-2 Lucide SVG 图标</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+      background-color: #f5f7fb;
+      color: #333;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    .zyt_page_title {
+      font-size: 1.8em;
+      margin-bottom: 6px;
+    }
+
+    .zyt_subtitle {
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    .zyt_section {
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .zyt_section_title {
+      font-size: 1.3em;
+      color: #2eb872;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #2eb872;
+      display: inline-block;
+    }
+
+    .zyt_note {
+      font-size: 0.9em;
+      color: #777;
+      margin-bottom: 14px;
+    }
+
+    .zyt_note code,
+    .zyt_file_list code {
+      background-color: #eef1f7;
+      color: #c7254e;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .zyt_code_block {
+      background-color: #2d2d2d;
+      color: #f8f8f2;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.9em;
+      padding: 12px 14px;
+      border-radius: 8px;
+      margin-bottom: 14px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      overflow-x: auto;
+    }
+
+    .zyt_code_block .zyt_tag {
+      color: #8be9fd;
+    }
+
+    .zyt_code_block .zyt_attr {
+      color: #50fa7b;
+    }
+
+    .zyt_code_block .zyt_str {
+      color: #f1fa8c;
+    }
+
+    .zyt_file_list {
+      list-style: none;
+      font-size: 0.92em;
+    }
+
+    .zyt_file_list li {
+      padding: 6px 0;
+      border-bottom: 1px dashed #eceff4;
+    }
+
+    .zyt_file_list li:last-child {
+      border-bottom: none;
+    }
+
+    .zyt_file_list .zyt_inline_hint {
+      width: 17px;
+      height: 17px;
+      color: #2eb872;
+      vertical-align: -3px;
+      margin-right: 8px;
+    }
+
+    .zyt_icon_grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+      gap: 12px;
+    }
+
+    .zyt_icon_cell {
+      border: 1px solid #e8ecf3;
+      border-radius: 10px;
+      padding: 16px 6px 12px;
+      text-align: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .zyt_icon_cell:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+      border-color: #2eb872;
+    }
+
+    .zyt_icon_cell svg {
+      width: 28px;
+      height: 28px;
+      color: #333;
+      transition: color 0.2s ease;
+    }
+
+    .zyt_icon_cell:hover svg {
+      color: #2eb872;
+    }
+
+    .zyt_icon_name {
+      display: block;
+      margin-top: 8px;
+      font-size: 0.76em;
+      color: #999;
+      word-break: break-all;
+      font-family: Consolas, "Courier New", monospace;
+    }
+
+    .zyt_size_row,
+    .zyt_color_row,
+    .zyt_stroke_row {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .zyt_size_item,
+    .zyt_color_item,
+    .zyt_stroke_item {
+      text-align: center;
+      font-size: 1em;
+    }
+
+    .zyt_size_item span,
+    .zyt_color_item span,
+    .zyt_stroke_item span {
+      display: block;
+      margin-top: 8px;
+      font-size: 0.78em;
+      color: #999;
+      font-family: Consolas, "Courier New", monospace;
+    }
+
+    .zyt_sz_16 svg { width: 16px; height: 16px; }
+    .zyt_sz_24 svg { width: 24px; height: 24px; }
+    .zyt_sz_32 svg { width: 32px; height: 32px; }
+    .zyt_sz_48 svg { width: 48px; height: 48px; }
+    .zyt_sz_72 svg { width: 72px; height: 72px; }
+
+    .zyt_c_red { color: #e5484d; }
+    .zyt_c_orange { color: #f08c00; }
+    .zyt_c_green { color: #2eb872; }
+    .zyt_c_blue { color: #4a90e2; }
+    .zyt_c_purple { color: #8e44ad; }
+    .zyt_c_gray { color: #8a8f98; }
+
+    .zyt_stroke_1 svg { stroke-width: 1; }
+    .zyt_stroke_15 svg { stroke-width: 1.5; }
+    .zyt_stroke_2 svg { stroke-width: 2; }
+    .zyt_stroke_25 svg { stroke-width: 2.5; }
+    .zyt_stroke_3 svg { stroke-width: 3; }
+
+    .zyt_img_row {
+      display: flex;
+      gap: 26px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .zyt_img_item {
+      text-align: center;
+      background-color: #f8fafc;
+      border: 1px solid #e8ecf3;
+      border-radius: 10px;
+      padding: 14px 18px;
+    }
+
+    .zyt_img_icon {
+      width: 30px;
+      height: 30px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .zyt_img_item span {
+      display: block;
+      margin-top: 8px;
+      font-size: 0.78em;
+      color: #999;
+      font-family: Consolas, "Courier New", monospace;
+    }
+
+    .zyt_demo_row {
+      display: flex;
+      gap: 22px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .zyt_btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background-color: #2eb872;
+      color: #fff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 0.95em;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .zyt_btn:hover {
+      background-color: #259a61;
+    }
+
+    .zyt_btn_outline {
+      background-color: #fff;
+      color: #2eb872;
+      border: 1px solid #2eb872;
+    }
+
+    .zyt_btn_outline:hover {
+      background-color: #e6f9f0;
+    }
+
+    .zyt_btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .zyt_search_box {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background-color: #fff;
+      border: 1px solid #d6dbe5;
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: #999;
+      transition: border-color 0.2s ease;
+    }
+
+    .zyt_search_box:focus-within {
+      border-color: #2eb872;
+      color: #2eb872;
+    }
+
+    .zyt_search_box svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .zyt_search_box input {
+      border: none;
+      outline: none;
+      font-size: 0.95em;
+      font-family: inherit;
+      width: 170px;
+      color: #333;
+    }
+
+    .zyt_list {
+      list-style: none;
+      border: 1px solid #e8ecf3;
+      border-radius: 10px;
+      overflow: hidden;
+      max-width: 420px;
+    }
+
+    .zyt_list li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-bottom: 1px solid #f0f2f6;
+      font-size: 0.95em;
+    }
+
+    .zyt_list li:last-child {
+      border-bottom: none;
+    }
+
+    .zyt_list li:nth-child(odd) {
+      background-color: #fbfcfe;
+    }
+
+    .zyt_list li svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      color: #2eb872;
+    }
+
+    .zyt_list .zyt_list_time {
+      margin-left: auto;
+      color: #aaa;
+      font-size: 0.85em;
+    }
+
+    @media (max-width: 600px) {
+      .zyt_icon_grid {
+        grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+      }
+
+      .zyt_search_box input {
+        width: 130px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1 class="zyt_page_title">🔷 13-2 Lucide SVG 图标</h1>
+  <p class="zyt_subtitle">SVG 矢量图形形式 · 本地文件 cdn/lucide · 图标以 &lt;svg&gt; 元素插入页面</p>
+
+  <section class="zyt_section">
+    <h2 class="zyt_section_title">📖 什么是 SVG 图标</h2>
+    <p class="zyt_note">
+      Lucide 是一套开源的描边风格图标，每枚图标本质上是一小段 SVG 代码。
+      页面里先写占位符 <code>&lt;i data-lucide="house"&gt;&lt;/i&gt;</code>，
+      引入本地的 <code>cdn/lucide/lucide.min.js</code> 后执行 <code>lucide.createIcons()</code>，
+      脚本会把每个占位符替换成真正的 <code>&lt;svg&gt;</code> 元素（路径使用
+      <code>stroke="currentColor"</code>），因此颜色、粗细、尺寸都能用 CSS 直接控制，且无级缩放不模糊。
+    </p>
+    <div class="zyt_code_block"><span class="zyt_tag">&lt;!-- 写法：占位符 --&gt;</span>
+<span class="zyt_tag">&lt;i</span> <span class="zyt_attr">data-lucide</span>=<span class="zyt_str">"house"</span><span class="zyt_tag">&gt;&lt;/i&gt;</span>
+
+<span class="zyt_tag">&lt;!-- 页面底部引入本地文件并渲染 --&gt;</span>
+<span class="zyt_tag">&lt;script</span> <span class="zyt_attr">src</span>=<span class="zyt_str">"cdn/lucide/lucide.min.js"</span><span class="zyt_tag">&gt;&lt;/script&gt;</span>
+<span class="zyt_tag">&lt;script&gt;</span>
+  lucide.createIcons({ icons: lucide.icons });
+<span class="zyt_tag">&lt;/script&gt;</span>
+
+<span class="zyt_tag">&lt;!-- 渲染之后得到的 SVG（以 house 为例） --&gt;</span>
+<span class="zyt_tag">&lt;svg</span> <span class="zyt_attr">xmlns</span>=<span class="zyt_str">"http://www.w3.org/2000/svg"</span> <span class="zyt_attr">width</span>=<span class="zyt_str">"24"</span> <span class="zyt_attr">height</span>=<span class="zyt_str">"24"</span>
+     <span class="zyt_attr">viewBox</span>=<span class="zyt_str">"0 0 24 24"</span> <span class="zyt_attr">fill</span>=<span class="zyt_str">"none"</span> <span class="zyt_attr">stroke</span>=<span class="zyt_str">"currentColor"</span>
+     <span class="zyt_attr">stroke-width</span>=<span class="zyt_str">"2"</span> <span class="zyt_attr">stroke-linecap</span>=<span class="zyt_str">"round"</span> <span class="zyt_attr">stroke-linejoin</span>=<span class="zyt_str">"round"</span><span class="zyt_tag">&gt;</span>
+  <span class="zyt_tag">&lt;path</span> <span class="zyt_attr">d</span>=<span class="zyt_str">"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"</span> <span class="zyt_tag">/&gt;</span>
+  <span class="zyt_tag">&lt;path</span> <span class="zyt_attr">d</span>=<span class="zyt_str">"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7
+    5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"</span> <span class="zyt_tag">/&gt;</span>
+<span class="zyt_tag">&lt;/svg&gt;</span></div>
+    <ul class="zyt_file_list">
+      <li><i data-lucide="file-code" class="zyt_inline_hint"></i>脚本：<code>cdn/lucide/lucide.min.js</code>（下载自 unpkg，v0.460.0）</li>
+      <li><i data-lucide="download" class="zyt_inline_hint"></i>静态图标文件：<code>cdn/lucide/icons/*.svg</code>（下载自 lucide-static）</li>
+      <li><i data-lucide="code" class="zyt_inline_hint"></i>引用方式：<code>&lt;script src="cdn/lucide/lucide.min.js"&gt;&lt;/script&gt;</code></li>
+    </ul>
+  </section>
+
+  <section class="zyt_section">
+    <h2 class="zyt_section_title">🗂️ 常用图标（渲染为 SVG）</h2>
+    <p class="zyt_note">写法：<code>&lt;i data-lucide="house"&gt;&lt;/i&gt;</code>，下方每个格子最终都是一个 <code>&lt;svg&gt;</code> 元素。</p>
+    <div class="zyt_icon_grid">
+      <div class="zyt_icon_cell"><i data-lucide="house"></i><span class="zyt_icon_name">house</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="heart"></i><span class="zyt_icon_name">heart</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="star"></i><span class="zyt_icon_name">star</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="bell"></i><span class="zyt_icon_name">bell</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="user"></i><span class="zyt_icon_name">user</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="search"></i><span class="zyt_icon_name">search</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="settings"></i><span class="zyt_icon_name">settings</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="trash-2"></i><span class="zyt_icon_name">trash-2</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="pencil"></i><span class="zyt_icon_name">pencil</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="check"></i><span class="zyt_icon_name">check</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="x"></i><span class="zyt_icon_name">x</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="play"></i><span class="zyt_icon_name">play</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="mail"></i><span class="zyt_icon_name">mail</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="phone"></i><span class="zyt_icon_name">phone</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="camera"></i><span class="zyt_icon_name">camera</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="calendar"></i><span class="zyt_icon_name">calendar</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="clock"></i><span class="zyt_icon_name">clock</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="map-pin"></i><span class="zyt_icon_name">map-pin</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="download"></i><span class="zyt_icon_name">download</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="upload"></i><span class="zyt_icon_name">upload</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="arrow-right"></i><span class="zyt_icon_name">arrow-right</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="moon"></i><span class="zyt_icon_name">moon</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="sun"></i><span class="zyt_icon_name">sun</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="info"></i><span class="zyt_icon_name">info</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="circle"></i><span class="zyt_icon_name">circle</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="circle-check"></i><span class="zyt_icon_name">circle-check</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="circle-x"></i><span class="zyt_icon_name">circle-x</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="bookmark"></i><span class="zyt_icon_name">bookmark</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="flag"></i><span class="zyt_icon_name">flag</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="rocket"></i><span class="zyt_icon_name">rocket</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="shield"></i><span class="zyt_icon_name">shield</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="terminal"></i><span class="zyt_icon_name">terminal</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="code"></i><span class="zyt_icon_name">code</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="laptop"></i><span class="zyt_icon_name">laptop</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="image"></i><span class="zyt_icon_name">image</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="file-text"></i><span class="zyt_icon_name">file-text</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="message-circle"></i><span class="zyt_icon_name">message-circle</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="send"></i><span class="zyt_icon_name">send</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="lock"></i><span class="zyt_icon_name">lock</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="eye"></i><span class="zyt_icon_name">eye</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="shopping-cart"></i><span class="zyt_icon_name">shopping-cart</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="zap"></i><span class="zyt_icon_name">zap</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="globe"></i><span class="zyt_icon_name">globe</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="link"></i><span class="zyt_icon_name">link</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="menu"></i><span class="zyt_icon_name">menu</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="plus"></i><span class="zyt_icon_name">plus</span></div>
+      <div class="zyt_icon_cell"><i data-lucide="minus"></i><span class="zyt_icon_name">minus</span></div>
+    </div>
+  </section>
+
+  <section class="zyt_section">
+    <h2 class="zyt_section_title">📐 尺寸调整（CSS 控制）</h2>
+    <p class="zyt_note">
+      SVG 有 <code>viewBox</code>，改 <code>width / height</code> 即可任意缩放，放大后依然清晰（对比字体图标受字号限制）。
+    </p>
+    <div class="zyt_size_row">
+      <div class="zyt_size_item zyt_sz_16"><i data-lucide="rocket"></i><span>16px</span></div>
+      <div class="zyt_size_item zyt_sz_24"><i data-lucide="rocket"></i><span>24px</span></div>
+      <div class="zyt_size_item zyt_sz_32"><i data-lucide="rocket"></i><span>32px</span></div>
+      <div class="zyt_size_item zyt_sz_48"><i data-lucide="rocket"></i><span>48px</span></div>
+      <div class="zyt_size_item zyt_sz_72"><i data-lucide="rocket"></i><span>72px</span></div>
+    </div>
+  </section>
+
+  <section class="zyt_section">
+    <h2 class="zyt_section_title">🎨 颜色与线条粗细</h2>
+    <p class="zyt_note">
+      路径是 <code>stroke="currentColor"</code>，所以 <code>color</code> 变，描边颜色就变；
+      <code>stroke-width</code> 也可以用 CSS 覆盖，做出不同视觉重量。
+    </p>
+    <div class="zyt_color_row">
+      <div class="zyt_color_item zyt_c_red"><i data-lucide="heart"></i><span>#e5484d</span></div>
+      <div class="zyt_color_item zyt_c_orange"><i data-lucide="zap"></i><span>#f08c00</span></div>
+      <div class="zyt_color_item zyt_c_green"><i data-lucide="leaf"></i><span>#2eb872</span></div>
+      <div class="zyt_color_item zyt_c_blue"><i data-lucide="star"></i><span>#4a90e2</span></div>
+      <div class="zyt_color_item zyt_c_purple"><i data-lucide="moon"></i><span>#8e44ad</span></div>
+      <div class="zyt_color_item zyt_c_gray"><i data-lucide="circle"></i><span>#8a8f98</span></div>
+    </div>
+    <div class="zyt_stroke_row">
+      <div class="zyt_stroke_item zyt_stroke_1"><i data-lucide="shield"></i><span>1</span></div>
+      <div class="zyt_stroke_item zyt_stroke_15"><i data-lucide="shield"></i><span>1.5</span></div>
+      <div class="zyt_stroke_item zyt_stroke_2"><i data-lucide="shield"></i><span>2（默认）</span></div>
+      <div class="zyt_stroke_item zyt_stroke_25"><i data-lucide="shield"></i><span>2.5</span></div>
+      <div class="zyt_stroke_item zyt_stroke_3"><i data-lucide="shield"></i><span>3</span></div>
+    </div>
+  </section>
+
+  <section class="zyt_section">
+    <h2 class="zyt_section_title">📄 静态 SVG 文件（&lt;img&gt; 引用）</h2>
+    <p class="zyt_note">
+      除了用脚本把图标内联进页面，也可以把下载好的 <code>.svg</code> 文件当图片直接引用。
+      注意：作为 <code>&lt;img&gt;</code> 时 <code>currentColor</code> 没有上下文、会变成黑色，
+      想跟随文字变色就需要把 SVG 内容内联（像上面 createIcons 生成的那样）。
+    </p>
+    <div class="zyt_img_row">
+      <div class="zyt_img_item"><img class="zyt_img_icon" src="cdn/lucide/icons/house.svg" alt="house"><span>house.svg</span></div>
+      <div class="zyt_img_item"><img class="zyt_img_icon" src="cdn/lucide/icons/heart.svg" alt="heart"><span>heart.svg</span></div>
+      <div class="zyt_img_item"><img class="zyt_img_icon" src="cdn/lucide/icons/star.svg" alt="star"><span>star.svg</span></div>
+      <div class="zyt_img_item"><img class="zyt_img_icon" src="cdn/lucide/icons/bell.svg" alt="bell"><span>bell.svg</span></div>
+      <div class="zyt_img_item"><img class="zyt_img_icon" src="cdn/lucide/icons/user.svg" alt="user"><span>user.svg</span></div>
+      <div class="zyt_img_item"><img class="zyt_img_icon" src="cdn/lucide/icons/search.svg" alt="search"><span>search.svg</span></div>
+      <div class="zyt_img_item"><img class="zyt_img_icon" src="cdn/lucide/icons/settings.svg" alt="settings"><span>settings.svg</span></div>
+      <div class="zyt_img_item"><img class="zyt_img_icon" src="cdn/lucide/icons/zap.svg" alt="zap"><span>zap.svg</span></div>
+    </div>
+    <div class="zyt_code_block"><span class="zyt_tag">&lt;img</span> <span class="zyt_attr">src</span>=<span class="zyt_str">"cdn/lucide/icons/house.svg"</span> <span class="zyt_attr">alt</span>=<span class="zyt_str">"house"</span><span class="zyt_tag">&gt;</span></div>
+  </section>
+
+  <section class="zyt_section">
+    <h2 class="zyt_section_title">🧩 应用示例</h2>
+    <p class="zyt_note">按钮、搜索框、消息列表——SVG 图标可以和文字、表单元素自由混排。</p>
+    <div class="zyt_demo_row">
+      <button class="zyt_btn" type="button"><i data-lucide="download"></i>下载资料</button>
+      <button class="zyt_btn zyt_btn_outline" type="button"><i data-lucide="pencil"></i>编辑</button>
+      <span class="zyt_search_box">
+        <i data-lucide="search"></i>
+        <input type="text" placeholder="搜索课程内容...">
+      </span>
+    </div>
+    <ul class="zyt_list">
+      <li><i data-lucide="circle-check"></i>已完成：13-1 字体图标页面<span class="zyt_list_time">09:20</span></li>
+      <li><i data-lucide="circle-check"></i>已完成：13-2 SVG 图标页面<span class="zyt_list_time">10:05</span></li>
+      <li><i data-lucide="clock"></i>进行中：整理图标用法笔记<span class="zyt_list_time">14:30</span></li>
+      <li><i data-lucide="mail"></i>新消息：课程作业提醒<span class="zyt_list_time">16:00</span></li>
+    </ul>
+  </section>
+
+  <script src="cdn/lucide/lucide.min.js"></script>
+  <script>
+    var zyt_lucide_icons = lucide.icons;
+    lucide.createIcons({ icons: zyt_lucide_icons });
+  </script>
+</body>
+</html>

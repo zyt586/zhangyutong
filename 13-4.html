@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>13-4 iconfont SVG 底部导航</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+      background-color: #f5f7fb;
+      color: #333;
+      line-height: 1.6;
+      padding-bottom: 78px;
+      padding-bottom: calc(78px + env(safe-area-inset-bottom));
+    }
+
+    .zyt_page {
+      padding: 16px 16px 0;
+    }
+
+    .zyt_page_title {
+      font-size: 1.6em;
+      margin-bottom: 6px;
+    }
+
+    .zyt_subtitle {
+      font-size: 0.95em;
+      color: #666;
+      margin-bottom: 16px;
+    }
+
+    .zyt_section {
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .zyt_section_title {
+      font-size: 1.2em;
+      color: #2eb872;
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #2eb872;
+      display: inline-block;
+    }
+
+    .zyt_note {
+      font-size: 0.9em;
+      color: #777;
+      margin-bottom: 10px;
+    }
+
+    .zyt_note code,
+    .zyt_points code,
+    .zyt_file_list code {
+      background-color: #eef1f7;
+      color: #c7254e;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .zyt_points {
+      list-style: none;
+      font-size: 0.92em;
+      margin-bottom: 12px;
+    }
+
+    .zyt_points li {
+      position: relative;
+      padding: 6px 0 6px 22px;
+      border-bottom: 1px dashed #eceff4;
+    }
+
+    .zyt_points li:last-child {
+      border-bottom: none;
+    }
+
+    .zyt_points li::before {
+      content: "▸";
+      position: absolute;
+      left: 4px;
+      color: #2eb872;
+    }
+
+    .zyt_code_block {
+      background-color: #2d2d2d;
+      color: #f8f8f2;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.86em;
+      line-height: 1.5;
+      padding: 12px 14px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      overflow-x: auto;
+    }
+
+    .zyt_file_list {
+      list-style: none;
+      font-size: 0.92em;
+    }
+
+    .zyt_file_list li {
+      padding: 6px 0;
+      border-bottom: 1px dashed #eceff4;
+    }
+
+    .zyt_file_list li:last-child {
+      border-bottom: none;
+    }
+
+    .zyt_icon_demo {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .zyt_icon_demo_item {
+      flex: 1 1 110px;
+      min-width: 110px;
+      border: 1px solid #e8ecf3;
+      border-radius: 10px;
+      padding: 14px 6px 10px;
+      text-align: center;
+      color: #2eb872;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .zyt_icon_demo_item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+    }
+
+    .zyt_icon_demo_item .zyt_tab_svg {
+      width: 30px;
+      height: 30px;
+    }
+
+    .zyt_icon_demo_name {
+      display: block;
+      margin-top: 8px;
+      font-size: 0.76em;
+      color: #999;
+      font-family: Consolas, "Courier New", monospace;
+      word-break: break-all;
+    }
+
+    .zyt_card {
+      background-color: #fbfcfe;
+      border: 1px solid #e8ecf3;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .zyt_card_title {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .zyt_card_text {
+      font-size: 0.9em;
+      color: #777;
+    }
+
+    .zyt_hint {
+      font-size: 0.85em;
+      color: #999;
+      margin-top: 4px;
+    }
+
+    /* ===== 固定底部导航：全屏宽度 + 4 等分自适应 ===== */
+    .zyt_tabbar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      display: flex;
+      align-items: stretch;
+      background-color: #fff;
+      border-top: 1px solid #e8ecf3;
+      box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.08);
+      z-index: 1000;
+      padding-bottom: 0;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .zyt_tab_item {
+      flex: 1 1 0;
+      min-width: 0;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 9px 0 7px;
+      text-decoration: none;
+      color: #8a8f98;
+      transition: color 0.2s ease;
+    }
+
+    .zyt_tab_item.zyt_active {
+      color: #2eb872;
+    }
+
+    .zyt_tab_icon {
+      position: relative;
+      display: inline-flex;
+      line-height: 1;
+    }
+
+    .zyt_tab_svg {
+      width: 26px;
+      height: 26px;
+      fill: currentColor !important;
+      display: block;
+      transition: fill 0.2s ease;
+    }
+
+    .zyt_tab_svg path,
+    .zyt_tab_svg path[fill] {
+      fill: currentColor !important;
+    }
+
+    /* 数字徽章：图标右上角 */
+    .zyt_badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      box-sizing: border-box;
+      min-width: 17px;
+      height: 17px;
+      padding: 0 4px;
+      background-color: #e5484d;
+      border: 1.5px solid #fff;
+      border-radius: 999px;
+      color: #fff;
+      font-size: 11px;
+      line-height: 14px;
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
+
+    /* 右上角红点：整个导航项的右上角 */
+    .zyt_dot {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background-color: #ff3b30;
+      box-shadow: 0 0 0 1.5px #fff;
+    }
+
+    .zyt_tab_label {
+      font-size: 12px;
+    }
+
+    @media (max-width: 350px) {
+      .zyt_tab_svg {
+        width: 23px;
+        height: 23px;
+      }
+
+      .zyt_tab_label {
+        font-size: 11px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="zyt_page">
+    <h1 class="zyt_page_title">📱 13-4 iconfont SVG · 移动端底部导航</h1>
+    <p class="zyt_subtitle">SVG 实现（symbol + use） · 固定全屏宽度 · 4 项自适应均分 · 数字徽章 + 右上角红点</p>
+
+    <section class="zyt_section">
+      <h2 class="zyt_section_title">📖 实现说明</h2>
+      <ul class="zyt_points">
+        <li>图标来源：<code>font/iconfont.js</code> 把 20 枚图标作为 <code>&lt;symbol&gt;</code> 雪碧图注入页面，用 <code>&lt;use xlink:href="#icon-xxx"&gt;</code> 引用</li>
+        <li>全屏宽度、固定定位：<code>.zyt_tabbar</code> 使用 <code>position: fixed</code> + <code>left:0; right:0; width:100%</code> 贴在屏幕底部</li>
+        <li>自适应宽度：4 个导航项 <code>flex: 1 1 0</code>，无论屏幕多宽都四等分占满整行</li>
+        <li>数字徽章：<code>.zyt_badge</code> 绝对定位在图标的右上角，白描边 + 圆角胶囊</li>
+        <li>红点：<code>.zyt_dot</code> 绝对定位在整个导航项的右上角，提示有新内容</li>
+        <li>SVG 优势：路径 <code>fill</code> 继承 <code>currentColor</code>，改导航 <code>color</code> 图标跟着变色；用 CSS 改 <code>width/height</code> 即可无损缩放</li>
+        <li>移动端适配：页面加 <code>viewport</code> 声明；<code>env(safe-area-inset-bottom)</code> 留 iPhone 安全区；正文 <code>padding-bottom</code> 预留导航高度</li>
+      </ul>
+      <div class="zyt_code_block">&lt;script src="font/iconfont.js"&gt;&lt;/script&gt;
+
+&lt;nav class="zyt_tabbar"&gt;
+  &lt;a class="zyt_tab_item zyt_active"&gt;
+    &lt;span class="zyt_tab_icon"&gt;
+      &lt;svg class="zyt_tab_svg" aria-hidden="true"&gt;
+        &lt;use xlink:href="#icon-weixin"&gt;&lt;/use&gt;
+      &lt;/svg&gt;
+      &lt;span class="zyt_badge"&gt;8&lt;/span&gt;
+    &lt;/span&gt;
+    &lt;span class="zyt_tab_label"&gt;消息&lt;/span&gt;
+    &lt;span class="zyt_dot"&gt;&lt;/span&gt;
+  &lt;/a&gt;
+  ... 共 4 项 ...
+&lt;/nav&gt;</div>
+    </section>
+
+    <section class="zyt_section">
+      <h2 class="zyt_section_title">🔷 导航用到的 SVG 图标</h2>
+      <p class="zyt_note">来自 <code>font/iconfont.js</code> 的 symbol，写法：<code>&lt;svg class="zyt_tab_svg"&gt;&lt;use xlink:href="#icon-weixin"&gt;&lt;/use&gt;&lt;/svg&gt;</code></p>
+      <div class="zyt_icon_demo">
+        <div class="zyt_icon_demo_item"><svg class="zyt_tab_svg" aria-hidden="true"><use xlink:href="#icon-weixin"></use></svg><span class="zyt_icon_demo_name">#icon-weixin</span></div>
+        <div class="zyt_icon_demo_item"><svg class="zyt_tab_svg" aria-hidden="true"><use xlink:href="#icon-faxian"></use></svg><span class="zyt_icon_demo_name">#icon-faxian</span></div>
+        <div class="zyt_icon_demo_item"><svg class="zyt_tab_svg" aria-hidden="true"><use xlink:href="#icon-shoucang"></use></svg><span class="zyt_icon_demo_name">#icon-shoucang</span></div>
+        <div class="zyt_icon_demo_item"><svg class="zyt_tab_svg" aria-hidden="true"><use xlink:href="#icon-tongxunlu"></use></svg><span class="zyt_icon_demo_name">#icon-tongxunlu</span></div>
+      </div>
+    </section>
+
+    <section class="zyt_section">
+      <h2 class="zyt_section_title">📄 引用文件</h2>
+      <ul class="zyt_file_list">
+        <li>SVG 雪碧图脚本：<code>font/iconfont.js</code>（页面加载时把 symbol 插到 body 开头，隐藏、不占位）</li>
+        <li>本页不加载字体文件，图标全部是矢量路径（<code>viewBox="0 0 1024 1024"</code>）</li>
+        <li>本页导航：4 项 = 消息 / 发现 / 收藏 / 通讯录，每项都有数字徽章与右上角红点</li>
+      </ul>
+    </section>
+
+    <section class="zyt_section">
+      <h2 class="zyt_section_title">📱 内容区（滚动查看固定导航）</h2>
+      <p class="zyt_note">页面内容可以任意滚动，底部导航始终固定在屏幕上。</p>
+      <div class="zyt_card">
+        <p class="zyt_card_title">1 / 消息</p>
+        <p class="zyt_card_text">图标 #icon-weixin，徽章数字 8，右上角有红点，点击可切换选中态。</p>
+      </div>
+      <div class="zyt_card">
+        <p class="zyt_card_title">2 / 发现</p>
+        <p class="zyt_card_text">图标 #icon-faxian，徽章数字 99+，展示两位数徽章的自适应宽度。</p>
+      </div>
+      <div class="zyt_card">
+        <p class="zyt_card_title">3 / 收藏</p>
+        <p class="zyt_card_text">图标 #icon-shoucang，徽章数字 20，红点表示收藏有更新。</p>
+      </div>
+      <div class="zyt_card">
+        <p class="zyt_card_title">4 / 通讯录</p>
+        <p class="zyt_card_text">图标 #icon-tongxunlu，徽章数字 3，提示 3 位好友的新动态。</p>
+      </div>
+      <div class="zyt_card">
+        <p class="zyt_card_title">宽度自适应验证</p>
+        <p class="zyt_card_text">拖动改变浏览器窗口宽度（或用开发者工具切到手机模式），导航始终占满 100% 屏幕宽，4 项各占 25%。</p>
+      </div>
+      <p class="zyt_hint">↑ 把窗口缩窄或切换手机模拟，可以看到导航贴底固定、全屏宽度、四项均分。</p>
+    </section>
+  </div>
+
+  <nav class="zyt_tabbar">
+    <a class="zyt_tab_item zyt_active" href="javascript:void(0)">
+      <span class="zyt_tab_icon">
+        <svg class="zyt_tab_svg" aria-hidden="true"><use xlink:href="#icon-weixin"></use></svg>
+        <span class="zyt_badge">8</span>
+      </span>
+      <span class="zyt_tab_label">消息</span>
+      
+    </a>
+    <a class="zyt_tab_item" href="javascript:void(0)">
+      <span class="zyt_tab_icon">
+        <svg class="zyt_tab_svg" aria-hidden="true"><use xlink:href="#icon-faxian"></use></svg>
+        <span class="zyt_badge">99+</span>
+      </span>
+      <span class="zyt_tab_label">发现</span>
+     
+    </a>
+    <a class="zyt_tab_item" href="javascript:void(0)">
+      <span class="zyt_tab_icon">
+        <svg class="zyt_tab_svg" aria-hidden="true"><use xlink:href="#icon-shoucang"></use></svg>
+        <span class="zyt_badge">20</span>
+      </span>
+      <span class="zyt_tab_label">收藏</span>
+
+    </a>
+    <a class="zyt_tab_item" href="javascript:void(0)">
+      <span class="zyt_tab_icon">
+        <svg class="zyt_tab_svg" aria-hidden="true"><use xlink:href="#icon-tongxunlu"></use></svg>
+        <span class="zyt_badge">3</span>
+      </span>
+      <span class="zyt_tab_label">通讯录</span>
+     
+    </a>
+  </nav>
+
+  <script src="font/iconfont.js"></script>
+  <script>
+    var zyt_tab_list = document.querySelectorAll('.zyt_tab_item');
+
+    function zyt_bind_tabs() {
+      var zyt_i, zyt_j;
+      for (zyt_i = 0; zyt_i < zyt_tab_list.length; zyt_i++) {
+        zyt_tab_list[zyt_i].addEventListener('click', function (zyt_event) {
+          zyt_event.preventDefault();
+          zyt_event.stopPropagation();
+          for (zyt_j = 0; zyt_j < zyt_tab_list.length; zyt_j++) {
+            zyt_tab_list[zyt_j].classList.remove('zyt_active');
+          }
+          this.classList.add('zyt_active');
+        });
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', zyt_bind_tabs);
+    } else {
+      zyt_bind_tabs();
+    }
+  </script>
+</body>
+</html>

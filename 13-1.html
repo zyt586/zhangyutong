@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>13-1 Font Awesome 字体图标</title>
+  <link rel="stylesheet" href="cdn/fontawesome/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+      background-color: #f5f7fb;
+      color: #333;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    .zyt_page_title {
+      font-size: 1.8em;
+      margin-bottom: 6px;
+    }
+
+    .zyt_subtitle {
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    .zyt_section {
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .zyt_section_title {
+      font-size: 1.3em;
+      color: #4a90e2;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #4a90e2;
+      display: inline-block;
+    }
+
+    .zyt_note {
+      font-size: 0.9em;
+      color: #777;
+      margin-bottom: 14px;
+    }
+
+    .zyt_code_block {
+      background-color: #2d2d2d;
+      color: #f8f8f2;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92em;
+      padding: 12px 14px;
+      border-radius: 8px;
+      margin-bottom: 14px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      overflow-x: auto;
+    }
+
+    .zyt_code_block .zyt_tag {
+      color: #8be9fd;
+    }
+
+    .zyt_code_block .zyt_attr {
+      color: #50fa7b;
+    }
+
+    .zyt_file_list {
+      list-style: none;
+      font-size: 0.92em;
+    }
+
+    .zyt_file_list li {
+      padding: 6px 0;
+      border-bottom: 1px dashed #eceff4;
+    }
+
+    .zyt_file_list li:last-child {
+      border-bottom: none;
+    }
+
+    .zyt_file_list i {
+      color: #4a90e2;
+      width: 1.5em;
+      display: inline-block;
+      text-align: center;
+    }
+
+    .zyt_file_list code,
+    .zyt_note code {
+      background-color: #eef1f7;
+      color: #c7254e;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    .zyt_icon_grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+      gap: 12px;
+    }
+
+    .zyt_icon_cell {
+      border: 1px solid #e8ecf3;
+      border-radius: 10px;
+      padding: 16px 6px 12px;
+      text-align: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .zyt_icon_cell:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+      border-color: #4a90e2;
+    }
+
+    .zyt_icon_cell i {
+      font-size: 1.8em;
+      color: #333;
+    }
+
+    .zyt_icon_name {
+      display: block;
+      margin-top: 8px;
+      font-size: 0.76em;
+      color: #999;
+      word-break: break-all;
+      font-family: Consolas, "Courier New", monospace;
+    }
+
+    .zyt_size_row {
+      display: flex;
+      align-items: flex-end;
+      gap: 30px;
+      flex-wrap: wrap;
+      color: #4a90e2;
+      margin-bottom: 16px;
+    }
+
+    .zyt_size_item {
+      text-align: center;
+    }
+
+    .zyt_size_item span {
+      display: block;
+      font-size: 0.78em;
+      color: #999;
+      margin-top: 8px;
+      font-family: Consolas, "Courier New", monospace;
+    }
+
+    .zyt_fw_list {
+      list-style: none;
+      font-size: 0.95em;
+      background-color: #f8fafc;
+      border: 1px solid #e8ecf3;
+      border-radius: 8px;
+      padding: 10px 16px;
+      width: 300px;
+    }
+
+    .zyt_fw_list li {
+      padding: 4px 0;
+    }
+
+    .zyt_fw_list i {
+      color: #4a90e2;
+      margin-right: 10px;
+    }
+
+    .zyt_color_row,
+    .zyt_effect_row {
+      display: flex;
+      gap: 28px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+
+    .zyt_color_row {
+      margin-bottom: 18px;
+    }
+
+    .zyt_color_item,
+    .zyt_effect_item {
+      font-size: 1.8em;
+      text-align: center;
+    }
+
+    .zyt_color_item span,
+    .zyt_effect_item span {
+      display: block;
+      font-size: 0.42em;
+      color: #999;
+      margin-top: 8px;
+      font-family: Consolas, "Courier New", monospace;
+    }
+
+    .zyt_c_red { color: #e5484d; }
+    .zyt_c_orange { color: #f08c00; }
+    .zyt_c_green { color: #2eb872; }
+    .zyt_c_blue { color: #4a90e2; }
+    .zyt_c_purple { color: #8e44ad; }
+    .zyt_c_gray { color: #8a8f98; }
+
+    .zyt_demo_row {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .zyt_btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background-color: #4a90e2;
+      color: #fff;
+      text-decoration: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 0.95em;
+      transition: background-color 0.2s ease;
+    }
+
+    .zyt_btn:hover {
+      background-color: #357abd;
+    }
+
+    .zyt_btn_outline {
+      background-color: #fff;
+      color: #4a90e2;
+      border: 1px solid #4a90e2;
+    }
+
+    .zyt_btn_outline:hover {
+      background-color: #e7f0fd;
+    }
+
+    .zyt_badge_box {
+      position: relative;
+      display: inline-block;
+      font-size: 2em;
+      color: #555;
+    }
+
+    .zyt_badge_num {
+      position: absolute;
+      top: -4px;
+      right: -12px;
+      min-width: 1.1em;
+      padding: 0 0.3em;
+      background-color: #e5484d;
+      color: #fff;
+      font-size: 0.45em;
+      line-height: 1.7em;
+      text-align: center;
+      border-radius: 999px;
+      font-style: normal;
+      font-family: Arial, sans-serif;
+    }
+
+    .zyt_stack_box {
+      font-size: 2em;
+    }
+
+    .zyt_stack_bg {
+      color: #4a90e2;
+    }
+
+    .zyt_stack_fg {
+      color: #fff;
+    }
+
+    @media (max-width: 600px) {
+      .zyt_icon_grid {
+        grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+      }
+
+      .zyt_fw_list {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1 class="zyt_page_title">🔢 13-1 Font Awesome 字体图标</h1>
+  <p class="zyt_subtitle">字体图标（Icon Font）形式 · 本地文件 cdn/fontawesome · 用 class 控制图标、大小、颜色</p>
+
+  <section class="zyt_section">
+    <h2 class="zyt_section_title">📖 什么是字体图标</h2>
+    <p class="zyt_note">
+      Font Awesome 把所有图标做成一套字体文件（<code>@font-face</code>），写一个 <code>&lt;i&gt;</code> 元素并加上
+      <code>fa-solid</code>/<code>fa-regular</code>/<code>fa-brands</code> 与具体图标名的 class，
+      浏览器就会用 <code>::before</code> 的 <code>content</code> 输出字体里对应的字符。
+      因为本质是文字，所以颜色、大小、旋转都可以用普通 CSS 文字属性来控制。
+    </p>
+    <div class="zyt_code_block"><span class="zyt_tag">&lt;i</span> <span class="zyt_attr">class</span>=<span style="color:#f1fa8c">"fa-solid fa-house"</span><span class="zyt_tag">&gt;&lt;/i&gt;</span>
+<span class="zyt_tag">&lt;i</span> <span class="zyt_attr">class</span>=<span style="color:#f1fa8c">"fa-regular fa-heart"</span><span class="zyt_tag">&gt;&lt;/i&gt;</span>
+<span class="zyt_tag">&lt;i</span> <span class="zyt_attr">class</span>=<span style="color:#f1fa8c">"fa-brands fa-github fa-2x"</span><span class="zyt_tag">&gt;&lt;/i&gt;</span></div>
+    <ul class="zyt_file_list">
+      <li><i class="fa-solid fa-check"></i>样式表：<code>cdn/fontawesome/css/all.min.css</code>（下载自 cdnjs）</li>
+      <li><i class="fa-solid fa-download"></i>字体：<code>cdn/fontawesome/webfonts/fa-solid-900.woff2</code></li>
+      <li><i class="fa-solid fa-download"></i>字体：<code>cdn/fontawesome/webfonts/fa-regular-400.woff2</code></li>
+      <li><i class="fa-solid fa-download"></i>字体：<code>cdn/fontawesome/webfonts/fa-brands-400.woff2</code></li>
+      <li><i class="fa-solid fa-code"></i>引用方式：<code>&lt;link rel="stylesheet" href="cdn/fontawesome/css/all.min.css"&gt;</code></li>
+    </ul>
+  </section>
+
+  <section class="zyt_section">
+    <h2 class="zyt_section_title">⬛ 实心图标（fa-solid）</h2>
+    <p class="zyt_note">36 个常用实心图标，写法：<code>&lt;i class="fa-solid fa-house"&gt;&lt;/i&gt;</code></p>
+    <div class="zyt_icon_grid">
+      <div class="zyt_icon_cell"><i class="fa-solid fa-house"></i><span class="zyt_icon_name">fa-house</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-heart"></i><span class="zyt_icon_name">fa-heart</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-star"></i><span class="zyt_icon_name">fa-star</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-bell"></i><span class="zyt_icon_name">fa-bell</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-user"></i><span class="zyt_icon_name">fa-user</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-magnifying-glass"></i><span class="zyt_icon_name">fa-magnifying-glass</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-gear"></i><span class="zyt_icon_name">fa-gear</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-trash-can"></i><span class="zyt_icon_name">fa-trash-can</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-pen-to-square"></i><span class="zyt_icon_name">fa-pen-to-square</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-circle-check"></i><span class="zyt_icon_name">fa-circle-check</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-xmark"></i><span class="zyt_icon_name">fa-xmark</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-play"></i><span class="zyt_icon_name">fa-play</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-envelope"></i><span class="zyt_icon_name">fa-envelope</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-location-dot"></i><span class="zyt_icon_name">fa-location-dot</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-calendar"></i><span class="zyt_icon_name">fa-calendar</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-clock"></i><span class="zyt_icon_name">fa-clock</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-download"></i><span class="zyt_icon_name">fa-download</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-upload"></i><span class="zyt_icon_name">fa-upload</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-camera"></i><span class="zyt_icon_name">fa-camera</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-lock"></i><span class="zyt_icon_name">fa-lock</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-paper-plane"></i><span class="zyt_icon_name">fa-paper-plane</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-arrow-right"></i><span class="zyt_icon_name">fa-arrow-right</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-moon"></i><span class="zyt_icon_name">fa-moon</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-sun"></i><span class="zyt_icon_name">fa-sun</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-circle-info"></i><span class="zyt_icon_name">fa-circle-info</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-triangle-exclamation"></i><span class="zyt_icon_name">fa-triangle-exclamation</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-cart-shopping"></i><span class="zyt_icon_name">fa-cart-shopping</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-comment"></i><span class="zyt_icon_name">fa-comment</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-code"></i><span class="zyt_icon_name">fa-code</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-laptop"></i><span class="zyt_icon_name">fa-laptop</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-phone"></i><span class="zyt_icon_name">fa-phone</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-image"></i><span class="zyt_icon_name">fa-image</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-fire"></i><span class="zyt_icon_name">fa-fire</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-flag"></i><span class="zyt_icon_name">fa-flag</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-bookmark"></i><span class="zyt_icon_name">fa-bookmark</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-rocket"></i><span class="zyt_icon_name">fa-rocket</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-shield"></i><span class="zyt_icon_name">fa-shield</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-terminal"></i><span class="zyt_icon_name">fa-terminal</span></div>
+      <div class="zyt_icon_cell"><i class="fa-solid fa-bolt"></i><span class="zyt_icon_name">fa-bolt</span></div>
+    </div>
+  </section>
+
+  <section class="zyt_section">
+    <h2 class="zyt_section_title">◻ 线性图标（fa-regular）</h2>
+    <p class="zyt_note">描边风格的常规图标，写法：<code>&lt;i class="fa-regular fa-heart"&gt;&lt;/i&gt;</code></p>
+    <div class="zyt_icon_grid">
+      <div class="zyt_icon_cell"><i class="fa-regular fa-heart"></i><span class="zyt_icon_name">fa-heart</span></div>
+      <div class="zyt_icon_cell"><i class="fa-regular fa-star"></i><span class="zyt_icon_name">fa-star</span></div>
+      <div class="zyt_icon_cell"><i class="fa-regular fa-bell"></i><span class="zyt_icon_name">fa-bell</span></div>
+      <div class="zyt_icon_cell"><i class="fa-regular fa-user"></i><span class="zyt_icon_name">fa-user</span></div>
+      <div class="zyt_icon_cell"><i class="fa-regular fa-envelope"></i><span class="zyt_icon_name">fa-envelope</span></div>
+      <div class="zyt_icon_cell"><i class="fa-regular fa-comment"></i><span class="zyt_icon_name">fa-comment</span></div>
+      <div class="zyt_icon_cell"><i class="fa-regular fa-file-lines"></i><span class="zyt_icon_name">fa-file-lines</span></div>
+      <div class="zyt_icon_cell"><i class="fa-regular fa-clock"></i><span class="zyt_icon_name">fa-clock</span></div>
+      <div class="zyt_icon_cell"><i class="fa-regular fa-calendar"></i><span class="zyt_icon_name">fa-calendar</span></div>
+      <div class="zyt_icon_cell"><i class="fa-regular fa-circle"></i><span class="zyt_icon_name">fa-circle</span></div>
+      <div class="zyt_icon_cell"><i class="fa-regular fa-eye"></i><span class="zyt_icon_name">fa-eye</span></div>
+      <div class="zyt_icon_cell"><i class="fa-regular fa-moon"></i><span class="zyt_icon_name">fa-moon</span></div>
+      <div class="zyt_icon_cell"><i class="fa-regular fa-sun"></i><span class="zyt_icon_name">fa-sun</span></div>
+      <div class="zyt_icon_cell"><i class="fa-regular fa-bookmark"></i><span class="zyt_icon_name">fa-bookmark</span></div>
+      <div class="zyt_icon_cell"><i class="fa-regular fa-flag"></i><span class="zyt_icon_name">fa-flag</span></div>
+      <div class="zyt_icon_cell"><i class="fa-regular fa-face-smile"></i><span class="zyt_icon_name">fa-face-smile</span></div>
+      <div class="zyt_icon_cell"><i class="fa-regular fa-square"></i><span class="zyt_icon_name">fa-square</span></div>
+      <div class="zyt_icon_cell"><i class="fa-regular fa-trash-can"></i><span class="zyt_icon_name">fa-trash-can</span></div>
+      <div class="zyt_icon_cell"><i class="fa-regular fa-copy"></i><span class="zyt_icon_name">fa-copy</span></div>
+      <div class="zyt_icon_cell"><i class="fa-regular fa-gem"></i><span class="zyt_icon_name">fa-gem</span></div>
+    </div>
+  </section>
+
+  <section class="zyt_section">
+    <h2 class="zyt_section_title">🏷️ 品牌图标（fa-brands）</h2>
+    <p class="zyt_note">公司 / 技术品牌 logo，写法：<code>&lt;i class="fa-brands fa-github"&gt;&lt;/i&gt;</code></p>
+    <div class="zyt_icon_grid">
+      <div class="zyt_icon_cell"><i class="fa-brands fa-github"></i><span class="zyt_icon_name">fa-github</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-weixin"></i><span class="zyt_icon_name">fa-weixin</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-qq"></i><span class="zyt_icon_name">fa-qq</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-twitter"></i><span class="zyt_icon_name">fa-twitter</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-html5"></i><span class="zyt_icon_name">fa-html5</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-css3-alt"></i><span class="zyt_icon_name">fa-css3-alt</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-js"></i><span class="zyt_icon_name">fa-js</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-node"></i><span class="zyt_icon_name">fa-node</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-npm"></i><span class="zyt_icon_name">fa-npm</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-python"></i><span class="zyt_icon_name">fa-python</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-react"></i><span class="zyt_icon_name">fa-react</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-google"></i><span class="zyt_icon_name">fa-google</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-facebook"></i><span class="zyt_icon_name">fa-facebook</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-instagram"></i><span class="zyt_icon_name">fa-instagram</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-git-alt"></i><span class="zyt_icon_name">fa-git-alt</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-android"></i><span class="zyt_icon_name">fa-android</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-chrome"></i><span class="zyt_icon_name">fa-chrome</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-firefox"></i><span class="zyt_icon_name">fa-firefox</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-gitlab"></i><span class="zyt_icon_name">fa-gitlab</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-linux"></i><span class="zyt_icon_name">fa-linux</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-windows"></i><span class="zyt_icon_name">fa-windows</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-apple"></i><span class="zyt_icon_name">fa-apple</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-stack-overflow"></i><span class="zyt_icon_name">fa-stack-overflow</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-youtube"></i><span class="zyt_icon_name">fa-youtube</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-discord"></i><span class="zyt_icon_name">fa-discord</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-telegram"></i><span class="zyt_icon_name">fa-telegram</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-whatsapp"></i><span class="zyt_icon_name">fa-whatsapp</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-figma"></i><span class="zyt_icon_name">fa-figma</span></div>
+      <div class="zyt_icon_cell"><i class="fa-brands fa-java"></i><span class="zyt_icon_name">fa-java</span></div>
+    </div>
+  </section>
+
+  <section class="zyt_section">
+    <h2 class="zyt_section_title">📐 尺寸与对齐</h2>
+    <p class="zyt_note">
+      字体图标像文字一样可以改 <code>font-size</code>，Font Awesome 也提供了现成的尺寸类：
+      <code>fa-1x ~ fa-4x</code>；<code>fa-fw</code> 让每个图标占用固定宽度、左对齐成一列。
+    </p>
+    <div class="zyt_size_row">
+      <div class="zyt_size_item"><i class="fa-solid fa-rocket fa-1x"></i><span>fa-1x</span></div>
+      <div class="zyt_size_item"><i class="fa-solid fa-rocket fa-2x"></i><span>fa-2x</span></div>
+      <div class="zyt_size_item"><i class="fa-solid fa-rocket fa-3x"></i><span>fa-3x</span></div>
+      <div class="zyt_size_item"><i class="fa-solid fa-rocket fa-4x"></i><span>fa-4x</span></div>
+      <div class="zyt_size_item"><i class="fa-solid fa-rocket" style="font-size: 5em;"></i><span>font-size:5em</span></div>
+    </div>
+    <ul class="zyt_fw_list">
+      <li><i class="fa-solid fa-magnifying-glass fa-fw"></i>搜索（固定宽度）</li>
+      <li><i class="fa-solid fa-heart fa-fw"></i>收藏（固定宽度）</li>
+      <li><i class="fa-solid fa-trash-can fa-fw"></i>删除（固定宽度）</li>
+      <li><i class="fa-solid fa-paper-plane fa-fw"></i>发送（固定宽度）</li>
+    </ul>
+  </section>
+
+  <section class="zyt_section">
+    <h2 class="zyt_section_title">🎨 颜色与动态效果</h2>
+    <p class="zyt_note">
+      图标是“文字”，直接用 <code>color</code> 换色；动态效果类：<code>fa-spin</code>、<code>fa-beat</code>、
+      <code>fa-fade</code>、<code>fa-bounce</code>、<code>fa-rotate-90</code> 等。
+    </p>
+    <div class="zyt_color_row">
+      <div class="zyt_color_item zyt_c_red"><i class="fa-solid fa-heart"></i><span>#e5484d</span></div>
+      <div class="zyt_color_item zyt_c_orange"><i class="fa-solid fa-fire"></i><span>#f08c00</span></div>
+      <div class="zyt_color_item zyt_c_green"><i class="fa-solid fa-leaf"></i><span>#2eb872</span></div>
+      <div class="zyt_color_item zyt_c_blue"><i class="fa-solid fa-star"></i><span>#4a90e2</span></div>
+      <div class="zyt_color_item zyt_c_purple"><i class="fa-solid fa-bolt"></i><span>#8e44ad</span></div>
+      <div class="zyt_color_item zyt_c_gray"><i class="fa-solid fa-moon"></i><span>#8a8f98</span></div>
+    </div>
+    <div class="zyt_effect_row">
+      <div class="zyt_effect_item"><i class="fa-solid fa-spinner fa-spin"></i><span>fa-spin</span></div>
+      <div class="zyt_effect_item"><i class="fa-solid fa-heart fa-beat"></i><span>fa-beat</span></div>
+      <div class="zyt_effect_item"><i class="fa-solid fa-star fa-fade"></i><span>fa-fade</span></div>
+      <div class="zyt_effect_item"><i class="fa-solid fa-bell fa-bounce"></i><span>fa-bounce</span></div>
+      <div class="zyt_effect_item"><i class="fa-solid fa-arrow-right fa-rotate-90"></i><span>fa-rotate-90</span></div>
+      <div class="zyt_effect_item"><i class="fa-solid fa-circle-notch fa-spin-pulse"></i><span>fa-spin-pulse</span></div>
+    </div>
+  </section>
+
+  <section class="zyt_section">
+    <h2 class="zyt_section_title">🧩 图标与内容组合</h2>
+    <p class="zyt_note">按钮、数字徽章、双层图标（fa-stack）——字体图标可以直接排在文字流里。</p>
+    <div class="zyt_demo_row">
+      <a class="zyt_btn" href="javascript:void(0)"><i class="fa-solid fa-download"></i>下载资料</a>
+      <a class="zyt_btn zyt_btn_outline" href="javascript:void(0)"><i class="fa-solid fa-pen-to-square"></i>编辑</a>
+      <span class="zyt_badge_box"><i class="fa-solid fa-bell"></i><span class="zyt_badge_num">12</span></span>
+      <span class="zyt_stack_box fa-stack fa-lg">
+        <i class="fa-solid fa-circle fa-stack-2x zyt_stack_bg"></i>
+        <i class="fa-solid fa-check fa-stack-1x zyt_stack_fg"></i>
+      </span>
+      <span class="zyt_stack_box fa-stack fa-lg">
+        <i class="fa-solid fa-camera fa-stack-2x zyt_stack_bg"></i>
+        <i class="fa-solid fa-bolt fa-stack-1x zyt_stack_fg"></i>
+      </span>
+    </div>
+    <div class="zyt_code_block"><span class="zyt_tag">&lt;a</span> <span class="zyt_attr">class</span>=<span style="color:#f1fa8c">"zyt_btn"</span><span class="zyt_tag">&gt;</span>
+  <span class="zyt_tag">&lt;i</span> <span class="zyt_attr">class</span>=<span style="color:#f1fa8c">"fa-solid fa-download"</span><span class="zyt_tag">&gt;&lt;/i&gt;</span>下载资料
+<span class="zyt_tag">&lt;/a&gt;</span></div>
+  </section>
+</body>
+</html>

@@ -42,3 +42,24 @@
 ## 2026-10-15-16-31
 模型: opencode/mimo-v2.6-flash-free
 提示词: 创建网页12-1.html，展示css变量，然后提交项目，包含张语桐830
+
+## 2026-10-19-16-03
+模型: opencode/mimo-v2.6-flash-free
+提示词: 编写两个网页13-1.htm1和13-2的html，分别显示font awesome图标和lucide图
+标，前者采用字体图标的形式，后者使用svg的形式。下载相关cdn文件到当前目录下的cdn目录
+
+## 2026-10-19-16-30
+模型: opencode/mimo-v2.6-flash-free
+提示词: 根据font目录下的iconfont的图标，分别完成13-3.htm1和13-4.html，使用字体图标和svg的方法完成移动端的自适应宽度的固定的下享航，下导航有4项内容，导航项包括数字徽章和右上角的红点，全屏宽度
+
+## 2026-10-22-15-38
+模型: opencode/mimo-v2.6-flash-free
+提示词: 13-4.html导航栏的图标，点击不变亮，帮我改
+
+## 2026-10-22-16-02
+模型: opencode/mimo-v2.6-flash-free
+提示词: 根据给定文件创建trae和skill，skill.md
+
+## 2026-10-22-16-06
+模型: opencode/mimo-v2.6-flash-free
+提示词: 提交项目
