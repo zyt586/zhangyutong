@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>zyt JavaScript 六种数据类型</title>
+  <!--
+  姓名：张语桐
+  日期：2026-10-22
+  功能名称：定义并演示 JavaScript 的六种基本数据类型（string / number / boolean / undefined / null / object）
+  -->
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background: #f7f3ef;
+      color: #333;
+      padding: 40px 20px;
+    }
+    .zyt_container {
+      max-width: 960px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 14px;
+      padding: 36px 32px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+    }
+    .zyt_title {
+      font-size: 28px;
+      color: #d53d3d;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .zyt_subtitle {
+      text-align: center;
+      color: #888;
+      font-size: 14px;
+      margin-bottom: 28px;
+    }
+    .zyt_table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 28px;
+    }
+    .zyt_table th, .zyt_table td {
+      border: 1px solid #e8e0d8;
+      padding: 14px 16px;
+      text-align: left;
+      font-size: 14px;
+    }
+    .zyt_table th {
+      background: #faf3ed;
+      color: #b83a3a;
+      font-weight: 700;
+      width: 18%;
+    }
+    .zyt_table code {
+      font-family: Consolas, "Courier New", monospace;
+      background: #f7f3ef;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #d53d3d;
+    }
+    .zyt_outputBox {
+      background: #fffaf4;
+      border: 1px dashed #e8b88a;
+      border-radius: 10px;
+      padding: 18px 22px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 13px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      color: #5a4030;
+    }
+    .zyt_runBtn {
+      display: inline-block;
+      background: #d53d3d;
+      color: #fff;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 16px;
+    }
+    .zyt_runBtn:hover { background: #b83333; }
+  </style>
+</head>
+<body>
+  <div class="zyt_container">
+    <div class="zyt_title">JavaScript 六种数据类型</div>
+    <div class="zyt_subtitle">张语桐 · 点击下方按钮查看 typeof 检测结果</div>
+
+    <table class="zyt_table">
+      <tr><th>类型</th><th>说明</th><th>示例代码</th><th>typeof 结果</th></tr>
+      <tr><td><strong>String</strong> 字符串</td><td>用单引号、双引号或反引号包裹的文本</td><td><code>zyt_name = "张语桐"</code></td><td><code>string</code></td></tr>
+      <tr><td><strong>Number</strong> 数值</td><td>整数和浮点数，包括 <code>Infinity</code> / <code>NaN</code></td><td><code>zyt_age = 20</code></td><td><code>number</code></td></tr>
+      <tr><td><strong>Boolean</strong> 布尔</td><td>只有两个值：<code>true</code> 和 <code>false</code></td><td><code>zyt_isOk = true</code></td><td><code>boolean</code></td></tr>
+      <tr><td><strong>Undefined</strong> 未定义</td><td>声明了变量但未赋值</td><td><code>let zt_x;</code></td><td><code>undefined</code></td></tr>
+      <tr><td><strong>Null</strong> 空</td><td>人为赋值为"空"</td><td><code>zyt_obj = null</code></td><td><code>object</code> （历史遗留 bug）</td></tr>
+      <tr><td><strong>Object</strong> 对象</td><td>引用类型：对象、数组、函数等</td><td><code>zyt_arr = [1,2,3]</code></td><td><code>object</code> / <code>function</code></td></tr>
+    </table>
+
+    <button class="zyt_runBtn" onclick="zytRunDemo()">▶ 运行 typeof 演示</button>
+    <div class="zyt_outputBox" id="zyt_output">等待运行…</div>
+  </div>
+
+  <script>
+    function zytRunDemo() {
+      // 1. String
+      const zyt_name = "张语桐";
+      // 2. Number
+      const zyt_age = 20;
+      const zyt_pi = 3.14;
+      // 3. Boolean
+      const zyt_isStudent = true;
+      // 4. Undefined
+      let zyt_x;
+      // 5. Null
+      const zyt_obj = null;
+      // 6. Object（数组、对象、函数都是 Object 大类）
+      const zyt_arr = [1, 2, 3];
+      const zyt_user = { name: "张语桐", score: 95 };
+      const zyt_fn = function () { return "hello"; };
+
+      const zyt_lines = [
+        "=== JavaScript 六种数据类型 typeof 检测 ===\n",
+        "【1. String 字符串】",
+        "  zyt_name = \"" + zyt_name + "\"",
+        "  typeof zyt_name  →  " + typeof zyt_name + "\n",
+        "【2. Number 数值】",
+        "  zyt_age = " + zyt_age + ",  zyt_pi = " + zyt_pi,
+        "  typeof zyt_age   →  " + typeof zyt_age,
+        "  typeof zyt_pi    →  " + typeof zyt_pi + "\n",
+        "【3. Boolean 布尔】",
+        "  zyt_isStudent = " + zyt_isStudent,
+        "  typeof zyt_isStudent  →  " + typeof zyt_isStudent + "\n",
+        "【4. Undefined 未定义】",
+        "  let zyt_x;  （声明但未赋值）",
+        "  typeof zyt_x  →  " + typeof zyt_x + "\n",
+        "【5. Null 空】",
+        "  zyt_obj = null",
+        "  typeof zyt_obj  →  " + typeof zyt_obj + "  ← JS 历史遗留 bug，null 本应是 null",
+        "\n【6. Object 对象（引用类型）】",
+        "  zyt_arr = [1,2,3]",
+        "  typeof zyt_arr  →  " + typeof zyt_arr + "  （Array 属于 Object）",
+        "  zyt_user = { name: '张语桐' }",
+        "  typeof zyt_user →  " + typeof zyt_user,
+        "  zyt_fn = function(){}",
+        "  typeof zyt_fn   →  " + typeof zyt_fn + "  （函数是特殊的 Object）",
+        "\n=== 总结 ===",
+        "原始类型：String / Number / Boolean / Undefined / Null",
+        "引用类型：Object（包含 Array、Function、Date、RegExp 等）"
+      ];
+      document.getElementById("zyt_output").textContent = zyt_lines.join("\n");
+      console.log("=== 浏览器控制台同样可以看到 ===");
+      console.log("typeof \"张语桐\"     →", typeof zyt_name);
+      console.log("typeof 20            →", typeof zyt_age);
+      console.log("typeof true          →", typeof zyt_isStudent);
+      console.log("typeof undefined     →", typeof zyt_x);
+      console.log("typeof null          →", typeof zyt_obj);
+      console.log("typeof [1,2,3]       →", typeof zyt_arr);
+      console.log("typeof function(){}  →", typeof zyt_fn);
+    }
+  </script>
+</body>
+</html>

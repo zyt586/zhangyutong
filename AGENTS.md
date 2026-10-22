@@ -3,7 +3,19 @@
 Static HTML/CSS coursework portfolio ("高级网页设计" class practice). No build, test, lint, package manager, or CI — the `.html` files ARE the product. There is no git repo here.
 
 ## 项目规则（必须遵守 / mandatory）
-- **`zyt_` 前缀**：你写的所有 CSS 类名、id 名、JS 变量名必须以 `zyt_` 开头（如 `.zyt_card`、`#zyt_box`、`var zyt_count`）。旧页面已有命名不追溯，但向其中新增的名称同样必须带前缀。
+- **`zyt_` 前缀**：你写的所有 CSS 类名、id 名、JS 变量名、函数名必须以 `zyt_` 开头（如 `.zyt_card`、`#zyt_box`、`var zytCount`、`function zytRender()`）。旧页面已有命名不追溯，但向其中新增的名称同样必须带前缀。**任何无前缀的新标识符都是违规。**
+- **页面头注释模板**：每个 HTML 页面顶部（`<title>` 之后或 `<body>` 顶部）必须包含以下 HTML 注释，字段由当前页面实际内容替换：
+  ```html
+  <!--
+  姓名：张语桐
+  日期：yyyy-mm-dd
+  功能名称：<本页功能简述，如"图书分类展示""CSS3 过渡动画"等>
+  -->
+  ```
+  日期格式 `yyyy-mm-dd`，功能名称用一句话概括。旧页面没有的**新写时必须补上**，已存在页面如被重写也要补上。
+- **原生技术栈**：只用原生 HTML5 / CSS3 / JavaScript（ES6+），**不引入任何第三方库、框架或 CDN**（包括 Vue、React、jQuery、Bootstrap、cdnjs、unpkg、Google Fonts 等）。CSS 和 JS 默认内联（`<style>`/`<script>` 写在同一 HTML 里），除非项目已有共享样式表且用户明确要求引用。
+- **图标统一用 iconfont**：页面里所有图标（导航、按钮、标签等）一律使用项目本地 `font/iconfont.css` + `font/iconfont.ttf`，通过 `<i class="iconfont icon-xxx"></i>` 方式引用。禁止引入 Font Awesome、Lucide、Material Icons 等外部图标库，也禁止直接内嵌 SVG。
+- **数据获取用 fetch**：与后端交互一律使用原生 `fetch()` API，不使用 `axios`、`$.ajax()` 等封装库。响应统一处理为 `response.json()` 或 `response.text()`。
 - **提示词日志**：收到任何用户提示词后，**执行之前**先以追加方式写入 `zyt_prompt.md`（append only，绝不覆盖/清空已有条目）。每条格式：
   ```
   ## yyyy-mm-dd-hh-mm
