@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NewTab 图书展销平台 · 新品与仓库清仓专区</title>
+  <!--
+  姓名：张语桐
+  日期：2026-10-25
+  功能名称：图书展销平台新品与仓库清仓专区，使用 iconfont 字体图标实现自适应宽度的固定底部导航
+  -->
+  <link rel="stylesheet" href="font/iconfont.css">
+  <style>
+    :root {
+      --zyt_red: #d53d3d;
+      --zyt_red_dark: #b83333;
+      --zyt_bg: #f7f3ef;
+      --zyt_card: #ffffff;
+      --zyt_text: #333333;
+      --zyt_muted: #8a8a8a;
+      --zyt_line: #f0e8e2;
+      --zyt_yellow: #f9dc77;
+      --zyt_yellow_text: #8a5a00;
+      --zyt_nav_h: 66px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      background-color: var(--zyt_bg);
+      color: var(--zyt_text);
+      line-height: 1.6;
+      padding-bottom: var(--zyt_nav_h);
+      padding-bottom: calc(var(--zyt_nav_h) + env(safe-area-inset-bottom));
+    }
+
+    /* ===== 顶部栏 ===== */
+    .zyt_topbar {
+      position: sticky;
+      top: 0;
+      z-index: 900;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background-color: #fff;
+      border-bottom: 1px solid var(--zyt_line);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    }
+
+    .zyt_logo {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--zyt_red);
+      font-size: 15px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .zyt_logo .iconfont {
+      font-size: 24px;
+    }
+
+    .zyt_searchBox {
+      flex: 1 1 auto;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 36px;
+      padding: 0 12px;
+      background-color: #f7f3ef;
+      border: 1px solid var(--zyt_line);
+      border-radius: 999px;
+    }
+
+    .zyt_searchBox .iconfont {
+      font-size: 16px;
+      color: var(--zyt_muted);
+      flex: 0 0 auto;
+    }
+
+    .zyt_searchInput {
+      flex: 1 1 auto;
+      min-width: 0;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 14px;
+      color: var(--zyt_text);
+      font-family: inherit;
+    }
+
+    .zyt_scanBtn {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--zyt_line);
+      border-radius: 50%;
+      background-color: #fff;
+      color: var(--zyt_red);
+      cursor: pointer;
+    }
+
+    .zyt_scanBtn .iconfont {
+      font-size: 18px;
+    }
+
+    /* ===== 主体容器 ===== */
+    .zyt_main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 14px;
+    }
+
+    /* ===== 头部横幅 ===== */
+    .zyt_hero {
+      position: relative;
+      overflow: hidden;
+      padding: 22px 20px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #fdf1e7 0%, #fbe2dc 55%, #f8d9d4 100%);
+      box-shadow: 0 10px 24px rgba(160, 80, 70, 0.08);
+    }
+
+    .zyt_hero::after {
+      content: "";
+      position: absolute;
+      right: -34px;
+      bottom: -46px;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background-color: rgba(213, 61, 61, 0.08);
+    }
+
+    .zyt_heroTitle {
+      position: relative;
+      z-index: 1;
+      font-size: 22px;
+      color: var(--zyt_red_dark);
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .zyt_heroDesc {
+      position: relative;
+      z-index: 1;
+      margin-top: 6px;
+      font-size: 13px;
+      color: #8a5a4a;
+    }
+
+    .zyt_heroTags {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .zyt_heroTag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background-color: rgba(255, 255, 255, 0.82);
+      color: var(--zyt_red_dark);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .zyt_heroTag .iconfont {
+      font-size: 14px;
+    }
+
+    /* ===== 专区切换 ===== */
+    .zyt_switchBar {
+      display: flex;
+      gap: 10px;
+      margin: 14px 0 4px;
+    }
+
+    .zyt_switchBtn {
+      flex: 1 1 0;
+      min-width: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 42px;
+      border: 1px solid var(--zyt_line);
+      border-radius: 12px;
+      background-color: #fff;
+      color: #666;
+      font-size: 14px;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .zyt_switchBtn .iconfont {
+      font-size: 17px;
+    }
+
+    .zyt_switchBtn.zyt_active {
+      border-color: var(--zyt_red);
+      background-color: #fff5f2;
+      color: var(--zyt_red);
+    }
+
+    /* ===== 专区区块 ===== */
+    .zyt_section {
+      margin-top: 16px;
+      padding: 16px 14px 18px;
+      background-color: var(--zyt_card);
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+      scroll-margin-top: 64px;
+    }
+
+    .zyt_sectionHead {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--zyt_line);
+    }
+
+    .zyt_sectionIcon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      background-color: #fff1ec;
+      color: var(--zyt_red);
+    }
+
+    .zyt_sectionIcon .iconfont {
+      font-size: 18px;
+    }
+
+    .zyt_sectionTitle {
+      font-size: 17px;
+      font-weight: 700;
+      color: #2b2b2b;
+      white-space: nowrap;
+    }
+
+    .zyt_sectionSub {
+      flex: 1 1 auto;
+      min-width: 0;
+      font-size: 12px;
+      color: var(--zyt_muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .zyt_sortBtn {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      height: 28px;
+      padding: 0 10px;
+      border: 1px solid var(--zyt_line);
+      border-radius: 999px;
+      background-color: #fff;
+      color: #777;
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .zyt_sortBtn .iconfont {
+      font-size: 13px;
+    }
+
+    .zyt_sortBtn.zyt_active {
+      border-color: var(--zyt_red);
+      color: var(--zyt_red);
+      background-color: #fff5f2;
+    }
+
+    /* ===== 图书卡片网格（自适应列数） ===== */
+    .zyt_grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .zyt_card {
+      display: flex;
+      flex-direction: column;
+      background-color: #fff;
+      border: 1px solid #f2ece6;
+      border-radius: 12px;
+      padding: 10px;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .zyt_card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.08);
+    }
+
+    .zyt_cover {
+      position: relative;
+      width: 100%;
+      height: 176px;
+      overflow: hidden;
+      border-radius: 9px;
+      background-color: #f9f5f1;
+    }
+
+    .zyt_cover img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .zyt_badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 3px 7px;
+      border-radius: 7px;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .zyt_badge .iconfont {
+      font-size: 12px;
+    }
+
+    .zyt_badgeNew {
+      background-color: var(--zyt_yellow);
+      color: var(--zyt_yellow_text);
+    }
+
+    .zyt_badgeSale {
+      background: linear-gradient(135deg, #ff5b5b, #df2929);
+      color: #fff;
+    }
+
+    .zyt_bookName {
+      margin-top: 9px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #2b2b2b;
+      line-height: 1.4;
+      height: 39px;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .zyt_bookMeta {
+      margin-top: 3px;
+      font-size: 11px;
+      color: #a0a0a0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .zyt_priceRow {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-top: 7px;
+    }
+
+    .zyt_price {
+      color: var(--zyt_red);
+      font-size: 19px;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .zyt_oldPrice {
+      color: #b4b4b4;
+      font-size: 11px;
+      text-decoration: line-through;
+    }
+
+    .zyt_stockRow {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 7px;
+    }
+
+    .zyt_stockBar {
+      flex: 1 1 auto;
+      height: 6px;
+      overflow: hidden;
+      border-radius: 999px;
+      background-color: #f3ece8;
+    }
+
+    .zyt_stockBar i {
+      display: block;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #ff8a6a, #e43939);
+    }
+
+    .zyt_stockText {
+      flex: 0 0 auto;
+      font-size: 11px;
+      color: #b06a5a;
+    }
+
+    .zyt_actionRow {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .zyt_favBtn,
+    .zyt_shareBtn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      height: 30px;
+      border: 1px solid var(--zyt_line);
+      border-radius: 8px;
+      background-color: #fff;
+      color: #8a8a8a;
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .zyt_favBtn {
+      flex: 1 1 auto;
+    }
+
+    .zyt_shareBtn {
+      flex: 0 0 auto;
+      width: 32px;
+      padding: 0;
+    }
+
+    .zyt_favBtn .iconfont,
+    .zyt_shareBtn .iconfont {
+      font-size: 15px;
+    }
+
+    .zyt_favBtn.zyt_active {
+      border-color: var(--zyt_red);
+      background-color: #fff5f2;
+      color: var(--zyt_red);
+    }
+
+    .zyt_favBtn.zyt_active .iconfont {
+      font-size: 17px;
+    }
+
+    .zyt_empty {
+      grid-column: 1 / -1;
+      padding: 28px 0;
+      text-align: center;
+      color: var(--zyt_muted);
+      font-size: 13px;
+    }
+
+    .zyt_footNote {
+      margin: 18px 4px 6px;
+      text-align: center;
+      font-size: 12px;
+      color: #a89f99;
+    }
+
+    /* ===== 固定底部导航：全屏宽度 + 4 项自适应均分 ===== */
+    .zyt_tabbar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1000;
+      width: 100%;
+      display: flex;
+      align-items: stretch;
+      background-color: #fff;
+      border-top: 1px solid var(--zyt_line);
+      box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.07);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .zyt_tabItem {
+      flex: 1 1 0;
+      min-width: 0;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 8px 0 6px;
+      text-decoration: none;
+      color: #8a8f98;
+      transition: color 0.2s ease;
+    }
+
+    .zyt_tabItem.zyt_active {
+      color: var(--zyt_red);
+    }
+
+    .zyt_tabIcon {
+      position: relative;
+      display: inline-flex;
+      line-height: 1;
+    }
+
+    .zyt_tabIcon .iconfont {
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .zyt_tabItem.zyt_active .zyt_tabIcon .iconfont {
+      font-size: 26px;
+    }
+
+    .zyt_navBadge {
+      position: absolute;
+      top: -6px;
+      right: -10px;
+      box-sizing: border-box;
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px;
+      border: 1.5px solid #fff;
+      border-radius: 999px;
+      background-color: #e5484d;
+      color: #fff;
+      font-size: 10px;
+      line-height: 13px;
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
+
+    .zyt_navDot {
+      position: absolute;
+      top: 4px;
+      right: 12px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #ff3b30;
+      box-shadow: 0 0 0 1.5px #fff;
+    }
+
+    .zyt_tabLabel {
+      font-size: 12px;
+      line-height: 1.2;
+    }
+
+    /* ===== 响应式：小屏自适应 ===== */
+    @media (max-width: 480px) {
+      .zyt_main {
+        padding: 10px;
+      }
+
+      .zyt_hero {
+        padding: 18px 16px;
+      }
+
+      .zyt_heroTitle {
+        font-size: 19px;
+      }
+
+      .zyt_grid {
+        grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+        gap: 10px;
+      }
+
+      .zyt_cover {
+        height: 152px;
+      }
+
+      .zyt_sectionSub {
+        display: none;
+      }
+    }
+
+    @media (max-width: 350px) {
+      .zyt_logo span {
+        display: none;
+      }
+
+      .zyt_grid {
+        grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+      }
+
+      .zyt_cover {
+        height: 136px;
+      }
+
+      .zyt_tabIcon .iconfont {
+        font-size: 22px;
+      }
+
+      .zyt_tabItem.zyt_active .zyt_tabIcon .iconfont {
+        font-size: 23px;
+      }
+
+      .zyt_tabLabel {
+        font-size: 11px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 顶部栏 -->
+  <header class="zyt_topbar">
+    <div class="zyt_logo">
+      <i class="iconfont icon-shangcheng"></i>
+      <span>zyt 图书展销</span>
+    </div>
+    <div class="zyt_searchBox">
+      <i class="iconfont icon-fangdajing"></i>
+      <input class="zyt_searchInput" type="text" placeholder="搜索书名，如：活着">
+    </div>
+    <button class="zyt_scanBtn" type="button" title="扫一扫">
+      <i class="iconfont icon-saoyisao"></i>
+    </button>
+  </header>
+
+  <main class="zyt_main">
+    <!-- 横幅 -->
+    <section class="zyt_hero">
+      <h1 class="zyt_heroTitle">新品首发 · 仓库清仓</h1>
+      <p class="zyt_heroDesc">每周三上新，清仓特惠售完即止</p>
+      <div class="zyt_heroTags">
+        <span class="zyt_heroTag"><i class="iconfont icon-xinpin"></i>新品首发</span>
+        <span class="zyt_heroTag"><i class="iconfont icon-guanlichuangku"></i>仓库清仓</span>
+        <span class="zyt_heroTag"><i class="iconfont icon-shoucang"></i>收藏有礼</span>
+      </div>
+    </section>
+
+    <!-- 专区切换 -->
+    <div class="zyt_switchBar">
+      <button class="zyt_switchBtn zyt_active zyt_newSwitch" type="button">
+        <i class="iconfont icon-xinpin"></i>新品专区
+      </button>
+      <button class="zyt_switchBtn zyt_saleSwitch" type="button">
+        <i class="iconfont icon-guanlichuangku"></i>仓库清仓
+      </button>
+    </div>
+
+    <!-- 新品专区 -->
+    <section class="zyt_section zyt_newSection">
+      <div class="zyt_sectionHead">
+        <span class="zyt_sectionIcon"><i class="iconfont icon-xinpin"></i></span>
+        <h2 class="zyt_sectionTitle">新品专区</h2>
+        <span class="zyt_sectionSub zyt_newCount">正在加载…</span>
+        <button class="zyt_sortBtn zyt_newSort" type="button">
+          <i class="iconfont icon-shaixuan"></i>价格
+        </button>
+      </div>
+      <div class="zyt_grid zyt_newGrid"></div>
+    </section>
+
+    <!-- 仓库清仓专区 -->
+    <section class="zyt_section zyt_clearanceSection">
+      <div class="zyt_sectionHead">
+        <span class="zyt_sectionIcon"><i class="iconfont icon-guanlichuangku"></i></span>
+        <h2 class="zyt_sectionTitle">仓库清仓</h2>
+        <span class="zyt_sectionSub zyt_saleCount">正在加载…</span>
+        <button class="zyt_sortBtn zyt_saleSort" type="button">
+          <i class="iconfont icon-shaixuan"></i>价格
+        </button>
+      </div>
+      <div class="zyt_grid zyt_saleGrid"></div>
+    </section>
+
+    <p class="zyt_footNote">张语桐 · 高级网页设计I · 图像解决方案（iconfont 字体图标）</p>
+  </main>
+
+  <!-- 固定底部导航：字体图标 + 自适应宽度 -->
+  <nav class="zyt_tabbar">
+    <a class="zyt_tabItem zyt_active" href="javascript:void(0)" data-zyt-target="top">
+      <span class="zyt_tabIcon"><i class="iconfont icon-shangcheng"></i></span>
+      <span class="zyt_tabLabel">商城</span>
+    </a>
+    <a class="zyt_tabItem" href="javascript:void(0)" data-zyt-target=".zyt_newSection">
+      <span class="zyt_tabIcon">
+        <i class="iconfont icon-xinpin"></i>
+        <span class="zyt_navBadge">12</span>
+      </span>
+      <span class="zyt_tabLabel">新品</span>
+    </a>
+    <a class="zyt_tabItem" href="javascript:void(0)" data-zyt-target=".zyt_clearanceSection">
+      <span class="zyt_tabIcon"><i class="iconfont icon-guanlichuangku"></i></span>
+      <span class="zyt_tabLabel">清仓</span>
+    </a>
+    <a class="zyt_tabItem" href="javascript:void(0)">
+      <span class="zyt_tabIcon"><i class="iconfont icon-tongxunlu"></i></span>
+      <span class="zyt_tabLabel">我的</span>
+    </a>
+  </nav>
+
+  <script>
+    // 新品数据
+    const zyt_newBooks = [
+      { name: '白夜行', price: 34, old: 52, cover: 'img/19.jpg', author: '东野圭吾', stock: 46 },
+      { name: '活着', price: 29, old: 46, cover: 'img/22.jpg', author: '余华', stock: 38 },
+      { name: '你好，旧时光', price: 36, old: 58, cover: 'img/24.jpg', author: '八月长安', stock: 27 },
+      { name: '夏日告白', price: 33, old: 49, cover: 'img/28.jpg', author: '林清玄', stock: 21 },
+      { name: '追风筝的人', price: 39, old: 66, cover: 'img/23.jpg', author: '卡勒德·胡赛尼', stock: 33 },
+      { name: '瓦尔登湖', price: 45, old: 68, cover: 'img/20.jpg', author: '梭罗', stock: 19 },
+      { name: '百年孤独', price: 42, old: 69, cover: 'img/21.jpg', author: '马尔克斯', stock: 25 },
+      { name: '小王子', price: 26, old: 39, cover: 'img/25.jpg', author: '圣埃克苏佩里', stock: 52 }
+    ];
+
+    // 仓库清仓数据
+    const zyt_saleBooks = [
+      { name: '解忧杂货店', price: 19, old: 45, cover: 'img/26.jpg', author: '东野圭吾', stock: 6 },
+      { name: '摆渡人', price: 15, old: 38, cover: 'img/27.jpg', author: '克莱尔·麦克福尔', stock: 3 },
+      { name: '围城', price: 18, old: 42, cover: 'img/29.jpg', author: '钱钟书', stock: 8 },
+      { name: '平凡的世界', price: 25, old: 59, cover: 'img/30.jpg', author: '路遥', stock: 11 },
+      { name: '目送', price: 16, old: 36, cover: 'img/31.jpg', author: '龙应台', stock: 4 },
+      { name: '边城', price: 12, old: 29, cover: 'img/32.jpg', author: '沈从文', stock: 2 }
+    ];
+
+    // 状态
+    let zyt_keyword = '';
+    let zyt_newAsc = null;
+    let zyt_saleAsc = null;
+    const zyt_favMap = {};
+
+    // 折扣计算：19 / 45 → 4.2 折
+    function zyt_discount(zyt_price, zyt_old) {
+      return (Math.round((zyt_price / zyt_old) * 100) / 10).toFixed(1);
+    }
+
+    // 过滤 + 排序
+    function zyt_prepare(zyt_list, zyt_asc) {
+      let zyt_result = zyt_list.filter(function (zyt_item) {
+        return zyt_item.name.indexOf(zyt_keyword) !== -1;
+      });
+      if (zyt_asc !== null) {
+        zyt_result = zyt_result.slice().sort(function (zyt_a, zyt_b) {
+          return zyt_asc ? zyt_a.price - zyt_b.price : zyt_b.price - zyt_a.price;
+        });
+      }
+      return zyt_result;
+    }
+
+    // 新品卡片
+    function zyt_newCardHtml(zyt_item) {
+      const zyt_key = 'new-' + zyt_item.name;
+      const zyt_active = zyt_favMap[zyt_key] ? ' zyt_active' : '';
+      return '' +
+        '<article class="zyt_card">' +
+          '<div class="zyt_cover">' +
+            '<img src="' + zyt_item.cover + '" alt="' + zyt_item.name + '">' +
+            '<span class="zyt_badge zyt_badgeNew"><i class="iconfont icon-xinpin"></i>新品</span>' +
+          '</div>' +
+          '<h3 class="zyt_bookName">' + zyt_item.name + '</h3>' +
+          '<p class="zyt_bookMeta">' + zyt_item.author + ' · 现货 ' + zyt_item.stock + ' 本</p>' +
+          '<div class="zyt_priceRow">' +
+            '<span class="zyt_price">¥' + zyt_item.price + '</span>' +
+            '<span class="zyt_oldPrice">¥' + zyt_item.old + '</span>' +
+          '</div>' +
+          '<div class="zyt_actionRow">' +
+            '<button class="zyt_favBtn' + zyt_active + '" type="button" data-zyt-fav="' + zyt_key + '">' +
+              '<i class="iconfont icon-shoucang"></i>' + (zyt_favMap[zyt_key] ? '已收藏' : '收藏') +
+            '</button>' +
+            '<button class="zyt_shareBtn" type="button" title="分享">' +
+              '<i class="iconfont icon-fenxiang"></i>' +
+            '</button>' +
+          '</div>' +
+        '</article>';
+    }
+
+    // 清仓卡片
+    function zyt_saleCardHtml(zyt_item) {
+      const zyt_key = 'sale-' + zyt_item.name;
+      const zyt_active = zyt_favMap[zyt_key] ? ' zyt_active' : '';
+      const zyt_left = Math.max(6, Math.min(100, zyt_item.stock * 8));
+      return '' +
+        '<article class="zyt_card">' +
+          '<div class="zyt_cover">' +
+            '<img src="' + zyt_item.cover + '" alt="' + zyt_item.name + '">' +
+            '<span class="zyt_badge zyt_badgeSale"><i class="iconfont icon-guanlichuangku"></i>' +
+              zyt_discount(zyt_item.price, zyt_item.old) + ' 折</span>' +
+          '</div>' +
+          '<h3 class="zyt_bookName">' + zyt_item.name + '</h3>' +
+          '<p class="zyt_bookMeta">' + zyt_item.author + ' · 仓库尾货</p>' +
+          '<div class="zyt_priceRow">' +
+            '<span class="zyt_price">¥' + zyt_item.price + '</span>' +
+            '<span class="zyt_oldPrice">¥' + zyt_item.old + '</span>' +
+          '</div>' +
+          '<div class="zyt_stockRow">' +
+            '<span class="zyt_stockBar"><i style="width:' + zyt_left + '%"></i></span>' +
+            '<span class="zyt_stockText">仅剩 ' + zyt_item.stock + ' 件</span>' +
+          '</div>' +
+          '<div class="zyt_actionRow">' +
+            '<button class="zyt_favBtn' + zyt_active + '" type="button" data-zyt-fav="' + zyt_key + '">' +
+              '<i class="iconfont icon-shoucang"></i>' + (zyt_favMap[zyt_key] ? '已收藏' : '收藏') +
+            '</button>' +
+            '<button class="zyt_shareBtn" type="button" title="分享">' +
+              '<i class="iconfont icon-fenxiang"></i>' +
+            '</button>' +
+          '</div>' +
+        '</article>';
+    }
+
+    // 渲染两个专区
+    function zyt_render() {
+      const zyt_newList = zyt_prepare(zyt_newBooks, zyt_newAsc);
+      const zyt_saleList = zyt_prepare(zyt_saleBooks, zyt_saleAsc);
+
+      document.querySelector('.zyt_newGrid').innerHTML = zyt_newList.length
+        ? zyt_newList.map(zyt_newCardHtml).join('')
+        : '<p class="zyt_empty">没有找到“' + zyt_keyword + '”相关新品</p>';
+
+      document.querySelector('.zyt_saleGrid').innerHTML = zyt_saleList.length
+        ? zyt_saleList.map(zyt_saleCardHtml).join('')
+        : '<p class="zyt_empty">没有找到“' + zyt_keyword + '”相关清仓图书</p>';
+
+      document.querySelector('.zyt_newCount').textContent = '共 ' + zyt_newList.length + ' 本 · 周三上新';
+      document.querySelector('.zyt_saleCount').textContent = '共 ' + zyt_saleList.length + ' 本 · 售完即止';
+
+      document.querySelector('.zyt_newSort').classList.toggle('zyt_active', zyt_newAsc !== null);
+      document.querySelector('.zyt_saleSort').classList.toggle('zyt_active', zyt_saleAsc !== null);
+    }
+
+    // 收藏切换（事件委托）
+    function zyt_bindFav() {
+      document.querySelectorAll('.zyt_grid').forEach(function (zyt_grid) {
+        zyt_grid.addEventListener('click', function (zyt_event) {
+          const zyt_btn = zyt_event.target.closest('.zyt_favBtn');
+          if (!zyt_btn) return;
+          const zyt_key = zyt_btn.getAttribute('data-zyt-fav');
+          zyt_favMap[zyt_key] = !zyt_favMap[zyt_key];
+          zyt_render();
+        });
+      });
+    }
+
+    // 搜索
+    document.querySelector('.zyt_searchInput').addEventListener('input', function () {
+      zyt_keyword = this.value.trim();
+      zyt_render();
+    });
+
+    // 价格排序
+    document.querySelector('.zyt_newSort').addEventListener('click', function () {
+      zyt_newAsc = zyt_newAsc === null ? true : (zyt_newAsc ? false : null);
+      zyt_render();
+    });
+
+    document.querySelector('.zyt_saleSort').addEventListener('click', function () {
+      zyt_saleAsc = zyt_saleAsc === null ? true : (zyt_saleAsc ? false : null);
+      zyt_render();
+    });
+
+    // 专区切换
+    const zyt_switchNew = document.querySelector('.zyt_newSwitch');
+    const zyt_switchSale = document.querySelector('.zyt_saleSwitch');
+
+    zyt_switchNew.addEventListener('click', function () {
+      zyt_switchNew.classList.add('zyt_active');
+      zyt_switchSale.classList.remove('zyt_active');
+      document.querySelector('.zyt_newSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    zyt_switchSale.addEventListener('click', function () {
+      zyt_switchSale.classList.add('zyt_active');
+      zyt_switchNew.classList.remove('zyt_active');
+      document.querySelector('.zyt_clearanceSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    // 底部导航：选中态 + 滚动定位
+    const zyt_tabItems = document.querySelectorAll('.zyt_tabItem');
+
+    zyt_tabItems.forEach(function (zyt_item) {
+      zyt_item.addEventListener('click', function () {
+        const zyt_target = this.getAttribute('data-zyt-target');
+        zyt_tabItems.forEach(function (zyt_other) {
+          zyt_other.classList.remove('zyt_active');
+        });
+        this.classList.add('zyt_active');
+        if (zyt_target && zyt_target !== 'top') {
+          document.querySelector(zyt_target).scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        if (zyt_target === 'top') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      });
+    });
+
+    // 扫一扫提示（演示字体图标按钮交互）
+    document.querySelector('.zyt_scanBtn').addEventListener('click', function () {
+      alert('扫一扫：请用手机扫描图书条形码，快速加入清仓清单');
+    });
+
+    // 初始化
+    zyt_render();
+    zyt_bindFav();
+  </script>
+</body>
+</html>

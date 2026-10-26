@@ -71,3 +71,27 @@
 ## 2026-10-22-16-15
 模型: opencode/mimo-v2.6-flash-free
 提示词: 新建14-2.html，定义javascript的六种数据类型并演示，然后提交项目
+
+## 2026-10-25-15-43
+模型: DeepSeek-V4.1-Flash
+提示词: 根据font目录下的iconfont的图标，完成NewTab.html,主题为图书展销平台 —— 新品与仓库清仓专区，要求见项目指导书
+
+## 2026-10-25-16-06
+模型: DeepSeek-V4.1-Flash
+提示词: 根据font目录下的iconfont的图标，把清仓和新品的图标改改
+
+## 2026-10-25-16-10
+模型: DeepSeek-V4.1-Flash
+提示词: &#xee18;新品用这个图标
+
+## 2026-10-25-16-13
+模型: DeepSeek-V4.1-Flash
+提示词: &#xe603;清仓用这个
+
+## 2026-10-25-16-51
+模型: DeepSeek-V4.1-Flash
+提示词: 不使用 id 选择器，用设计全局 css
+
+## 2026-10-26-16-27
+模型: Kimi-K3
+提示词: 创建技能skill，提交到github，将本项目commit并push到https://github.com/zyt586/zhangyutong，已设置公钥

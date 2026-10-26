@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "1268641",
+      "name": "our-ckgl",
+      "font_class": "guanlichuangku",
+      "unicode": "e603",
+      "unicode_decimal": 58883
+    },
+    {
+      "icon_id": "27402393",
+      "name": "新品",
+      "font_class": "xinpin",
+      "unicode": "ee18",
+      "unicode_decimal": 60952
+    },
+    {
       "icon_id": "700844",
       "name": "商城",
       "font_class": "shangcheng",
