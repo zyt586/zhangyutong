@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>15-2 JavaScript 程序结构 · 循环</title>
+  <!--
+  姓名：张语桐
+  日期：2026-10-26
+  功能名称：展示 JavaScript 程序结构，包含 for、while、do-while、for-of、for-in、forEach 六种循环
+  -->
+  <style>
+    :root {
+      --zyt_red: #d53d3d;
+      --zyt_red_dark: #b83333;
+      --zyt_bg: #f7f3ef;
+      --zyt_card: #ffffff;
+      --zyt_text: #333333;
+      --zyt_muted: #8a8a8a;
+      --zyt_line: #f0e8e2;
+      --zyt_code_bg: #282c34;
+      --zyt_code_text: #abb2bf;
+      --zyt_code_keyword: #c678dd;
+      --zyt_code_string: #98c379;
+      --zyt_code_comment: #5c6370;
+      --zyt_code_number: #d19a66;
+      --zyt_code_func: #61afef;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      background-color: var(--zyt_bg);
+      color: var(--zyt_text);
+      line-height: 1.7;
+      padding-bottom: 40px;
+    }
+
+    .zyt_header {
+      background: linear-gradient(135deg, #fdf1e7 0%, #fbe2dc 100%);
+      padding: 28px 20px;
+      text-align: center;
+      border-bottom: 1px solid var(--zyt_line);
+    }
+
+    .zyt_title {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--zyt_red_dark);
+      letter-spacing: 1px;
+    }
+
+    .zyt_sub {
+      margin-top: 6px;
+      font-size: 14px;
+      color: #8a5a4a;
+    }
+
+    .zyt_main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 16px 14px;
+    }
+
+    .zyt_section {
+      margin-bottom: 20px;
+      padding: 18px;
+      background-color: var(--zyt_card);
+      border-radius: 14px;
+      border: 1px solid var(--zyt_line);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    .zyt_sectionHead {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--zyt_line);
+      margin-bottom: 14px;
+    }
+
+    .zyt_sectionNum {
+      flex: 0 0 auto;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--zyt_red), var(--zyt_red_dark));
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .zyt_sectionTitle {
+      font-size: 18px;
+      font-weight: 700;
+      color: #2b2b2b;
+    }
+
+    .zyt_sectionDesc {
+      font-size: 13px;
+      color: var(--zyt_muted);
+      margin-top: 4px;
+      padding-left: 42px;
+    }
+
+    .zyt_codeBlock {
+      background-color: var(--zyt_code_bg);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-family: "Consolas", "Monaco", "Courier New", monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--zyt_code_text);
+      overflow-x: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .zyt_codeKeyword { color: var(--zyt_code_keyword); }
+    .zyt_codeString { color: var(--zyt_code_string); }
+    .zyt_codeComment { color: var(--zyt_code_comment); font-style: italic; }
+    .zyt_codeNumber { color: var(--zyt_code_number); }
+    .zyt_codeFunc { color: var(--zyt_code_func); }
+
+    .zyt_resultBox {
+      margin-top: 12px;
+      padding: 12px 14px;
+      background-color: #faf6f3;
+      border: 1px solid var(--zyt_line);
+      border-radius: 10px;
+    }
+
+    .zyt_resultLabel {
+      font-size: 12px;
+      color: var(--zyt_muted);
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .zyt_resultContent {
+      font-family: "Consolas", "Monaco", "Courier New", monospace;
+      font-size: 13px;
+      color: #444;
+      word-break: break-all;
+      min-height: 20px;
+    }
+
+    .zyt_resultContent span {
+      display: inline-block;
+      padding: 1px 6px;
+      margin: 1px 2px;
+      background-color: #fff;
+      border: 1px solid #eadfcf;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .zyt_runBtn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 34px;
+      padding: 0 16px;
+      margin-top: 12px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--zyt_red), var(--zyt_red_dark));
+      color: #fff;
+      font-size: 13px;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s ease, transform 0.12s ease;
+    }
+
+    .zyt_runBtn:hover {
+      opacity: 0.92;
+    }
+
+    .zyt_runBtn:active {
+      transform: scale(0.97);
+    }
+
+    .zyt_progStruct {
+      margin-top: 10px;
+      padding: 14px;
+      background-color: #fff5f2;
+      border-left: 3px solid var(--zyt_red);
+      border-radius: 0 8px 8px 0;
+      font-size: 13px;
+      color: #5a3f35;
+      line-height: 1.9;
+    }
+
+    .zyt_progStruct .zyt_indent1 { padding-left: 24px; }
+    .zyt_progStruct .zyt_indent2 { padding-left: 48px; }
+    .zyt_progStruct .zyt_block { color: var(--zyt_red_dark); font-weight: 700; }
+
+    .zyt_toc {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding: 14px;
+      background-color: var(--zyt_card);
+      border-radius: 12px;
+      border: 1px solid var(--zyt_line);
+    }
+
+    .zyt_tocLink {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background-color: #fff5f2;
+      color: var(--zyt_red_dark);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid #f5d4cb;
+      transition: background-color 0.2s ease;
+    }
+
+    .zyt_tocLink:hover {
+      background-color: #ffe9e0;
+    }
+
+    .zyt_foot {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 12px;
+      color: #a89f99;
+    }
+
+    @media (max-width: 768px) {
+      .zyt_section {
+        padding: 14px;
+      }
+      .zyt_title {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="zyt_header">
+    <h1 class="zyt_title">JavaScript 程序结构 · 循环</h1>
+    <p class="zyt_sub">顺序结构 → 分支结构 → 循环结构 —— JS 三大基本程序结构</p>
+  </header>
+
+  <main class="zyt_main">
+
+    <nav class="zyt_toc">
+      <a class="zyt_tocLink" href="#zyt_prog0">📋 程序结构总览</a>
+      <a class="zyt_tocLink" href="#zyt_loop1">① for 循环</a>
+      <a class="zyt_tocLink" href="#zyt_loop2">② while 循环</a>
+      <a class="zyt_tocLink" href="#zyt_loop3">③ do-while 循环</a>
+      <a class="zyt_tocLink" href="#zyt_loop4">④ for-of 遍历数组</a>
+      <a class="zyt_tocLink" href="#zyt_loop5">⑤ for-in 遍历对象</a>
+      <a class="zyt_tocLink" href="#zyt_loop6">⑥ forEach 数组方法</a>
+    </nav>
+
+    <!-- 程序结构总览 -->
+    <section class="zyt_section" id="zyt_prog0">
+      <div class="zyt_sectionHead">
+        <span class="zyt_sectionNum">0</span>
+        <h2 class="zyt_sectionTitle">JavaScript 程序结构总览</h2>
+      </div>
+      <p style="font-size:13px; color:#666; margin-bottom:12px;">
+        JS 程序由三种基本结构组成：<strong>顺序结构</strong>（从上到下逐条执行）、<strong>分支结构</strong>（if / switch，根据条件选择执行路径）、<strong>循环结构</strong>（for / while / for-of 等，重复执行一段代码）。
+      </p>
+      <div class="zyt_progStruct">
+        <div><span class="zyt_block">// 程序结构示意</span></div>
+        <div><span class="zyt_codeKeyword">let</span> zyt_score = <span class="zyt_codeNumber">75</span>;</div>
+        <div class="zyt_indent1"><span class="zyt_codeComment">// ① 顺序结构：逐条赋值、计算</span></div>
+        <div class="zyt_indent1"><span class="zyt_codeKeyword">let</span> zyt_level = zyt_score + <span class="zyt_codeNumber">10</span>;</div>
+        <div><span class="zyt_codeKeyword">if</span> (zyt_level >= <span class="zyt_codeNumber">60</span>) {</div>
+        <div class="zyt_indent1"><span class="zyt_codeComment">// ② 分支结构：条件满足才执行</span></div>
+        <div class="zyt_indent1">console.<span class="zyt_codeFunc">log</span>(<span class="zyt_codeString">'及格'</span>);</div>
+        <div>} <span class="zyt_codeKeyword">else</span> {</div>
+        <div class="zyt_indent1">console.<span class="zyt_codeFunc">log</span>(<span class="zyt_codeString">'不及格'</span>);</div>
+        <div>}</div>
+        <div><span class="zyt_codeKeyword">for</span> (<span class="zyt_codeKeyword">let</span> zyt_i = <span class="zyt_codeNumber">1</span>; zyt_i <= <span class="zyt_codeNumber">5</span>; zyt_i++) {</div>
+        <div class="zyt_indent1"><span class="zyt_codeComment">// ③ 循环结构：重复执行 5 次</span></div>
+        <div class="zyt_indent1">console.<span class="zyt_codeFunc">log</span>(<span class="zyt_codeString">'第'</span> + zyt_i + <span class="zyt_codeString">'次'</span>);</div>
+        <div>}</div>
+      </div>
+    </section>
+
+    <!-- ① for 循环 -->
+    <section class="zyt_section" id="zyt_loop1">
+      <div class="zyt_sectionHead">
+        <span class="zyt_sectionNum">1</span>
+        <h2 class="zyt_sectionTitle">for 循环（最常用）</h2>
+      </div>
+      <p style="font-size:13px; color:#666; margin-bottom:12px;">
+        语法：<code>for (初始化; 条件; 步进) { 循环体 }</code>。计算 1~10 的累加和。
+      </p>
+      <pre class="zyt_codeBlock"><span class="zyt_codeKeyword">let</span> zyt_sum = <span class="zyt_codeNumber">0</span>;
+<span class="zyt_codeKeyword">for</span> (<span class="zyt_codeKeyword">let</span> zyt_i = <span class="zyt_codeNumber">1</span>; zyt_i <= <span class="zyt_codeNumber">10</span>; zyt_i++) {
+  zyt_sum += zyt_i;  <span class="zyt_codeComment">// 每次把 i 加到 sum 上</span>
+}
+console.<span class="zyt_codeFunc">log</span>(<span class="zyt_codeString">'1 加到 10 ='</span>, zyt_sum);</pre>
+      <button class="zyt_runBtn" type="button" data-zyt-run="zyt_run1">▶ 运行</button>
+      <div class="zyt_resultBox">
+        <div class="zyt_resultLabel">运行结果：</div>
+        <div class="zyt_resultContent" data-zyt-result="zyt_run1">（点"运行"按钮查看）</div>
+      </div>
+    </section>
+
+    <!-- ② while 循环 -->
+    <section class="zyt_section" id="zyt_loop2">
+      <div class="zyt_sectionHead">
+        <span class="zyt_sectionNum">2</span>
+        <h2 class="zyt_sectionTitle">while 循环（条件先判断）</h2>
+      </div>
+      <p style="font-size:13px; color:#666; margin-bottom:12px;">
+        语法：<code>while (条件) { 循环体 }</code>。输出 1~5 的平方。
+      </p>
+      <pre class="zyt_codeBlock"><span class="zyt_codeKeyword">let</span> zyt_j = <span class="zyt_codeNumber">1</span>;
+<span class="zyt_codeKeyword">while</span> (zyt_j <= <span class="zyt_codeNumber">5</span>) {
+  console.<span class="zyt_codeFunc">log</span>(zyt_j + <span class="zyt_codeString">'² = '</span> + zyt_j * zyt_j);
+  zyt_j++;  <span class="zyt_codeComment">// 必须手动更新条件变量</span>
+}</pre>
+      <button class="zyt_runBtn" type="button" data-zyt-run="zyt_run2">▶ 运行</button>
+      <div class="zyt_resultBox">
+        <div class="zyt_resultLabel">运行结果：</div>
+        <div class="zyt_resultContent" data-zyt-result="zyt_run2">（点"运行"按钮查看）</div>
+      </div>
+    </section>
+
+    <!-- ③ do-while 循环 -->
+    <section class="zyt_section" id="zyt_loop3">
+      <div class="zyt_sectionHead">
+        <span class="zyt_sectionNum">3</span>
+        <h2 class="zyt_sectionTitle">do-while 循环（先执行后判断）</h2>
+      </div>
+      <p style="font-size:13px; color:#666; margin-bottom:12px;">
+        语法：<code>do { 循环体 } while (条件);</code>。无论条件是否成立，循环体<strong>至少执行一次</strong>。
+      </p>
+      <pre class="zyt_codeBlock"><span class="zyt_codeKeyword">let</span> zyt_k = <span class="zyt_codeNumber">3</span>;
+<span class="zyt_codeKeyword">do</span> {
+  console.<span class="zyt_codeFunc">log</span>(<span class="zyt_codeString">'倒计时: '</span> + zyt_k);
+  zyt_k--;
+} <span class="zyt_codeKeyword">while</span> (zyt_k > <span class="zyt_codeNumber">0</span>);
+console.<span class="zyt_codeFunc">log</span>(<span class="zyt_codeString">'发射!'</span>);</pre>
+      <button class="zyt_runBtn" type="button" data-zyt-run="zyt_run3">▶ 运行</button>
+      <div class="zyt_resultBox">
+        <div class="zyt_resultLabel">运行结果：</div>
+        <div class="zyt_resultContent" data-zyt-result="zyt_run3">（点"运行"按钮查看）</div>
+      </div>
+    </section>
+
+    <!-- ④ for-of 遍历数组 -->
+    <section class="zyt_section" id="zyt_loop4">
+      <div class="zyt_sectionHead">
+        <span class="zyt_sectionNum">4</span>
+        <h2 class="zyt_sectionTitle">for-of 循环（遍历数组）</h2>
+      </div>
+      <p style="font-size:13px; color:#666; margin-bottom:12px;">
+        语法：<code>for (let 变量 of 数组) { }</code>。ES6 新语法，直接拿到每个元素值，无需下标。
+      </p>
+      <pre class="zyt_codeBlock"><span class="zyt_codeKeyword">const</span> zyt_books = [<span class="zyt_codeString">'活着'</span>, <span class="zyt_codeString">'白夜行'</span>, <span class="zyt_codeString">'小王子'</span>, <span class="zyt_codeString">'围城'</span>];
+<span class="zyt_codeKeyword">for</span> (<span class="zyt_codeKeyword">let</span> zyt_name <span class="zyt_codeKeyword">of</span> zyt_books) {
+  console.<span class="zyt_codeFunc">log</span>(<span class="zyt_codeString">'📖 '</span> + zyt_name);
+}</pre>
+      <button class="zyt_runBtn" type="button" data-zyt-run="zyt_run4">▶ 运行</button>
+      <div class="zyt_resultBox">
+        <div class="zyt_resultLabel">运行结果：</div>
+        <div class="zyt_resultContent" data-zyt-result="zyt_run4">（点"运行"按钮查看）</div>
+      </div>
+    </section>
+
+    <!-- ⑤ for-in 遍历对象 -->
+    <section class="zyt_section" id="zyt_loop5">
+      <div class="zyt_sectionHead">
+        <span class="zyt_sectionNum">5</span>
+        <h2 class="zyt_sectionTitle">for-in 循环（遍历对象键名）</h2>
+      </div>
+      <p style="font-size:13px; color:#666; margin-bottom:12px;">
+        语法：<code>for (let key in 对象) { }</code>。用于遍历对象的属性名（键）。
+      </p>
+      <pre class="zyt_codeBlock"><span class="zyt_codeKeyword">const</span> zyt_student = { <span class="zyt_codeString">name</span>: <span class="zyt_codeString">'张语桐'</span>, <span class="zyt_codeString">age</span>: <span class="zyt_codeNumber">20</span>, <span class="zyt_codeString">major</span>: <span class="zyt_codeString">'高级网页设计'</span> };
+<span class="zyt_codeKeyword">for</span> (<span class="zyt_codeKeyword">let</span> zyt_key <span class="zyt_codeKeyword">in</span> zyt_student) {
+  console.<span class="zyt_codeFunc">log</span>(zyt_key + <span class="zyt_codeString">' = '</span> + zyt_student[zyt_key]);
+}</pre>
+      <button class="zyt_runBtn" type="button" data-zyt-run="zyt_run5">▶ 运行</button>
+      <div class="zyt_resultBox">
+        <div class="zyt_resultLabel">运行结果：</div>
+        <div class="zyt_resultContent" data-zyt-result="zyt_run5">（点"运行"按钮查看）</div>
+      </div>
+    </section>
+
+    <!-- ⑥ forEach 数组方法 -->
+    <section class="zyt_section" id="zyt_loop6">
+      <div class="zyt_sectionHead">
+        <span class="zyt_sectionNum">6</span>
+        <h2 class="zyt_sectionTitle">forEach 数组方法（函数式遍历）</h2>
+      </div>
+      <p style="font-size:13px; color:#666; margin-bottom:12px;">
+        语法：<code>数组.forEach(function(item, index) { })</code>。数组自带方法，回调函数拿到元素值和下标。
+      </p>
+      <pre class="zyt_codeBlock"><span class="zyt_codeKeyword">const</span> zyt_scores = [<span class="zyt_codeNumber">85</span>, <span class="zyt_codeNumber">92</span>, <span class="zyt_codeNumber">78</span>, <span class="zyt_codeNumber">95</span>, <span class="zyt_codeNumber">88</span>];
+zyt_scores.<span class="zyt_codeFunc">forEach</span>(<span class="zyt_codeKeyword">function</span> (zyt_score, zyt_idx) {
+  console.<span class="zyt_codeFunc">log</span>(<span class="zyt_codeString">'第'</span> + (zyt_idx + <span class="zyt_codeNumber">1</span>) + <span class="zyt_codeString">'个分数: '</span> + zyt_score);
+});
+<span class="zyt_codeKeyword">let</span> zyt_avg = zyt_scores.<span class="zyt_codeFunc">reduce</span>(<span class="zyt_codeKeyword">function</span>(a, b){<span class="zyt_keyword">return</span> a + b;}, <span class="zyt_codeNumber">0</span>) / zyt_scores.length;
+console.<span class="zyt_codeFunc">log</span>(<span class="zyt_codeString">'平均分: '</span> + zyt_avg.<span class="zyt_codeFunc">toFixed</span>(<span class="zyt_codeNumber">1</span>));</pre>
+      <button class="zyt_runBtn" type="button" data-zyt-run="zyt_run6">▶ 运行</button>
+      <div class="zyt_resultBox">
+        <div class="zyt_resultLabel">运行结果：</div>
+        <div class="zyt_resultContent" data-zyt-result="zyt_run6">（点"运行"按钮查看）</div>
+      </div>
+    </section>
+
+    <p class="zyt_foot">张语桐 · 高级网页设计I · JavaScript 程序结构与循环</p>
+  </main>
+
+  <script>
+    // 运行结果渲染工具
+    function zyt_setResult(zyt_key, zyt_lines) {
+      const zyt_el = document.querySelector('[data-zyt-result="' + zyt_key + '"]');
+      if (!zyt_el) return;
+      if (zyt_lines.length === 0) {
+        zyt_el.textContent = '(无输出)';
+        return;
+      }
+      zyt_el.innerHTML = zyt_lines.map(function (zyt_line) {
+        return '<span>' + String(zyt_line).replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span>';
+      }).join('');
+    }
+
+    // 拦截 console.log 收集输出
+    function zyt_captureConsole(zyt_fn) {
+      const zyt_lines = [];
+      const zyt_oldLog = console.log;
+      console.log = function () {
+        zyt_lines.push(Array.prototype.slice.call(arguments).join(' '));
+      };
+      try {
+        zyt_fn();
+      } catch (zyt_e) {
+        zyt_lines.push('⚠️ 运行出错: ' + zyt_e.message);
+      }
+      console.log = zyt_oldLog;
+      return zyt_lines;
+    }
+
+    // ① for 循环
+    document.querySelector('[data-zyt-run="zyt_run1"]').addEventListener('click', function () {
+      const zyt_lines = zyt_captureConsole(function () {
+        let zyt_sum = 0;
+        for (let zyt_i = 1; zyt_i <= 10; zyt_i++) {
+          zyt_sum += zyt_i;
+        }
+        console.log('1 加到 10 =', zyt_sum);
+      });
+      zyt_setResult('zyt_run1', zyt_lines);
+    });
+
+    // ② while 循环
+    document.querySelector('[data-zyt-run="zyt_run2"]').addEventListener('click', function () {
+      const zyt_lines = zyt_captureConsole(function () {
+        let zyt_j = 1;
+        while (zyt_j <= 5) {
+          console.log(zyt_j + '² = ' + zyt_j * zyt_j);
+          zyt_j++;
+        }
+      });
+      zyt_setResult('zyt_run2', zyt_lines);
+    });
+
+    // ③ do-while 循环
+    document.querySelector('[data-zyt-run="zyt_run3"]').addEventListener('click', function () {
+      const zyt_lines = zyt_captureConsole(function () {
+        let zyt_k = 3;
+        do {
+          console.log('倒计时: ' + zyt_k);
+          zyt_k--;
+        } while (zyt_k > 0);
+        console.log('发射!');
+      });
+      zyt_setResult('zyt_run3', zyt_lines);
+    });
+
+    // ④ for-of 循环
+    document.querySelector('[data-zyt-run="zyt_run4"]').addEventListener('click', function () {
+      const zyt_lines = zyt_captureConsole(function () {
+        const zyt_books = ['活着', '白夜行', '小王子', '围城'];
+        for (let zyt_name of zyt_books) {
+          console.log('📖 ' + zyt_name);
+        }
+      });
+      zyt_setResult('zyt_run4', zyt_lines);
+    });
+
+    // ⑤ for-in 循环
+    document.querySelector('[data-zyt-run="zyt_run5"]').addEventListener('click', function () {
+      const zyt_lines = zyt_captureConsole(function () {
+        const zyt_student = { name: '张语桐', age: 20, major: '高级网页设计' };
+        for (let zyt_key in zyt_student) {
+          console.log(zyt_key + ' = ' + zyt_student[zyt_key]);
+        }
+      });
+      zyt_setResult('zyt_run5', zyt_lines);
+    });
+
+    // ⑥ forEach 数组方法
+    document.querySelector('[data-zyt-run="zyt_run6"]').addEventListener('click', function () {
+      const zyt_lines = zyt_captureConsole(function () {
+        const zyt_scores = [85, 92, 78, 95, 88];
+        zyt_scores.forEach(function (zyt_score, zyt_idx) {
+          console.log('第' + (zyt_idx + 1) + '个分数: ' + zyt_score);
+        });
+        let zyt_avg = zyt_scores.reduce(function (a, b) { return a + b; }, 0) / zyt_scores.length;
+        console.log('平均分: ' + zyt_avg.toFixed(1));
+      });
+      zyt_setResult('zyt_run6', zyt_lines);
+    });
+  </script>
+</body>
+</html>
