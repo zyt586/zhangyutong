@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>16-3 抖音精选 · 视频卡片墙</title>
+  <!--
+  姓名：张语桐
+  日期：2026-10-29
+  功能名称：抖音精选视频卡片墙——深色主题分类导航 + 视频卡片网格，分类可筛选
+  -->
+  <link rel="stylesheet" href="font/iconfont.css">
+  <style>
+    :root {
+      --zyt_bg: #111214;
+      --zyt_card: #1e1f22;
+      --zyt_text: #f1f1f1;
+      --zyt_muted: #8a8a8a;
+      --zyt_line: #2a2b2e;
+      --zyt_red: #fe2c55;
+      --zyt_scrim: rgba(0, 0, 0, 0.55);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      background-color: var(--zyt_bg);
+      color: var(--zyt_text);
+      line-height: 1.6;
+      padding-bottom: 40px;
+    }
+
+    /* ---------- 顶部分类导航 ---------- */
+    .zyt_nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: var(--zyt_bg);
+      padding: 14px 24px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .zyt_nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .zyt_tab {
+      flex: 0 0 auto;
+      padding: 5px 14px;
+      border: none;
+      border-radius: 8px;
+      background-color: transparent;
+      color: #b3b3b3;
+      font-size: 15px;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .zyt_tab:hover {
+      color: #fff;
+    }
+
+    .zyt_tab.zyt_tabActive {
+      background-color: #fff;
+      color: #111;
+      font-weight: 700;
+    }
+
+    /* ---------- 视频卡片网格 ---------- */
+    .zyt_main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 6px 24px 0;
+    }
+
+    .zyt_grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px 16px;
+    }
+
+    .zyt_vcard {
+      cursor: pointer;
+    }
+
+    .zyt_vthumb {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      border-radius: 10px;
+      overflow: hidden;
+      background-color: var(--zyt_card);
+    }
+
+    .zyt_vthumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.35s ease;
+    }
+
+    .zyt_vcard:hover .zyt_vthumb img {
+      transform: scale(1.06);
+    }
+
+    .zyt_vcover {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 35%, rgba(0,0,0,0.62) 100%);
+      pointer-events: none;
+    }
+
+    /* 封面上的大字（模仿视频封面标题） */
+    .zyt_vbig {
+      position: absolute;
+      left: 12px;
+      bottom: 34px;
+      right: 12px;
+      color: #fff;
+      font-weight: 700;
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+      pointer-events: none;
+    }
+
+    .zyt_vbig.zyt_sizeLg { font-size: 22px; letter-spacing: 1px; }
+    .zyt_vbig.zyt_sizeMd { font-size: 17px; }
+    .zyt_vbig .zyt_bigRed { color: #ffd21e; }
+    .zyt_vbig .zyt_bigQuote { color: #ff5d5d; }
+
+    .zyt_vlike {
+      position: absolute;
+      left: 10px;
+      bottom: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: #fff;
+      font-size: 12px;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    }
+
+    .zyt_vlike .iconfont {
+      font-size: 14px;
+    }
+
+    .zyt_vdur {
+      position: absolute;
+      right: 10px;
+      bottom: 8px;
+      color: #fff;
+      font-size: 12px;
+      font-family: Arial, sans-serif;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    }
+
+    /* ---------- 卡片文字区 ---------- */
+    .zyt_vinfo {
+      padding: 10px 2px 0;
+    }
+
+    .zyt_vtitle {
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--zyt_text);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .zyt_vtags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .zyt_vtag {
+      padding: 3px 10px;
+      border-radius: 6px;
+      background-color: var(--zyt_card);
+      border: 1px solid var(--zyt_line);
+      color: #d0d0d0;
+      font-size: 12px;
+    }
+
+    .zyt_vmeta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 7px;
+      font-size: 12px;
+      color: var(--zyt_muted);
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .zyt_vmeta .zyt_metaAuthor {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .zyt_liveBadge {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 1px 7px;
+      border-radius: 999px;
+      background-color: var(--zyt_red);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .zyt_emptyTip {
+      display: none;
+      padding: 60px 0;
+      text-align: center;
+      color: var(--zyt_muted);
+      font-size: 14px;
+    }
+
+    .zyt_emptyTip.zyt_show {
+      display: block;
+    }
+
+    .zyt_foot {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 12px;
+      color: #5c5c5c;
+    }
+
+    @media (max-width: 1024px) {
+      .zyt_grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+      .zyt_grid { grid-template-columns: repeat(2, 1fr); gap: 14px 10px; }
+      .zyt_nav { padding: 12px 14px 10px; }
+      .zyt_main { padding: 4px 14px 0; }
+      .zyt_title { font-size: 20px; }
+    }
+
+    @media (max-width: 420px) {
+      .zyt_grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 顶部分类导航 -->
+  <nav class="zyt_nav">
+    <button class="zyt_tab zyt_tabActive" type="button" data-zyt-cat="all">全部</button>
+    <button class="zyt_tab" type="button" data-zyt-cat="公开课">公开课</button>
+    <button class="zyt_tab" type="button" data-zyt-cat="游戏">游戏</button>
+    <button class="zyt_tab" type="button" data-zyt-cat="二次元">二次元</button>
+    <button class="zyt_tab" type="button" data-zyt-cat="音乐">音乐</button>
+    <button class="zyt_tab" type="button" data-zyt-cat="影视">影视</button>
+    <button class="zyt_tab" type="button" data-zyt-cat="美食">美食</button>
+    <button class="zyt_tab" type="button" data-zyt-cat="知识">知识</button>
+    <button class="zyt_tab" type="button" data-zyt-cat="小剧场">小剧场</button>
+    <button class="zyt_tab" type="button" data-zyt-cat="生活vlog">生活vlog</button>
+    <button class="zyt_tab" type="button" data-zyt-cat="体育">体育</button>
+    <button class="zyt_tab" type="button" data-zyt-cat="旅行">旅行</button>
+    <button class="zyt_tab" type="button" data-zyt-cat="亲子">亲子</button>
+    <button class="zyt_tab" type="button" data-zyt-cat="动物">动物</button>
+    <button class="zyt_tab" type="button" data-zyt-cat="三农">三农</button>
+    <button class="zyt_tab" type="button" data-zyt-cat="汽车">汽车</button>
+    <button class="zyt_tab" type="button" data-zyt-cat="美妆穿搭">美妆穿搭</button>
+  </nav>
+
+  <!-- 视频卡片墙 -->
+  <main class="zyt_main">
+    <div class="zyt_grid"></div>
+    <p class="zyt_emptyTip">该分类下暂无视频</p>
+    <p class="zyt_foot">张语桐 · 高级网页设计I · 抖音精选页面复刻</p>
+  </main>
+
+  <script>
+    // ---------- 视频数据（封面复用项目 img 目录） ----------
+    const zyt_videos = [
+      {
+        zyt_cat: '影视',
+        zyt_img: 'img/11.jpg',
+        zyt_big: '好大一棵树',
+        zyt_bigCls: 'zyt_sizeLg',
+        zyt_like: '2063',
+        zyt_dur: '45:18',
+        zyt_title: '米兰设计让大娘子，发现墨兰和梁晗的私情 #了不起的讲解团#抖音精选app征稿中 #知否#影视漫剪',
+        zyt_author: '瑟瑟说剧',
+        zyt_date: '9月30日',
+        zyt_live: false,
+        zyt_tags: []
+      },
+      {
+        zyt_cat: '动物',
+        zyt_img: 'img/12.jpg',
+        zyt_big: '对戏 二播',
+        zyt_bigCls: 'zyt_sizeMd',
+        zyt_like: '39.2万',
+        zyt_dur: '44:09',
+        zyt_title: '我宣布，MTG最干净之狗已不再是蔡先生。#养狗日常 #电子榨菜#乡村生活 #阿拉斯加犬',
+        zyt_author: '鲸浪',
+        zyt_date: '9月4日',
+        zyt_live: false,
+        zyt_tags: []
+      },
+      {
+        zyt_cat: '游戏',
+        zyt_img: 'img/13.jpg',
+        zyt_big: '50级新世代',
+        zyt_bigCls: 'zyt_sizeLg',
+        zyt_like: '1.2万',
+        zyt_dur: '43:59',
+        zyt_title: '《剑网3》开启50级新世代',
+        zyt_author: '剑网3',
+        zyt_date: '10月12日',
+        zyt_live: false,
+        zyt_tags: ['50级版本MV >', '免费领外观 >']
+      },
+      {
+        zyt_cat: '游戏',
+        zyt_img: 'img/14.jpg',
+        zyt_big: '阿斗一柱擎天',
+        zyt_bigCls: 'zyt_sizeMd',
+        zyt_like: '1.7万',
+        zyt_dur: '43:59',
+        zyt_title: '三国：勇将阿斗中兴大汉！1-25全集《阿斗一柱擎天》#率土之滨 #率土星推计划 #三国率土之滨',
+        zyt_author: '率土小伙伴',
+        zyt_date: '10月2日',
+        zyt_live: false,
+        zyt_tags: []
+      },
+      {
+        zyt_cat: '影视',
+        zyt_img: 'img/15.jpg',
+        zyt_big: '"爱"是战争不可摧毁的力量',
+        zyt_bigCls: 'zyt_sizeMd',
+        zyt_like: '1161',
+        zyt_dur: '41:24',
+        zyt_title: '"爱"是战争不可摧毁的力量',
+        zyt_author: '小时光网',
+        zyt_date: '2天前',
+        zyt_live: false,
+        zyt_tags: []
+      },
+      {
+        zyt_cat: '小剧场',
+        zyt_img: 'img/16.jpg',
+        zyt_big: '别闹了法姥',
+        zyt_bigCls: 'zyt_sizeLg',
+        zyt_like: '205.8万',
+        zyt_dur: '38:54',
+        zyt_title: '《别闹了法姥》1-25合集精选，姥姥永远年轻 永远调皮 #合创作者计划#别闹了法姥',
+        zyt_author: '别闹了法姥',
+        zyt_date: '10月16日',
+        zyt_live: false,
+        zyt_tags: []
+      },
+      {
+        zyt_cat: '小剧场',
+        zyt_img: 'img/17.jpg',
+        zyt_big: '"5"的诅咒',
+        zyt_bigCls: 'zyt_sizeMd',
+        zyt_like: '7.4万',
+        zyt_dur: '13:17',
+        zyt_title: '在我面前绝不能提数字"5"，否则会全家死亡',
+        zyt_author: '老D观禄',
+        zyt_date: '10月17日',
+        zyt_live: false,
+        zyt_tags: []
+      },
+      {
+        zyt_cat: '知识',
+        zyt_img: 'img/18.jpg',
+        zyt_big: '月薪2800到年入百万',
+        zyt_bigCls: 'zyt_sizeMd',
+        zyt_like: '2.2万',
+        zyt_dur: '43:26',
+        zyt_title: '月薪2800中专生如何逆袭成年入百万 #逆袭 #中专生逆袭 #年入百万 #洞洞实话谈',
+        zyt_author: '洞洞实话谈',
+        zyt_date: '10月20日',
+        zyt_live: true,
+        zyt_tags: []
+      }
+    ];
+
+    // ---------- 渲染卡片 ----------
+    const zyt_grid = document.querySelector('.zyt_grid');
+    const zyt_emptyTip = document.querySelector('.zyt_emptyTip');
+
+    function zyt_buildCard(zyt_v) {
+      const zyt_bigHtml = zyt_v.zyt_big
+        ? '<div class="zyt_vbig ' + zyt_v.zyt_bigCls + '">' + zyt_v.zyt_big + '</div>'
+        : '';
+
+      const zyt_tagsHtml = zyt_v.zyt_tags.length
+        ? '<div class="zyt_vtags">' +
+            zyt_v.zyt_tags.map(function (zyt_t) {
+              return '<span class="zyt_vtag">' + zyt_t + '</span>';
+            }).join('') +
+          '</div>'
+        : '';
+
+      const zyt_liveHtml = zyt_v.zyt_live
+        ? '<span class="zyt_liveBadge">正在直播</span>'
+        : '';
+
+      return '<article class="zyt_vcard" data-zyt-cat="' + zyt_v.zyt_cat + '">' +
+          '<div class="zyt_vthumb">' +
+            '<img src="' + zyt_v.zyt_img + '" alt="' + zyt_v.zyt_title + '" loading="lazy">' +
+            '<div class="zyt_vcover"></div>' +
+            zyt_bigHtml +
+            '<span class="zyt_vlike"><i class="iconfont icon-shoucang"></i>' + zyt_v.zyt_like + '</span>' +
+            '<span class="zyt_vdur">' + zyt_v.zyt_dur + '</span>' +
+          '</div>' +
+          '<div class="zyt_vinfo">' +
+            '<p class="zyt_vtitle">' + zyt_v.zyt_title + '</p>' +
+            zyt_tagsHtml +
+            '<div class="zyt_vmeta">' +
+              '<span class="zyt_metaAuthor">@' + zyt_v.zyt_author + '</span>' +
+              '<span>·</span>' +
+              '<span>' + zyt_v.zyt_date + '</span>' +
+              zyt_liveHtml +
+            '</div>' +
+          '</div>' +
+        '</article>';
+    }
+
+    zyt_grid.innerHTML = zyt_videos.map(zyt_buildCard).join('');
+
+    // ---------- 分类筛选 ----------
+    const zyt_tabs = document.querySelectorAll('.zyt_tab');
+
+    zyt_tabs.forEach(function (zyt_tab) {
+      zyt_tab.addEventListener('click', function () {
+        // 切换高亮
+        zyt_tabs.forEach(function (zyt_t) { zyt_t.classList.remove('zyt_tabActive'); });
+        zyt_tab.classList.add('zyt_tabActive');
+
+        // 筛选卡片
+        const zyt_cat = zyt_tab.getAttribute('data-zyt-cat');
+        let zyt_visible = 0;
+        zyt_grid.querySelectorAll('.zyt_vcard').forEach(function (zyt_card) {
+          const zyt_show = zyt_cat === 'all' || zyt_card.getAttribute('data-zyt-cat') === zyt_cat;
+          zyt_card.style.display = zyt_show ? '' : 'none';
+          if (zyt_show) zyt_visible++;
+        });
+
+        zyt_emptyTip.className = 'zyt_emptyTip' + (zyt_visible === 0 ? ' zyt_show' : '');
+      });
+    });
+  </script>
+</body>
+</html>

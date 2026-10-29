@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>16-4 文学社科 · 图书频道页</title>
+  <!--
+  姓名：张语桐
+  日期：2026-10-29
+  功能名称：文学社科图书频道页——主编推荐栏 + 三个分类 Tab 切换 + 订阅排行榜
+  -->
+  <style>
+    :root {
+      --zyt_green: #6fa834;
+      --zyt_green_light: #8fbf4d;
+      --zyt_red: #e4393c;
+      --zyt_text: #333;
+      --zyt_sub: #666;
+      --zyt_muted: #999;
+      --zyt_line: #e6e6e6;
+      --zyt_line_soft: #f0f0f0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      background-color: #fff;
+      color: var(--zyt_text);
+      line-height: 1.6;
+      padding-bottom: 40px;
+    }
+
+    .zyt_wrap {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 18px 16px 0;
+    }
+
+    /* ---------- 频道标题 ---------- */
+    .zyt_channel {
+      font-size: 20px;
+      font-weight: 700;
+      color: #2b2b2b;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--zyt_green);
+    }
+
+    /* ---------- 三栏布局 ---------- */
+    .zyt_layout {
+      display: grid;
+      grid-template-columns: 200px 1fr 230px;
+      border: 1px solid var(--zyt_line);
+      border-top: none;
+    }
+
+    /* ---------- 左栏：主编推荐 ---------- */
+    .zyt_side {
+      padding: 14px 16px;
+      border-right: 1px solid var(--zyt_line);
+    }
+
+    .zyt_sideHead {
+      font-size: 15px;
+      font-weight: 700;
+      color: #2b2b2b;
+      text-align: center;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--zyt_line);
+      margin-bottom: 14px;
+    }
+
+    .zyt_recCover {
+      position: relative;
+      width: 150px;
+      margin: 0 auto;
+    }
+
+    .zyt_recCover img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      display: block;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .zyt_recBadge {
+      position: absolute;
+      top: 8px;
+      left: -6px;
+      padding: 2px 8px;
+      background-color: var(--zyt_green_light);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 2px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .zyt_recTitle {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #2b2b2b;
+    }
+
+    .zyt_recDesc {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--zyt_muted);
+      line-height: 1.8;
+      text-align: justify;
+    }
+
+    .zyt_recList {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--zyt_line_soft);
+      list-style: none;
+    }
+
+    .zyt_recList li {
+      position: relative;
+      padding-left: 12px;
+      font-size: 12px;
+      color: var(--zyt_sub);
+      line-height: 2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .zyt_recList li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 12px;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background-color: #c9c9c9;
+    }
+
+    /* ---------- 中栏：Tab + 图书网格 ---------- */
+    .zyt_center {
+      padding: 0 18px;
+      min-width: 0;
+    }
+
+    .zyt_tabs {
+      display: flex;
+      gap: 34px;
+      border-bottom: 1px solid var(--zyt_line);
+    }
+
+    .zyt_tab {
+      padding: 12px 2px;
+      border: none;
+      background-color: transparent;
+      font-size: 15px;
+      font-family: inherit;
+      color: var(--zyt_sub);
+      cursor: pointer;
+      position: relative;
+      white-space: nowrap;
+    }
+
+    .zyt_tab:hover {
+      color: var(--zyt_green);
+    }
+
+    .zyt_tab.zyt_tabActive {
+      color: var(--zyt_green);
+      font-weight: 700;
+    }
+
+    .zyt_tab.zyt_tabActive::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 3px;
+      background-color: var(--zyt_green);
+    }
+
+    .zyt_books {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 22px 18px;
+      padding: 18px 0 22px;
+    }
+
+    .zyt_book {
+      cursor: pointer;
+      min-width: 0;
+    }
+
+    .zyt_bookCover {
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      object-fit: cover;
+      display: block;
+      background-color: #f5f5f5;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .zyt_book:hover .zyt_bookCover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
+    }
+
+    .zyt_bookTitle {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #333;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .zyt_bookPrice {
+      margin-top: 2px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--zyt_red);
+    }
+
+    /* ---------- 右栏：订阅榜 ---------- */
+    .zyt_rank {
+      padding: 14px 16px;
+      border-left: 1px solid var(--zyt_line);
+    }
+
+    .zyt_rankHead {
+      font-size: 14px;
+      font-weight: 700;
+      color: #2b2b2b;
+      margin-bottom: 8px;
+    }
+
+    .zyt_rankList {
+      list-style: none;
+    }
+
+    .zyt_rankList li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--zyt_line_soft);
+      font-size: 13px;
+      color: var(--zyt_sub);
+      cursor: pointer;
+    }
+
+    .zyt_rankList li:last-child {
+      border-bottom: none;
+    }
+
+    .zyt_rankList li:hover {
+      color: var(--zyt_green);
+    }
+
+    .zyt_rankNum {
+      flex: 0 0 auto;
+      width: 18px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, #f0653c, #e4393c);
+      color: #fff;
+      font-size: 12px;
+      font-family: Arial, sans-serif;
+      border-radius: 2px;
+    }
+
+    .zyt_rankName {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .zyt_foot {
+      max-width: 1000px;
+      margin: 24px auto 0;
+      text-align: center;
+      font-size: 12px;
+      color: #b0b0b0;
+    }
+
+    @media (max-width: 900px) {
+      .zyt_layout { grid-template-columns: 1fr; }
+      .zyt_side { border-right: none; border-bottom: 1px solid var(--zyt_line); }
+      .zyt_rank { border-left: none; border-top: 1px solid var(--zyt_line); }
+      .zyt_books { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 560px) {
+      .zyt_books { grid-template-columns: repeat(2, 1fr); }
+      .zyt_tabs { gap: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="zyt_wrap">
+    <h1 class="zyt_channel">文学社科</h1>
+
+    <div class="zyt_layout">
+
+      <!-- 左栏：主编推荐 -->
+      <aside class="zyt_side">
+        <h2 class="zyt_sideHead">主编推荐</h2>
+        <div class="zyt_recCover">
+          <span class="zyt_recBadge">★力荐</span>
+          <img src="img/rui.jpg" alt="芮成钢：《虚实之间》">
+        </div>
+        <p class="zyt_recTitle">芮成钢：《虚实之间》</p>
+        <p class="zyt_recDesc">有十年记者生涯对东西方文化的洞察，又有与奥巴马等政要零距离接触的亲身经历，看世界更有独到视角……</p>
+        <ul class="zyt_recList">
+          <li>兄弟我在义乌的发财史</li>
+          <li>读佛即是拜佛：唐僧传</li>
+          <li>二战苏联陆军单兵装备</li>
+        </ul>
+      </aside>
+
+      <!-- 中栏：分类 Tab + 图书网格 -->
+      <section class="zyt_center">
+        <div class="zyt_tabs">
+          <button class="zyt_tab zyt_tabActive" type="button" data-zyt-tab="fiction">流行小说</button>
+          <button class="zyt_tab" type="button" data-zyt-tab="history">社科历史</button>
+          <button class="zyt_tab" type="button" data-zyt-tab="arts">文学艺术</button>
+        </div>
+        <div class="zyt_books"></div>
+      </section>
+
+      <!-- 右栏：订阅榜 -->
+      <aside class="zyt_rank">
+        <h2 class="zyt_rankHead"></h2>
+        <ul class="zyt_rankList"></ul>
+      </aside>
+
+    </div>
+  </div>
+
+  <p class="zyt_foot">张语桐 · 高级网页设计I · 文学社科图书频道页</p>
+
+  <script>
+    // ---------- 分类数据 ----------
+    const zyt_data = {
+      fiction: {
+        zyt_rankTitle: '流行小说订阅榜',
+        zyt_books: [
+          { zyt_title: '省长的女婿', zyt_price: '5.98', zyt_img: 'img/a1.jpg' },
+          { zyt_title: '辛夷坞：致青春', zyt_price: '5.00', zyt_img: 'img/a2.jpg' },
+          { zyt_title: '换位', zyt_price: '2.99', zyt_img: 'img/a3.jpg' },
+          { zyt_title: '扫黑', zyt_price: '6.40', zyt_img: 'img/a4.jpg' },
+          { zyt_title: '我的帝王生涯', zyt_price: '4.00', zyt_img: 'img/a5.jpg' },
+          { zyt_title: '南水北调书记', zyt_price: '5.98', zyt_img: 'img/a6.jpg' },
+          { zyt_title: '1／14第一季', zyt_price: '4.00', zyt_img: 'img/a7.jpg' },
+          { zyt_title: '辛夷坞：原来', zyt_price: '4.50', zyt_img: 'img/a8.jpg' }
+        ],
+        zyt_rank: [
+          '山西煤老板（全文）', '你不可不知的人性（全二', '刻意的距离', '梅雨的季节（全文）',
+          '大清相国（全文）', '情势（全文）', '省委班子2（全文）', '静水流深（全文）',
+          '生死疲劳（全文）', '金抓传（全文）'
+        ]
+      },
+      history: {
+        zyt_rankTitle: '社科历史订阅榜',
+        zyt_books: [
+          { zyt_title: '明朝那些事儿（精选）', zyt_price: '6.00', zyt_img: 'img/b1.jpg' },
+          { zyt_title: '万历十五年', zyt_price: '4.80', zyt_img: 'img/b2.jpg' },
+          { zyt_title: '中国大历史', zyt_price: '5.50', zyt_img: 'img/b3.jpg' },
+          { zyt_title: '全球通史（上）', zyt_price: '9.00', zyt_img: 'img/b4.jpg' },
+          { zyt_title: '中国哲学简史', zyt_price: '6.80', zyt_img: 'img/b5.jpg' },
+          { zyt_title: '史记选注', zyt_price: '4.50', zyt_img: 'img/b6.jpg' },
+          { zyt_title: '二战苏联陆军单兵装备', zyt_price: '5.20', zyt_img: 'img/b7.jpg' },
+          { zyt_title: '读佛即是拜佛：唐僧传', zyt_price: '3.90', zyt_img: 'img/b8.jpg' }
+        ],
+        zyt_rank: [
+          '明朝那些事儿（全文）', '万历十五年（精装）', '中国大历史（全文）', '全球通史（全二）',
+          '中国哲学简史（全文）', '史记选注（全三）', '资治通鉴选译', '二战苏联陆军单兵装备',
+          '罗马人的故事（全文）', '大国的兴衰（全文）'
+        ]
+      },
+      arts: {
+        zyt_rankTitle: '文学艺术订阅榜',
+        zyt_books: [
+          { zyt_title: '武昌城', zyt_price: '4.50', zyt_img: 'img/c1.jpg' },
+          { zyt_title: '贾平凹作品选', zyt_price: '3.00', zyt_img: 'img/c2.jpg' },
+          { zyt_title: '最后一个匈奴', zyt_price: '4.00', zyt_img: 'img/c3.jpg' },
+          { zyt_title: '岁月与性情', zyt_price: '8.00', zyt_img: 'img/c4.jpg' },
+          { zyt_title: '浮生六记', zyt_price: '3.00', zyt_img: 'img/c5.jpg' },
+          { zyt_title: '周国平：宝贝', zyt_price: '8.00', zyt_img: 'img/c6.jpg' },
+          { zyt_title: '岳飞传', zyt_price: '3.00', zyt_img: 'img/c7.jpg' },
+          { zyt_title: '戴啦啦的眼泪', zyt_price: '5.36', zyt_img: 'img/c8.jpg' }
+        ],
+        zyt_rank: [
+          '2012诺贝尔文学奖得主莫言', '变：2012年诺贝尔文学奖得', '逃离：2013诺贝尔文学奖得', '青春（韩寒2011最新作品）',
+          '教你幽默到心田', '宝贝，宝贝', '白魔岛——白粉仔的十二年', '中国式关系（全文）',
+          '于丹：重温最美古诗词（17', '妞妞：一个父亲的札记'
+        ]
+      }
+    };
+
+    // ---------- 渲染 ----------
+    const zyt_booksBox = document.querySelector('.zyt_books');
+    const zyt_rankHead = document.querySelector('.zyt_rankHead');
+    const zyt_rankList = document.querySelector('.zyt_rankList');
+    const zyt_tabs = document.querySelectorAll('.zyt_tab');
+
+    function zyt_render(zyt_key) {
+      const zyt_d = zyt_data[zyt_key];
+      if (!zyt_d) return;
+
+      zyt_booksBox.innerHTML = zyt_d.zyt_books.map(function (zyt_b) {
+        return '<div class="zyt_book">' +
+            '<img class="zyt_bookCover" src="' + zyt_b.zyt_img + '" alt="' + zyt_b.zyt_title + '" loading="lazy">' +
+            '<p class="zyt_bookTitle">' + zyt_b.zyt_title + '</p>' +
+            '<p class="zyt_bookPrice">¥ ' + zyt_b.zyt_price + '</p>' +
+          '</div>';
+      }).join('');
+
+      zyt_rankHead.textContent = zyt_d.zyt_rankTitle;
+      zyt_rankList.innerHTML = zyt_d.zyt_rank.map(function (zyt_name, zyt_i) {
+        return '<li>' +
+            '<span class="zyt_rankNum">' + (zyt_i + 1) + '</span>' +
+            '<span class="zyt_rankName">' + zyt_name + '</span>' +
+          '</li>';
+      }).join('');
+    }
+
+    // ---------- Tab 切换 ----------
+    zyt_tabs.forEach(function (zyt_tab) {
+      zyt_tab.addEventListener('click', function () {
+        zyt_tabs.forEach(function (zyt_t) { zyt_t.classList.remove('zyt_tabActive'); });
+        zyt_tab.classList.add('zyt_tabActive');
+        zyt_render(zyt_tab.getAttribute('data-zyt-tab'));
+      });
+    });
+
+    // 默认渲染流行小说
+    zyt_render('fiction');
+  </script>
+</body>
+</html>

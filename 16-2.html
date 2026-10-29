@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>16-2 JavaScript 对象与字符串</title>
+  <!--
+  姓名：张语桐
+  日期：2026-10-29
+  功能名称：JavaScript 对象与字符串可视化演示——键值对操作、字符串方法与不可变性
+  -->
+  <style>
+    :root {
+      --zyt_red: #d53d3d;
+      --zyt_red_dark: #b83333;
+      --zyt_bg: #f7f3ef;
+      --zyt_card: #ffffff;
+      --zyt_text: #333333;
+      --zyt_muted: #8a8a8a;
+      --zyt_line: #f0e8e2;
+      --zyt_blue: #2d6bb8;
+      --zyt_blue_bg: #eef5ff;
+      --zyt_green: #2f9e44;
+      --zyt_green_bg: #eaf7ec;
+      --zyt_code_bg: #282c34;
+      --zyt_code_text: #abb2bf;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      background-color: var(--zyt_bg);
+      color: var(--zyt_text);
+      line-height: 1.7;
+      padding-bottom: 40px;
+    }
+
+    .zyt_header {
+      background: linear-gradient(135deg, #fdf1e7 0%, #fbe2dc 100%);
+      padding: 28px 20px;
+      text-align: center;
+      border-bottom: 1px solid var(--zyt_line);
+    }
+
+    .zyt_title {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--zyt_red_dark);
+      letter-spacing: 1px;
+    }
+
+    .zyt_sub {
+      margin-top: 6px;
+      font-size: 14px;
+      color: #8a5a4a;
+    }
+
+    .zyt_main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 16px 14px;
+    }
+
+    .zyt_section {
+      margin-bottom: 18px;
+      padding: 18px;
+      background-color: var(--zyt_card);
+      border: 1px solid var(--zyt_line);
+      border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    .zyt_sectionHead {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--zyt_line);
+      margin-bottom: 14px;
+    }
+
+    .zyt_sectionNum {
+      flex: 0 0 auto;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--zyt_red), var(--zyt_red_dark));
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .zyt_sectionTitle {
+      font-size: 18px;
+      font-weight: 700;
+      color: #2b2b2b;
+    }
+
+    .zyt_sectionSub {
+      font-size: 12px;
+      color: var(--zyt_muted);
+      margin-left: auto;
+    }
+
+    .zyt_desc {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 12px;
+    }
+
+    .zyt_twoCol {
+      display: grid;
+      grid-template-columns: minmax(280px, 380px) 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .zyt_objCard {
+      padding: 12px;
+      background-color: #faf7f4;
+      border: 1px solid var(--zyt_line);
+      border-radius: 12px;
+    }
+
+    .zyt_objName {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: "Consolas", "Monaco", monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--zyt_red_dark);
+      margin-bottom: 10px;
+    }
+
+    .zyt_objType {
+      padding: 1px 7px;
+      border-radius: 999px;
+      background-color: #fff1ef;
+      border: 1px solid #f5d0c8;
+      font-size: 11px;
+      color: #c0392b;
+      font-family: "Microsoft YaHei", sans-serif;
+    }
+
+    .zyt_objRow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      margin-bottom: 6px;
+      background-color: #fff;
+      border: 1px solid #eadfd6;
+      border-radius: 8px;
+      font-family: "Consolas", "Monaco", monospace;
+      font-size: 13px;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .zyt_objRow.zyt_rowFlash {
+      background-color: #fff7d6;
+      border-color: #f0c96a;
+    }
+
+    .zyt_objRow.zyt_rowGone {
+      background-color: #f5f5f5;
+      border-color: #cfcfcf;
+      color: #a0a0a0;
+      text-decoration: line-through;
+    }
+
+    .zyt_objKey {
+      flex: 0 0 auto;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background-color: var(--zyt_blue_bg);
+      border: 1px solid #d5e4f7;
+      color: var(--zyt_blue);
+      font-weight: 700;
+    }
+
+    .zyt_objColon {
+      color: #b3aaa3;
+    }
+
+    .zyt_objVal {
+      flex: 1 1 auto;
+      color: #444;
+      word-break: break-all;
+    }
+
+    .zyt_objEmpty {
+      padding: 10px;
+      text-align: center;
+      font-size: 12px;
+      color: #b3aaa3;
+      font-family: "Consolas", monospace;
+    }
+
+    .zyt_panel {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .zyt_btnRow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .zyt_btn {
+      height: 34px;
+      padding: 0 14px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--zyt_red), var(--zyt_red_dark));
+      color: #fff;
+      font-size: 13px;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s ease, transform 0.12s ease;
+    }
+
+    .zyt_btn:hover { opacity: 0.92; }
+    .zyt_btn:active { transform: scale(0.97); }
+
+    .zyt_btnGhost {
+      background: #fff;
+      border: 1px solid #e2d6cb;
+      color: #8a7c72;
+    }
+
+    .zyt_btnGhost:hover { background-color: #faf6f2; }
+
+    .zyt_log {
+      flex: 1 1 auto;
+      min-height: 150px;
+      max-height: 260px;
+      overflow-y: auto;
+      padding: 10px 12px;
+      background-color: var(--zyt_code_bg);
+      border-radius: 10px;
+      color: var(--zyt_code_text);
+      font-family: "Consolas", "Monaco", monospace;
+      font-size: 12.5px;
+      line-height: 1.8;
+    }
+
+    .zyt_logLine {
+      animation: zyt_fadeIn 0.3s ease both;
+    }
+
+    .zyt_logLine.zyt_logOk { color: #98c379; }
+    .zyt_logLine.zyt_logWarn { color: #e5c07b; }
+    .zyt_logLine.zyt_logInfo { color: #61afef; }
+    .zyt_logTip {
+      color: #5c6370;
+    }
+
+    .zyt_code {
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      background-color: var(--zyt_code_bg);
+      border-radius: 8px;
+      color: var(--zyt_code_text);
+      font-family: "Consolas", "Monaco", monospace;
+      font-size: 12.5px;
+      line-height: 1.6;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    /* ---------- 字符串部分 ---------- */
+    .zyt_strToolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .zyt_input {
+      flex: 1 1 260px;
+      height: 38px;
+      padding: 0 12px;
+      border: 1px solid #e2d6cb;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #333;
+      background-color: #fff;
+      outline: none;
+    }
+
+    .zyt_input:focus {
+      border-color: var(--zyt_red);
+      box-shadow: 0 0 0 3px rgba(213, 61, 61, 0.1);
+    }
+
+    .zyt_charWrap {
+      padding: 12px;
+      background-color: #faf7f4;
+      border: 1px solid var(--zyt_line);
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
+
+    .zyt_rowLabel {
+      font-size: 11px;
+      color: #a89f99;
+      margin-bottom: 6px;
+    }
+
+    .zyt_charRow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      min-height: 50px;
+      align-items: flex-end;
+    }
+
+    .zyt_char {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+      height: 46px;
+      padding: 0 4px;
+      background-color: #fff;
+      border: 1px solid #e2d6cb;
+      border-radius: 6px;
+      animation: zyt_popIn 0.3s ease both;
+    }
+
+    .zyt_char.zyt_charSpace {
+      background-color: #f6f2ee;
+      border-style: dashed;
+    }
+
+    .zyt_char.zyt_charHit {
+      background-color: #fff7d6;
+      border-color: #f0c96a;
+    }
+
+    .zyt_char .zyt_idx {
+      font-size: 9px;
+      color: #b3aaa3;
+      font-family: Arial, sans-serif;
+      line-height: 1;
+      margin-top: 3px;
+    }
+
+    .zyt_char .zyt_val {
+      font-size: 16px;
+      line-height: 1.5;
+      font-family: "Consolas", "Microsoft YaHei", sans-serif;
+      white-space: pre;
+    }
+
+    .zyt_methodGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .zyt_methodBtn {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+      padding: 8px 12px;
+      background-color: #fff;
+      border: 1px solid #eadfd6;
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.12s ease;
+    }
+
+    .zyt_methodBtn:hover {
+      border-color: var(--zyt_red);
+      background-color: #fffaf7;
+      transform: translateY(-1px);
+    }
+
+    .zyt_methodBtn.zyt_active {
+      border-color: var(--zyt_red);
+      background-color: #fff5f2;
+    }
+
+    .zyt_methodName {
+      font-family: "Consolas", "Monaco", monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--zyt_red_dark);
+    }
+
+    .zyt_methodTip {
+      font-size: 11px;
+      color: #9a908a;
+    }
+
+    .zyt_resultBox {
+      padding: 12px 14px;
+      background-color: #fff8f0;
+      border-left: 3px solid #f0b27a;
+      border-radius: 0 8px 8px 0;
+      font-size: 13px;
+      color: #8a5a2b;
+      min-height: 56px;
+      word-break: break-all;
+    }
+
+    .zyt_resultBox b {
+      font-family: "Consolas", "Monaco", monospace;
+    }
+
+    .zyt_newStrWrap {
+      display: none;
+      margin-top: 12px;
+      padding: 10px;
+      background-color: var(--zyt_blue_bg);
+      border: 1px solid #d5e4f7;
+      border-radius: 10px;
+    }
+
+    .zyt_newStrWrap.zyt_show {
+      display: block;
+    }
+
+    .zyt_note {
+      margin-top: 10px;
+      padding: 10px 12px;
+      background-color: #f4f9ff;
+      border-left: 3px solid #7fb0e0;
+      border-radius: 0 8px 8px 0;
+      font-size: 12.5px;
+      color: #35618e;
+    }
+
+    .zyt_immutable {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+      padding: 12px;
+      background-color: #faf7f4;
+      border: 1px solid var(--zyt_line);
+      border-radius: 10px;
+      font-size: 13px;
+      color: #5f5750;
+    }
+
+    .zyt_arrow {
+      font-size: 18px;
+      color: var(--zyt_red);
+      font-weight: 700;
+    }
+
+    .zyt_foot {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 12px;
+      color: #a89f99;
+    }
+
+    @keyframes zyt_popIn {
+      from { opacity: 0; transform: scale(0.6); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes zyt_fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 820px) {
+      .zyt_twoCol { grid-template-columns: 1fr; }
+      .zyt_title { font-size: 22px; }
+      .zyt_section { padding: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="zyt_header">
+    <h1 class="zyt_title">JavaScript 对象与字符串</h1>
+    <p class="zyt_sub">对象 = 键值对的集合 · 字符串 = 不可变的字符序列</p>
+  </header>
+
+  <main class="zyt_main">
+
+    <!-- 一、对象 -->
+    <section class="zyt_section">
+      <div class="zyt_sectionHead">
+        <span class="zyt_sectionNum">1</span>
+        <h2 class="zyt_sectionTitle">对象 Object —— 用键（key）存值（value）</h2>
+        <span class="zyt_sectionSub">点按钮，观察键值对的变化</span>
+      </div>
+      <p class="zyt_desc">
+        对象把一组相关的数据装在一起：左边是<strong>属性名（键）</strong>，右边是<strong>属性值</strong>。
+        取值用 <code>对象.键</code> 或 <code>对象['键']</code>，增删改查都在下面演示。
+      </p>
+
+      <div class="zyt_twoCol">
+        <div class="zyt_objCard">
+          <div class="zyt_objName">
+            zyt_student
+            <span class="zyt_objType">Object</span>
+          </div>
+          <div data-zyt-objRows></div>
+        </div>
+
+        <div class="zyt_panel">
+          <pre class="zyt_code">const zyt_student = {
+  name: '张语桐',
+  age: 20,
+  major: '高级网页设计'
+};</pre>
+          <div class="zyt_btnRow">
+            <button class="zyt_btn" type="button" data-zyt-act="read">读取 name</button>
+            <button class="zyt_btn" type="button" data-zyt-act="bracket">方括号读取 ['age']</button>
+            <button class="zyt_btn" type="button" data-zyt-act="add">新增 email</button>
+            <button class="zyt_btn" type="button" data-zyt-act="update">修改 age</button>
+            <button class="zyt_btn" type="button" data-zyt-act="remove">删除 major</button>
+            <button class="zyt_btn" type="button" data-zyt-act="check">判断 age 是否存在</button>
+            <button class="zyt_btn" type="button" data-zyt-act="loop">for-in 遍历</button>
+            <button class="zyt_btn zyt_btnGhost" type="button" data-zyt-act="reset">↺ 重置</button>
+          </div>
+          <div class="zyt_log" data-zyt-log>
+            <div class="zyt_logLine zyt_logTip">// 操作结果会显示在这里</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 二、字符串 -->
+    <section class="zyt_section">
+      <div class="zyt_sectionHead">
+        <span class="zyt_sectionNum">2</span>
+        <h2 class="zyt_sectionTitle">字符串 String —— 每个字符都有下标</h2>
+        <span class="zyt_sectionSub">改输入框，实时看到字符盒子</span>
+      </div>
+      <p class="zyt_desc">
+        字符串是由一个个字符排队组成的，下标同样从 <strong>0</strong> 开始；空格也是一个字符。
+        改下面的输入框内容，再点方法按钮查看结果。
+      </p>
+
+      <div class="zyt_strToolbar">
+        <input class="zyt_input" type="text" value="JavaScript 字符串" data-zyt-strInput>
+        <button class="zyt_btn zyt_btnGhost" type="button" data-zyt-strreset>↺ 恢复默认</button>
+      </div>
+
+      <div class="zyt_charWrap">
+        <div class="zyt_rowLabel">字符与下标</div>
+        <div class="zyt_charRow" data-zyt-chars></div>
+      </div>
+
+      <div class="zyt_methodGrid">
+        <button class="zyt_methodBtn" type="button" data-zyt-method="length">
+          <span class="zyt_methodName">length</span>
+          <span class="zyt_methodTip">字符总个数</span>
+        </button>
+        <button class="zyt_methodBtn" type="button" data-zyt-method="charAt">
+          <span class="zyt_methodName">charAt(0)</span>
+          <span class="zyt_methodTip">按下标取字符</span>
+        </button>
+        <button class="zyt_methodBtn" type="button" data-zyt-method="indexOf">
+          <span class="zyt_methodName">indexOf('S')</span>
+          <span class="zyt_methodTip">查找字符位置</span>
+        </button>
+        <button class="zyt_methodBtn" type="button" data-zyt-method="includes">
+          <span class="zyt_methodName">includes('字符')</span>
+          <span class="zyt_methodTip">是否包含子串</span>
+        </button>
+        <button class="zyt_methodBtn" type="button" data-zyt-method="slice">
+          <span class="zyt_methodName">slice(0, 4)</span>
+          <span class="zyt_methodTip">截取一段</span>
+        </button>
+        <button class="zyt_methodBtn" type="button" data-zyt-method="upper">
+          <span class="zyt_methodName">toUpperCase()</span>
+          <span class="zyt_methodTip">转大写</span>
+        </button>
+        <button class="zyt_methodBtn" type="button" data-zyt-method="lower">
+          <span class="zyt_methodName">toLowerCase()</span>
+          <span class="zyt_methodTip">转小写</span>
+        </button>
+        <button class="zyt_methodBtn" type="button" data-zyt-method="trim">
+          <span class="zyt_methodName">trim()</span>
+          <span class="zyt_methodTip">去掉首尾空格</span>
+        </button>
+        <button class="zyt_methodBtn" type="button" data-zyt-method="split">
+          <span class="zyt_methodName">split(' ')</span>
+          <span class="zyt_methodTip">切成数组</span>
+        </button>
+        <button class="zyt_methodBtn" type="button" data-zyt-method="replace">
+          <span class="zyt_methodName">replace(...)</span>
+          <span class="zyt_methodTip">替换内容</span>
+        </button>
+        <button class="zyt_methodBtn" type="button" data-zyt-method="repeat">
+          <span class="zyt_methodName">repeat(2)</span>
+          <span class="zyt_methodTip">重复拼接</span>
+        </button>
+        <button class="zyt_methodBtn" type="button" data-zyt-method="padStart">
+          <span class="zyt_methodName">padStart(10, '*')</span>
+          <span class="zyt_methodTip">头部补位</span>
+        </button>
+      </div>
+
+      <div class="zyt_resultBox" data-zyt-strResult>
+        点上面的方法按钮，这里显示返回值。
+      </div>
+
+      <div class="zyt_newStrWrap" data-zyt-newStr>
+        <div class="zyt_rowLabel">返回的新字符串（原字符串不变）</div>
+        <div class="zyt_charRow" data-zyt-newChars></div>
+      </div>
+
+      <div class="zyt_note" data-zyt-note>
+        字符串是<strong>不可变</strong>的：所有方法都只返回新字符串，原字符串始终保持原样。
+      </div>
+
+      <div class="zyt_immutable">
+        <strong>不可变演示：</strong>
+        <span data-zyt-immutA>let zyt_s = 'abc';</span>
+        <span class="zyt_arrow">→</span>
+        <span data-zyt-immutB>zyt_s.toUpperCase()</span>
+        <span class="zyt_arrow">→</span>
+        <span data-zyt-immutC>'ABC'（新的，zyt_s 仍是 'abc'）</span>
+      </div>
+    </section>
+
+    <p class="zyt_foot">张语桐 · 高级网页设计I · JavaScript 对象与字符串</p>
+  </main>
+
+  <script>
+    // ---------- 工具 ----------
+    function zyt_escape(zyt_t) {
+      return String(zyt_t)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    // ================= 对象部分 =================
+    const zyt_objRows = document.querySelector('[data-zyt-objRows]');
+    const zyt_objLog = document.querySelector('[data-zyt-log]');
+
+    let zyt_student = { name: '张语桐', age: 20, major: '高级网页设计' };
+    let zyt_flashKey = '';
+    let zyt_goneKey = '';
+
+    function zyt_renderObj() {
+      const zyt_keys = Object.keys(zyt_student);
+      if (zyt_keys.length === 0) {
+        zyt_objRows.innerHTML = '<div class="zyt_objEmpty">{ } 空对象</div>';
+        return;
+      }
+      let zyt_out = zyt_keys.map(function (zyt_k) {
+        let zyt_cls = 'zyt_objRow';
+        if (zyt_k === zyt_flashKey) zyt_cls += ' zyt_rowFlash';
+        const zyt_v = zyt_student[zyt_k];
+        return '<div class="' + zyt_cls + '">' +
+          '<span class="zyt_objKey">' + zyt_escape(zyt_k) + '</span>' +
+          '<span class="zyt_objColon">:</span>' +
+          '<span class="zyt_objVal">' + zyt_escape(zyt_v) + '</span>' +
+          '</div>';
+      }).join('');
+
+      // 被删除的键已不在对象里，单独用一条划掉的行表示
+      if (zyt_goneKey && zyt_keys.indexOf(zyt_goneKey) === -1) {
+        zyt_out += '<div class="zyt_objRow zyt_rowGone">' +
+          '<span class="zyt_objKey">' + zyt_escape(zyt_goneKey) + '</span>' +
+          '<span class="zyt_objColon">:</span>' +
+          '<span class="zyt_objVal">（已删除）</span>' +
+          '</div>';
+      }
+
+      zyt_objRows.innerHTML = zyt_out;
+    }
+
+    function zyt_log(zyt_text, zyt_type) {
+      const zyt_line = document.createElement('div');
+      zyt_line.className = 'zyt_logLine ' + (zyt_type || 'zyt_logInfo');
+      zyt_line.textContent = zyt_text;
+      zyt_objLog.appendChild(zyt_line);
+      zyt_objLog.scrollTop = zyt_objLog.scrollHeight;
+    }
+
+    function zyt_clearLog() {
+      zyt_objLog.innerHTML = '<div class="zyt_logLine zyt_logTip">// 操作结果会显示在这里</div>';
+    }
+
+    function zyt_handleObjAct(zyt_act) {
+      zyt_flashKey = '';
+      zyt_goneKey = '';
+
+      if (zyt_act === 'read') {
+        zyt_flashKey = 'name';
+        zyt_log("zyt_student.name → '" + zyt_student.name + "'  // 点号访问", 'zyt_logOk');
+
+      } else if (zyt_act === 'bracket') {
+        zyt_flashKey = 'age';
+        zyt_log("zyt_student['age'] → " + zyt_student.age + '  // 方括号访问，键可用变量', 'zyt_logOk');
+
+      } else if (zyt_act === 'add') {
+        zyt_student.email = 'zyt@example.com';
+        zyt_flashKey = 'email';
+        zyt_log("新增属性：zyt_student.email = 'zyt@example.com'", 'zyt_logWarn');
+
+      } else if (zyt_act === 'update') {
+        zyt_student.age = 21;
+        zyt_flashKey = 'age';
+        zyt_log('修改属性：zyt_student.age = 21（键已存在则覆盖）', 'zyt_logWarn');
+
+      } else if (zyt_act === 'remove') {
+        const zyt_v = zyt_student.major;
+        delete zyt_student.major;
+        zyt_goneKey = 'major';
+        zyt_log("删除属性：delete zyt_student.major（原值 '" + zyt_v + "'）", 'zyt_logWarn');
+
+      } else if (zyt_act === 'check') {
+        const zyt_has = 'age' in zyt_student;
+        zyt_flashKey = zyt_has ? 'age' : '';
+        zyt_log("'age' in zyt_student → " + zyt_has + '  // 判断键是否存在', 'zyt_logOk');
+
+      } else if (zyt_act === 'loop') {
+        const zyt_keys = Object.keys(zyt_student);
+        zyt_log('for (let zyt_key in zyt_student) { … } 开始遍历：', 'zyt_logInfo');
+        zyt_keys.forEach(function (zyt_k) {
+          zyt_log('  ' + zyt_k + ' = ' + zyt_student[zyt_k], 'zyt_logTip');
+        });
+        zyt_log('共 ' + zyt_keys.length + ' 个属性', 'zyt_logOk');
+
+      } else if (zyt_act === 'reset') {
+        zyt_student = { name: '张语桐', age: 20, major: '高级网页设计' };
+        zyt_clearLog();
+        zyt_log('已重置为初始对象', 'zyt_logInfo');
+      }
+
+      zyt_renderObj();
+    }
+
+    document.querySelector('.zyt_btnRow').addEventListener('click', function (zyt_e) {
+      const zyt_btn = zyt_e.target.closest('button');
+      if (!zyt_btn) return;
+      const zyt_act = zyt_btn.getAttribute('data-zyt-act');
+      if (zyt_act) zyt_handleObjAct(zyt_act);
+    });
+
+    zyt_renderObj();
+
+    // ================= 字符串部分 =================
+    const zyt_input = document.querySelector('[data-zyt-strInput]');
+    const zyt_chars = document.querySelector('[data-zyt-chars]');
+    const zyt_newChars = document.querySelector('[data-zyt-newChars]');
+    const zyt_newWrap = document.querySelector('[data-zyt-newStr]');
+    const zyt_result = document.querySelector('[data-zyt-strResult]');
+    const zyt_note = document.querySelector('[data-zyt-note]');
+    const zyt_defaultStr = 'JavaScript 字符串';
+
+    let zyt_hitIndex = -1;
+
+    function zyt_renderChars(zyt_box, zyt_text, zyt_hit) {
+      if (zyt_text.length === 0) {
+        zyt_box.innerHTML = '<span class="zyt_objEmpty">空字符串 ""，长度为 0</span>';
+        return;
+      }
+      // 用 Array.from 正确处理中文与代理对字符
+      zyt_box.innerHTML = Array.from(zyt_text).map(function (zyt_c, zyt_i) {
+        let zyt_cls = 'zyt_char';
+        if (zyt_c === ' ') zyt_cls += ' zyt_charSpace';
+        if (zyt_hit === zyt_i) zyt_cls += ' zyt_charHit';
+        const zyt_show = zyt_c === ' ' ? '␣' : zyt_escape(zyt_c);
+        return '<span class="' + zyt_cls + '">' +
+          '<b class="zyt_idx">' + zyt_i + '</b>' +
+          '<span class="zyt_val">' + zyt_show + '</span>' +
+          '</span>';
+      }).join('');
+    }
+
+    function zyt_current() {
+      return zyt_input.value;
+    }
+
+    function zyt_runMethod(zyt_name) {
+      const zyt_s = zyt_current();
+      let zyt_msg = '';
+      let zyt_new = null;
+      let zyt_hit = -1;
+
+      if (zyt_name === 'length') {
+        zyt_msg = 'zyt_s.length → <b>' + zyt_s.length + '</b>  // 空格也计入长度，中文按 1 个字符算';
+
+      } else if (zyt_name === 'charAt') {
+        const zyt_c = zyt_s.charAt(0);
+        zyt_hit = 0;
+        zyt_msg = "zyt_s.charAt(0) → <b>'" + zyt_escape(zyt_c || '（空）') + "'</b>  // 取下标 0 的字符";
+
+      } else if (zyt_name === 'indexOf') {
+        const zyt_i = zyt_s.indexOf('S');
+        zyt_hit = zyt_i;
+        zyt_msg = "zyt_s.indexOf('S') → <b>" + zyt_i + '</b>' +
+          (zyt_i === -1 ? '  // 没找到返回 -1' : '  // 首次出现的位置');
+
+      } else if (zyt_name === 'includes') {
+        const zyt_has = zyt_s.includes('字符');
+        if (zyt_has) zyt_hit = zyt_s.indexOf('字符');
+        zyt_msg = "zyt_s.includes('字符') → <b>" + zyt_has + '</b>  // 返回布尔值';
+
+      } else if (zyt_name === 'slice') {
+        zyt_new = zyt_s.slice(0, 4);
+        zyt_msg = 'zyt_s.slice(0, 4) → <b>"' + zyt_escape(zyt_new) + '"</b>  // 含头不含尾，原串不变';
+
+      } else if (zyt_name === 'upper') {
+        zyt_new = zyt_s.toUpperCase();
+        zyt_msg = 'zyt_s.toUpperCase() → <b>"' + zyt_escape(zyt_new) + '"</b>  // 原串不变';
+
+      } else if (zyt_name === 'lower') {
+        zyt_new = zyt_s.toLowerCase();
+        zyt_msg = 'zyt_s.toLowerCase() → <b>"' + zyt_escape(zyt_new) + '"</b>  // 原串不变';
+
+      } else if (zyt_name === 'trim') {
+        zyt_new = zyt_s.trim();
+        zyt_msg = 'zyt_s.trim() → <b>"' + zyt_escape(zyt_new) + '"</b>  // 去掉首尾空格';
+
+      } else if (zyt_name === 'split') {
+        const zyt_arr = zyt_s.split(' ');
+        zyt_msg = 'zyt_s.split(\' \') → <b>[' +
+          zyt_arr.map(function (zyt_p) { return '"' + zyt_escape(zyt_p) + '"'; }).join(', ') +
+          ']</b>  // 返回数组，共 ' + zyt_arr.length + ' 项';
+
+      } else if (zyt_name === 'replace') {
+        zyt_new = zyt_s.replace('Java', 'JS');
+        zyt_msg = "zyt_s.replace('Java', 'JS') → <b>\"" + zyt_escape(zyt_new) + '"</b>  // 只替换第一处';
+
+      } else if (zyt_name === 'repeat') {
+        zyt_new = zyt_s.repeat(2);
+        zyt_msg = 'zyt_s.repeat(2) → <b>"' + zyt_escape(zyt_new) + '"</b>  // 重复两次';
+
+      } else if (zyt_name === 'padStart') {
+        zyt_new = zyt_s.padStart(10, '*');
+        zyt_msg = "zyt_s.padStart(10, '*') → <b>\"" + zyt_escape(zyt_new) + '"</b>  // 补到 10 位';
+      }
+
+      zyt_hitIndex = zyt_hit;
+      zyt_renderChars(zyt_chars, zyt_s, zyt_hit);
+      zyt_result.innerHTML = zyt_msg;
+
+      if (zyt_new !== null) {
+        zyt_newWrap.className = 'zyt_newStrWrap zyt_show';
+        zyt_renderChars(zyt_newChars, zyt_new, -1);
+      } else {
+        zyt_newWrap.className = 'zyt_newStrWrap';
+        zyt_newChars.innerHTML = '';
+      }
+    }
+
+    zyt_input.addEventListener('input', function () {
+      zyt_hitIndex = -1;
+      zyt_newWrap.className = 'zyt_newStrWrap';
+      zyt_newChars.innerHTML = '';
+      zyt_renderChars(zyt_chars, zyt_current(), -1);
+      zyt_result.textContent = '点上面的方法按钮，这里显示返回值。';
+    });
+
+    document.querySelector('.zyt_methodGrid').addEventListener('click', function (zyt_e) {
+      const zyt_btn = zyt_e.target.closest('button');
+      if (!zyt_btn) return;
+      const zyt_name = zyt_btn.getAttribute('data-zyt-method');
+      if (!zyt_name) return;
+
+      const zyt_all = document.querySelectorAll('.zyt_methodBtn');
+      zyt_all.forEach(function (zyt_b) { zyt_b.classList.remove('zyt_active'); });
+      zyt_btn.classList.add('zyt_active');
+
+      zyt_runMethod(zyt_name);
+    });
+
+    document.querySelector('[data-zyt-strreset]').addEventListener('click', function () {
+      zyt_input.value = zyt_defaultStr;
+      zyt_hitIndex = -1;
+      zyt_newWrap.className = 'zyt_newStrWrap';
+      zyt_newChars.innerHTML = '';
+      zyt_result.textContent = '点上面的方法按钮，这里显示返回值。';
+      zyt_renderChars(zyt_chars, zyt_current(), -1);
+    });
+
+    document.querySelector('[data-zyt-immutB]').textContent = "let zyt_s2 = zyt_s.toUpperCase();";
+
+    zyt_renderChars(zyt_chars, zyt_current(), -1);
+  </script>
+</body>
+</html>

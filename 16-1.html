@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>16-1 JavaScript 数组方法可视化</title>
+  <!--
+  姓名：张语桐
+  日期：2026-10-29
+  功能名称：JavaScript 数组方法可视化演示——增删、截取、查找、变换、排序等主要方法
+  -->
+  <style>
+    :root {
+      --zyt_red: #d53d3d;
+      --zyt_red_dark: #b83333;
+      --zyt_bg: #f7f3ef;
+      --zyt_card: #ffffff;
+      --zyt_text: #333333;
+      --zyt_muted: #8a8a8a;
+      --zyt_line: #f0e8e2;
+      --zyt_green: #2f9e44;
+      --zyt_green_bg: #eaf7ec;
+      --zyt_code_bg: #282c34;
+      --zyt_code_text: #abb2bf;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      background-color: var(--zyt_bg);
+      color: var(--zyt_text);
+      line-height: 1.7;
+      padding-bottom: 40px;
+    }
+
+    .zyt_header {
+      background: linear-gradient(135deg, #fdf1e7 0%, #fbe2dc 100%);
+      padding: 28px 20px;
+      text-align: center;
+      border-bottom: 1px solid var(--zyt_line);
+    }
+
+    .zyt_title {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--zyt_red_dark);
+      letter-spacing: 1px;
+    }
+
+    .zyt_sub {
+      margin-top: 6px;
+      font-size: 14px;
+      color: #8a5a4a;
+    }
+
+    .zyt_main {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 16px 14px;
+    }
+
+    .zyt_intro {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 18px;
+      margin-bottom: 16px;
+      background-color: var(--zyt_card);
+      border: 1px solid var(--zyt_line);
+      border-radius: 14px;
+    }
+
+    .zyt_introText {
+      flex: 1 1 320px;
+      font-size: 13px;
+      color: #5f5750;
+    }
+
+    .zyt_introText strong {
+      color: var(--zyt_red_dark);
+    }
+
+    .zyt_demoArr {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .zyt_legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 16px;
+      font-size: 12px;
+      color: var(--zyt_muted);
+    }
+
+    .zyt_legendItem {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .zyt_legendSwatch {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .zyt_swatchPlain {
+      background-color: #fff;
+      border: 1px solid #e2d6cb;
+    }
+
+    .zyt_swatchNew {
+      background-color: var(--zyt_green_bg);
+      border: 1px solid var(--zyt_green);
+    }
+
+    .zyt_swatchGone {
+      background-color: #f2f2f2;
+      border: 1px dashed #b9b9b9;
+    }
+
+    .zyt_cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 16px;
+    }
+
+    .zyt_card {
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      background-color: var(--zyt_card);
+      border: 1px solid var(--zyt_line);
+      border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    .zyt_cardTop {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .zyt_method {
+      font-family: "Consolas", "Monaco", monospace;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--zyt_red_dark);
+    }
+
+    .zyt_tag {
+      flex: 0 0 auto;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .zyt_tag.zyt_tagMutate {
+      background-color: #fff1ef;
+      color: #c0392b;
+      border: 1px solid #f5d0c8;
+    }
+
+    .zyt_tag.zyt_tagPure {
+      background-color: #eef5ff;
+      color: #2d6bb8;
+      border: 1px solid #d5e4f7;
+    }
+
+    .zyt_desc {
+      font-size: 13px;
+      color: #666;
+      min-height: 42px;
+      margin-bottom: 10px;
+    }
+
+    .zyt_code {
+      padding: 10px 12px;
+      background-color: var(--zyt_code_bg);
+      border-radius: 8px;
+      color: var(--zyt_code_text);
+      font-family: "Consolas", "Monaco", monospace;
+      font-size: 12.5px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-all;
+      overflow-x: auto;
+    }
+
+    .zyt_arrWrap {
+      margin-top: 12px;
+      padding: 10px;
+      background-color: #faf7f4;
+      border: 1px solid var(--zyt_line);
+      border-radius: 10px;
+    }
+
+    .zyt_rowLabel {
+      font-size: 11px;
+      color: #a89f99;
+      margin-bottom: 6px;
+    }
+
+    .zyt_arrRow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: flex-end;
+      min-height: 52px;
+    }
+
+    .zyt_cell {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      background-color: #fff;
+      border: 1px solid #e2d6cb;
+      border-radius: 6px;
+      animation: zyt_popIn 0.35s ease both;
+    }
+
+    .zyt_cell .zyt_idx {
+      font-size: 9px;
+      color: #b3aaa3;
+      font-family: Arial, sans-serif;
+      line-height: 1;
+      margin-top: 3px;
+    }
+
+    .zyt_cell .zyt_val {
+      font-size: 17px;
+      line-height: 1.5;
+      font-family: Arial, "Microsoft YaHei", sans-serif;
+    }
+
+    .zyt_cell.zyt_cellNew {
+      background-color: var(--zyt_green_bg);
+      border-color: var(--zyt_green);
+      animation: zyt_pulseNew 0.9s ease both;
+    }
+
+    .zyt_empty {
+      font-size: 12px;
+      color: #b3aaa3;
+      font-family: "Consolas", monospace;
+    }
+
+    .zyt_outRow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: flex-end;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed #e6ded8;
+      min-height: 46px;
+    }
+
+    .zyt_outRow .zyt_cell {
+      border-color: #cfe3f5;
+      background-color: #f4f9ff;
+    }
+
+    .zyt_goneLine {
+      display: none;
+      margin-top: 10px;
+      padding: 6px 10px;
+      background-color: #f5f5f5;
+      border: 1px dashed #cfcfcf;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #888;
+      font-family: "Consolas", "Microsoft YaHei", monospace;
+    }
+
+    .zyt_goneLine.zyt_show {
+      display: block;
+    }
+
+    .zyt_ret {
+      margin-top: 10px;
+      padding: 8px 10px;
+      background-color: #fff8f0;
+      border-left: 3px solid #f0b27a;
+      border-radius: 0 6px 6px 0;
+      font-family: "Consolas", "Microsoft YaHei", monospace;
+      font-size: 12.5px;
+      color: #8a5a2b;
+      min-height: 34px;
+      word-break: break-all;
+    }
+
+    .zyt_note {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #a0744a;
+      display: none;
+    }
+
+    .zyt_note.zyt_show {
+      display: block;
+    }
+
+    .zyt_btns {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .zyt_btn {
+      height: 34px;
+      padding: 0 16px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--zyt_red), var(--zyt_red_dark));
+      color: #fff;
+      font-size: 13px;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s ease, transform 0.12s ease;
+    }
+
+    .zyt_btn:hover {
+      opacity: 0.92;
+    }
+
+    .zyt_btn:active {
+      transform: scale(0.97);
+    }
+
+    .zyt_btnGhost {
+      background: #fff;
+      border: 1px solid #e2d6cb;
+      color: #8a7c72;
+    }
+
+    .zyt_btnGhost:hover {
+      background-color: #faf6f2;
+    }
+
+    .zyt_foot {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 12px;
+      color: #a89f99;
+    }
+
+    .zyt_groupTitle {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0 -4px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #2b2b2b;
+    }
+
+    .zyt_groupTitle::before {
+      content: "";
+      width: 4px;
+      height: 16px;
+      border-radius: 2px;
+      background: linear-gradient(180deg, var(--zyt_red), var(--zyt_red_dark));
+    }
+
+    @keyframes zyt_popIn {
+      from { opacity: 0; transform: scale(0.6); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes zyt_pulseNew {
+      0% { transform: scale(0.5); background-color: #b7ecc3; }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); background-color: var(--zyt_green_bg); }
+    }
+
+    @media (max-width: 768px) {
+      .zyt_title { font-size: 22px; }
+      .zyt_cards { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="zyt_header">
+    <h1 class="zyt_title">JavaScript 数组方法可视化</h1>
+    <p class="zyt_sub">17 个常用数组方法 · 点一下按钮，看数组怎么变</p>
+  </header>
+
+  <main class="zyt_main">
+
+    <section class="zyt_intro">
+      <div class="zyt_introText">
+        <strong>数组（Array）</strong>是一组按顺序排列的数据，每个元素有下标（索引），从 <strong>0</strong> 开始。
+        下标用来定位元素，数组方法则用来增删、截取、查找、变换数据。下方每张卡片都可以点击「▶ 演示」查看效果。
+      </div>
+      <div class="zyt_demoArr">
+        <span class="zyt_cell"><b class="zyt_idx">0</b><span class="zyt_val">🍎</span></span>
+        <span class="zyt_cell"><b class="zyt_idx">1</b><span class="zyt_val">🍌</span></span>
+        <span class="zyt_cell"><b class="zyt_idx">2</b><span class="zyt_val">🍊</span></span>
+      </div>
+    </section>
+
+    <div class="zyt_legend">
+      <span class="zyt_legendItem"><span class="zyt_legendSwatch zyt_swatchPlain"></span>原始元素</span>
+      <span class="zyt_legendItem"><span class="zyt_legendSwatch zyt_swatchNew"></span>新增元素</span>
+      <span class="zyt_legendItem"><span class="zyt_legendSwatch zyt_swatchGone"></span>被删除元素</span>
+    </div>
+
+    <div class="zyt_cards"></div>
+
+    <p class="zyt_foot">张语桐 · 高级网页设计I · JavaScript 数组方法</p>
+  </main>
+
+  <script>
+    // ---------- 数组方法演示数据 ----------
+    const zyt_demos = [
+      // 一、增删类
+      {
+        zyt_group: '一、增删元素（改变原数组）',
+        zyt_key: 'push',
+        zyt_name: 'push()',
+        zyt_mutate: true,
+        zyt_desc: '在数组末尾追加一个或多个元素，返回数组的新长度。',
+        zyt_code: "zyt_arr.push('🍇');\n// 原数组末尾多了一个元素",
+        zyt_init: ['🍎', '🍌', '🍊'],
+        zyt_run: function (zyt_a) {
+          zyt_a.push('🍇');
+          return {
+            zyt_arr: zyt_a,
+            zyt_added: [zyt_a.length - 1],
+            zyt_ret: '返回新长度：' + zyt_a.length
+          };
+        }
+      },
+      {
+        zyt_key: 'pop',
+        zyt_name: 'pop()',
+        zyt_mutate: true,
+        zyt_desc: '删除并返回数组的最后一个元素。',
+        zyt_code: "const zyt_last = zyt_arr.pop();",
+        zyt_init: ['🍎', '🍌', '🍊'],
+        zyt_run: function (zyt_a) {
+          const zyt_v = zyt_a.pop();
+          return {
+            zyt_arr: zyt_a,
+            zyt_gone: [zyt_v],
+            zyt_ret: '返回被删除的元素：' + zyt_v
+          };
+        }
+      },
+      {
+        zyt_key: 'unshift',
+        zyt_name: 'unshift()',
+        zyt_mutate: true,
+        zyt_desc: '在数组开头插入一个或多个元素，返回数组的新长度。',
+        zyt_code: "zyt_arr.unshift('🥝');",
+        zyt_init: ['🍎', '🍌', '🍊'],
+        zyt_run: function (zyt_a) {
+          zyt_a.unshift('🥝');
+          return {
+            zyt_arr: zyt_a,
+            zyt_added: [0],
+            zyt_ret: '返回新长度：' + zyt_a.length
+          };
+        }
+      },
+      {
+        zyt_key: 'shift',
+        zyt_name: 'shift()',
+        zyt_mutate: true,
+        zyt_desc: '删除并返回数组的第一个元素，后面的元素整体前移。',
+        zyt_code: "const zyt_first = zyt_arr.shift();",
+        zyt_init: ['🍎', '🍌', '🍊'],
+        zyt_run: function (zyt_a) {
+          const zyt_v = zyt_a.shift();
+          return {
+            zyt_arr: zyt_a,
+            zyt_gone: [zyt_v],
+            zyt_ret: '返回被删除的元素：' + zyt_v
+          };
+        }
+      },
+
+      // 二、截取拼接类
+      {
+        zyt_group: '二、截取与拼接（slice 不改变原数组，splice 改变）',
+        zyt_key: 'slice',
+        zyt_name: 'slice()',
+        zyt_mutate: false,
+        zyt_desc: '按区间截取一段元素，返回新数组；含头不含尾，原数组不变。',
+        zyt_code: "zyt_arr.slice(1, 4);\n// 取下标 1、2、3，不含 4",
+        zyt_init: ['🍎', '🍌', '🍊', '🍇', '🥝'],
+        zyt_run: function (zyt_a) {
+          const zyt_out = zyt_a.slice(1, 4);
+          return {
+            zyt_arr: zyt_a,
+            zyt_out: zyt_out,
+            zyt_added: [1, 2, 3],
+            zyt_ret: '返回新数组：' + zyt_out.join(' ')
+          };
+        }
+      },
+      {
+        zyt_key: 'splice',
+        zyt_name: 'splice()',
+        zyt_mutate: true,
+        zyt_desc: '从指定位置删除若干元素，并可同时插入新元素，返回被删除的元素。',
+        zyt_code: "zyt_arr.splice(1, 2, '🍓', '🍒');\n// 从下标 1 删除 2 个，再插入两个",
+        zyt_init: ['🍎', '🍌', '🍊', '🍇', '🥝'],
+        zyt_run: function (zyt_a) {
+          const zyt_out = zyt_a.splice(1, 2, '🍓', '🍒');
+          return {
+            zyt_arr: zyt_a,
+            zyt_added: [1, 2],
+            zyt_gone: zyt_out,
+            zyt_ret: '返回被删除的：' + zyt_out.join(' ')
+          };
+        }
+      },
+      {
+        zyt_key: 'concat',
+        zyt_name: 'concat()',
+        zyt_mutate: false,
+        zyt_desc: '把多个数组拼成一个新数组，原数组不变。',
+        zyt_code: "zyt_arr.concat([3, 4]);",
+        zyt_init: [1, 2],
+        zyt_run: function (zyt_a) {
+          const zyt_out = zyt_a.concat([3, 4]);
+          return {
+            zyt_arr: zyt_a,
+            zyt_out: zyt_out,
+            zyt_ret: '返回新数组：[' + zyt_out.join(', ') + ']'
+          };
+        }
+      },
+      {
+        zyt_key: 'join',
+        zyt_name: 'join()',
+        zyt_mutate: false,
+        zyt_desc: '用指定的连接符把数组元素拼成一个字符串。',
+        zyt_code: "zyt_arr.join('-');",
+        zyt_init: ['2026', '10', '29'],
+        zyt_run: function (zyt_a) {
+          const zyt_s = zyt_a.join('-');
+          return {
+            zyt_arr: zyt_a,
+            zyt_ret: '返回字符串："' + zyt_s + '"'
+          };
+        }
+      },
+
+      // 三、查找类
+      {
+        zyt_group: '三、查找与判断',
+        zyt_key: 'indexOf',
+        zyt_name: 'indexOf()',
+        zyt_mutate: false,
+        zyt_desc: '从前往后查找元素，返回第一个匹配的下标；找不到返回 -1。',
+        zyt_code: "zyt_arr.indexOf('🍌');",
+        zyt_init: ['🍎', '🍌', '🍊', '🍌'],
+        zyt_run: function (zyt_a) {
+          const zyt_i = zyt_a.indexOf('🍌');
+          return {
+            zyt_arr: zyt_a,
+            zyt_added: [zyt_i],
+            zyt_ret: '返回下标：' + zyt_i + '（只返回第一个匹配）'
+          };
+        }
+      },
+      {
+        zyt_key: 'includes',
+        zyt_name: 'includes()',
+        zyt_mutate: false,
+        zyt_desc: '判断数组是否包含某个元素，返回 true 或 false。',
+        zyt_code: "zyt_arr.includes('🍊');",
+        zyt_init: ['🍎', '🍌', '🍊'],
+        zyt_run: function (zyt_a) {
+          const zyt_has = zyt_a.includes('🍊');
+          return {
+            zyt_arr: zyt_a,
+            zyt_added: zyt_has ? [2] : [],
+            zyt_ret: '返回布尔值：' + zyt_has
+          };
+        }
+      },
+      {
+        zyt_key: 'find',
+        zyt_name: 'find()',
+        zyt_mutate: false,
+        zyt_desc: '返回第一个满足条件的元素本身，找不到返回 undefined。',
+        zyt_code: "zyt_arr.find(n => n > 30);\n// 找第一个大于 30 的数",
+        zyt_init: [12, 25, 38, 41],
+        zyt_run: function (zyt_a) {
+          const zyt_v = zyt_a.find(function (zyt_n) { return zyt_n > 30; });
+          return {
+            zyt_arr: zyt_a,
+            zyt_added: [zyt_a.indexOf(zyt_v)],
+            zyt_ret: '返回元素：' + zyt_v
+          };
+        }
+      },
+      {
+        zyt_key: 'findIndex',
+        zyt_name: 'findIndex()',
+        zyt_mutate: false,
+        zyt_desc: '返回第一个满足条件的元素下标，找不到返回 -1。',
+        zyt_code: "zyt_arr.findIndex(n => n > 30);",
+        zyt_init: [12, 25, 38, 41],
+        zyt_run: function (zyt_a) {
+          const zyt_i = zyt_a.findIndex(function (zyt_n) { return zyt_n > 30; });
+          return {
+            zyt_arr: zyt_a,
+            zyt_added: [zyt_i],
+            zyt_ret: '返回下标：' + zyt_i
+          };
+        }
+      },
+
+      // 四、遍历变换类
+      {
+        zyt_group: '四、遍历与变换（回调函数式）',
+        zyt_key: 'forEach',
+        zyt_name: 'forEach()',
+        zyt_mutate: false,
+        zyt_desc: '遍历每个元素并执行回调，没有返回值，常用于批量处理。',
+        zyt_code: "zyt_arr.forEach((zyt_v, zyt_i) => {\n  console.log(zyt_i, zyt_v);\n});",
+        zyt_init: ['🍎', '🍌', '🍊'],
+        zyt_run: function (zyt_a) {
+          return {
+            zyt_arr: zyt_a,
+            zyt_ret: '依次打印：' + zyt_a.map(function (zyt_v, zyt_i) {
+              return zyt_i + ':' + zyt_v;
+            }).join(' / ') + '（共 ' + zyt_a.length + ' 次）'
+          };
+        }
+      },
+      {
+        zyt_key: 'map',
+        zyt_name: 'map()',
+        zyt_mutate: false,
+        zyt_desc: '把每个元素映射成新值，返回一个长度相同的新数组。',
+        zyt_code: "zyt_arr.map(n => n * 2);",
+        zyt_init: [12, 25, 38],
+        zyt_run: function (zyt_a) {
+          const zyt_out = zyt_a.map(function (zyt_n) { return zyt_n * 2; });
+          return {
+            zyt_arr: zyt_a,
+            zyt_out: zyt_out,
+            zyt_ret: '返回新数组：[' + zyt_out.join(', ') + ']'
+          };
+        }
+      },
+      {
+        zyt_key: 'filter',
+        zyt_name: 'filter()',
+        zyt_mutate: false,
+        zyt_desc: '筛选出所有满足条件的元素，返回新数组，长度可能变短。',
+        zyt_code: "zyt_arr.filter(n => n > 20);",
+        zyt_init: [12, 25, 38, 41],
+        zyt_run: function (zyt_a) {
+          const zyt_out = zyt_a.filter(function (zyt_n) { return zyt_n > 20; });
+          return {
+            zyt_arr: zyt_a,
+            zyt_out: zyt_out,
+            zyt_ret: '返回新数组：[' + zyt_out.join(', ') + ']（原数组不变）'
+          };
+        }
+      },
+      {
+        zyt_key: 'reduce',
+        zyt_name: 'reduce()',
+        zyt_mutate: false,
+        zyt_desc: '把数组“归约”成一个值，例如累加求和，需要给初始值。',
+        zyt_code: "zyt_arr.reduce((a, b) => a + b, 0);",
+        zyt_init: [12, 25, 38, 41],
+        zyt_run: function (zyt_a) {
+          const zyt_sum = zyt_a.reduce(function (zyt_a1, zyt_b) { return zyt_a1 + zyt_b; }, 0);
+          return {
+            zyt_arr: zyt_a,
+            zyt_ret: '返回累加结果：12 + 25 + 38 + 41 = ' + zyt_sum
+          };
+        }
+      },
+
+      // 五、排序与其他
+      {
+        zyt_group: '五、排序、反转与去重',
+        zyt_key: 'sort',
+        zyt_name: 'sort()',
+        zyt_mutate: true,
+        zyt_desc: '排序并改变原数组；数字排序必须传比较函数，否则按字符串比较。',
+        zyt_code: "zyt_arr.sort((a, b) => a - b);\n// 不传回调会得到 [100, 30, 5, 8]",
+        zyt_init: [30, 5, 100, 8],
+        zyt_run: function (zyt_a) {
+          zyt_a.sort(function (zyt_a1, zyt_b) { return zyt_a1 - zyt_b; });
+          return {
+            zyt_arr: zyt_a,
+            zyt_ret: '排序后：[' + zyt_a.join(', ') + ']',
+            zyt_note: '默认 sort() 按字符串比较，100 会排在 30 前面，所以数字排序要传比较函数。'
+          };
+        }
+      },
+      {
+        zyt_key: 'reverse',
+        zyt_name: 'reverse()',
+        zyt_mutate: true,
+        zyt_desc: '把数组元素顺序整体反转，直接改变原数组。',
+        zyt_code: "zyt_arr.reverse();",
+        zyt_init: [1, 2, 3, 4],
+        zyt_run: function (zyt_a) {
+          zyt_a.reverse();
+          return {
+            zyt_arr: zyt_a,
+            zyt_ret: '反转后：[' + zyt_a.join(', ') + ']'
+          };
+        }
+      },
+      {
+        zyt_key: 'flat',
+        zyt_name: 'flat()',
+        zyt_mutate: false,
+        zyt_desc: '把嵌套数组“拍平”成一维数组，参数是拍平的层数。',
+        zyt_code: "zyt_arr.flat();",
+        zyt_init: [[1, 2], [3, 4], [5]],
+        zyt_run: function (zyt_a) {
+          const zyt_out = zyt_a.flat();
+          return {
+            zyt_arr: zyt_a.map(function (zyt_sub) { return '[' + zyt_sub.join(',') + ']'; }),
+            zyt_out: zyt_out,
+            zyt_ret: '返回一维数组：[' + zyt_out.join(', ') + ']'
+          };
+        }
+      }
+    ];
+
+    // ---------- 渲染工具 ----------
+    function zyt_cellHtml(zyt_v, zyt_i, zyt_added) {
+      const zyt_new = zyt_added && zyt_added.indexOf(zyt_i) !== -1;
+      return '<span class="zyt_cell' + (zyt_new ? ' zyt_cellNew' : '') + '">' +
+        '<b class="zyt_idx">' + zyt_i + '</b>' +
+        '<span class="zyt_val">' + zyt_v + '</span>' +
+        '</span>';
+    }
+
+    function zyt_renderRow(zyt_row, zyt_arr, zyt_added) {
+      if (!zyt_arr || zyt_arr.length === 0) {
+        zyt_row.innerHTML = '<span class="zyt_empty">[] 空数组</span>';
+        return;
+      }
+      zyt_row.innerHTML = zyt_arr.map(function (zyt_v, zyt_i) {
+        const zyt_show = Array.isArray(zyt_v) ? '[' + zyt_v.join(',') + ']' : zyt_v;
+        return zyt_cellHtml(zyt_show, zyt_i, zyt_added);
+      }).join('');
+    }
+
+    // ---------- 生成卡片 ----------
+    const zyt_cardsBox = document.querySelector('.zyt_cards');
+    let zyt_lastGroup = '';
+    let zyt_html = '';
+
+    zyt_demos.forEach(function (zyt_d) {
+      if (zyt_d.zyt_group && zyt_d.zyt_group !== zyt_lastGroup) {
+        zyt_lastGroup = zyt_d.zyt_group;
+        zyt_html += '<h2 class="zyt_groupTitle">' + zyt_d.zyt_group + '</h2>';
+      }
+      zyt_html +=
+        '<article class="zyt_card" data-zyt-card="' + zyt_d.zyt_key + '">' +
+          '<div class="zyt_cardTop">' +
+            '<span class="zyt_method">' + zyt_d.zyt_name + '</span>' +
+            '<span class="zyt_tag ' + (zyt_d.zyt_mutate ? 'zyt_tagMutate' : 'zyt_tagPure') + '">' +
+              (zyt_d.zyt_mutate ? '改变原数组' : '不改变原数组') +
+            '</span>' +
+          '</div>' +
+          '<p class="zyt_desc">' + zyt_d.zyt_desc + '</p>' +
+          '<pre class="zyt_code">' + zyt_d.zyt_code + '</pre>' +
+          '<div class="zyt_arrWrap">' +
+            '<div class="zyt_rowLabel">当前数组</div>' +
+            '<div class="zyt_arrRow" data-zyt-row="arr"></div>' +
+            '<div class="zyt_outRow" data-zyt-row="out" style="display:none;"></div>' +
+            '<div class="zyt_goneLine" data-zyt-gone></div>' +
+          '</div>' +
+          '<div class="zyt_ret" data-zyt-ret>返回值：—</div>' +
+          '<div class="zyt_note" data-zyt-note>' + (zyt_d.zyt_note || '') + '</div>' +
+          '<div class="zyt_btns">' +
+            '<button class="zyt_btn" type="button" data-zyt-run="' + zyt_d.zyt_key + '">▶ 演示</button>' +
+            '<button class="zyt_btn zyt_btnGhost" type="button" data-zyt-reset="' + zyt_d.zyt_key + '">↺ 重置</button>' +
+          '</div>' +
+        '</article>';
+    });
+
+    zyt_cardsBox.innerHTML = zyt_html;
+
+    // 初始渲染
+    zyt_demos.forEach(function (zyt_d) {
+      const zyt_card = zyt_cardsBox.querySelector('[data-zyt-card="' + zyt_d.zyt_key + '"]');
+      zyt_renderRow(zyt_card.querySelector('[data-zyt-row="arr"]'), zyt_d.zyt_init, []);
+    });
+
+    // ---------- 演示与重置 ----------
+    function zyt_findDemo(zyt_key) {
+      return zyt_demos.find(function (zyt_d) { return zyt_d.zyt_key === zyt_key; });
+    }
+
+    zyt_cardsBox.addEventListener('click', function (zyt_e) {
+      const zyt_btn = zyt_e.target.closest('button');
+      if (!zyt_btn) return;
+
+      const zyt_runKey = zyt_btn.getAttribute('data-zyt-run');
+      const zyt_resetKey = zyt_btn.getAttribute('data-zyt-reset');
+      const zyt_key = zyt_runKey || zyt_resetKey;
+      if (!zyt_key) return;
+
+      const zyt_d = zyt_findDemo(zyt_key);
+      if (!zyt_d) return;
+
+      const zyt_card = zyt_cardsBox.querySelector('[data-zyt-card="' + zyt_key + '"]');
+      const zyt_arrRow = zyt_card.querySelector('[data-zyt-row="arr"]');
+      const zyt_outRow = zyt_card.querySelector('[data-zyt-row="out"]');
+      const zyt_goneLine = zyt_card.querySelector('[data-zyt-gone]');
+      const zyt_ret = zyt_card.querySelector('[data-zyt-ret]');
+      const zyt_note = zyt_card.querySelector('[data-zyt-note]');
+
+      // 重置
+      if (zyt_resetKey) {
+        zyt_renderRow(zyt_arrRow, zyt_d.zyt_init, []);
+        zyt_outRow.style.display = 'none';
+        zyt_outRow.innerHTML = '';
+        zyt_goneLine.className = 'zyt_goneLine';
+        zyt_goneLine.textContent = '';
+        zyt_ret.textContent = '返回值：—';
+        zyt_note.className = 'zyt_note';
+        return;
+      }
+
+      // 演示：每次都从初始数组的副本开始
+      const zyt_copy = zyt_d.zyt_init.map(function (zyt_v) { return zyt_v; });
+      const zyt_res = zyt_d.zyt_run(zyt_copy);
+
+      zyt_renderRow(zyt_arrRow, zyt_res.zyt_arr, zyt_res.zyt_added || []);
+
+      if (zyt_res.zyt_out) {
+        zyt_outRow.style.display = 'flex';
+        zyt_outRow.innerHTML = '<div class="zyt_rowLabel" style="flex:0 0 100%;">返回值（新数组）</div>' +
+          zyt_res.zyt_out.map(function (zyt_v, zyt_i) {
+            return zyt_cellHtml(zyt_v, zyt_i, null);
+          }).join('');
+      } else {
+        zyt_outRow.style.display = 'none';
+        zyt_outRow.innerHTML = '';
+      }
+
+      if (zyt_res.zyt_gone && zyt_res.zyt_gone.length) {
+        zyt_goneLine.textContent = '✖ 被删除的元素：' + zyt_res.zyt_gone.join('  ');
+        zyt_goneLine.className = 'zyt_goneLine zyt_show';
+      } else {
+        zyt_goneLine.textContent = '';
+        zyt_goneLine.className = 'zyt_goneLine';
+      }
+
+      zyt_ret.textContent = zyt_res.zyt_ret || '返回值：—';
+
+      if (zyt_res.zyt_note) {
+        zyt_note.textContent = zyt_res.zyt_note;
+        zyt_note.className = 'zyt_note zyt_show';
+      } else {
+        zyt_note.className = 'zyt_note';
+      }
+    });
+  </script>
+</body>
+</html>
