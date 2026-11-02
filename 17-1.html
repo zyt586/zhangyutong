@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>17-1 JSON 展示</title>
+  <!--
+  姓名：张语桐
+  日期：2026-11-02
+  功能名称：JSON 数据格式展示——语法结构、序列化与解析、格式化演示
+  -->
+  <style>
+    :root {
+      --zyt_red: #d53d3d;
+      --zyt_bg: #f7f3ef;
+      --zyt_card: #fff;
+      --zyt_line: #f0e8e2;
+      --zyt_code_bg: #282c34;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background-color: var(--zyt_bg);
+      color: #333;
+      line-height: 1.7;
+      padding-bottom: 40px;
+    }
+
+    .zyt_header {
+      background: linear-gradient(135deg, #fdf1e7, #fbe2dc);
+      padding: 26px 20px;
+      text-align: center;
+      border-bottom: 1px solid var(--zyt_line);
+    }
+
+    .zyt_title { font-size: 26px; font-weight: 700; color: #b83333; letter-spacing: 1px; }
+    .zyt_sub { margin-top: 6px; font-size: 14px; color: #8a5a4a; }
+
+    .zyt_main { max-width: 1080px; margin: 0 auto; padding: 18px 14px; }
+
+    .zyt_card {
+      background: var(--zyt_card);
+      border: 1px solid var(--zyt_line);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 18px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    }
+
+    .zyt_head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--zyt_line);
+      margin-bottom: 14px;
+    }
+
+    .zyt_num {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #d53d3d, #b83333);
+      color: #fff;
+      font-size: 14px; font-weight: 700;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex: 0 0 auto;
+    }
+
+    .zyt_headTitle { font-size: 18px; font-weight: 700; }
+
+    .zyt_desc { font-size: 13.5px; color: #666; margin-bottom: 12px; }
+
+    .zyt_code {
+      background: var(--zyt_code_bg);
+      color: #abb2bf;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-family: "Consolas", "Monaco", monospace;
+      font-size: 12.5px;
+      line-height: 1.7;
+      overflow-x: auto;
+      white-space: pre;
+      margin-bottom: 12px;
+    }
+
+    /* JSON 简易高亮 */
+    .zyt_key { color: #e06c75; }
+    .zyt_str { color: #98c379; }
+    .zyt_numLit { color: #d19a66; }
+    .zyt_bool { color: #61afef; }
+    .zyt_null { color: #c678dd; }
+    .zyt_punc { color: #7f848e; }
+
+    .zyt_twoCol {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .zyt_btnRow { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+
+    .zyt_btn {
+      height: 34px; padding: 0 16px;
+      border: none; border-radius: 8px;
+      background: linear-gradient(135deg, #d53d3d, #b83333);
+      color: #fff; font-size: 13px; font-weight: 700; font-family: inherit;
+      cursor: pointer; transition: opacity 0.2s, transform 0.12s;
+    }
+    .zyt_btn:hover { opacity: 0.92; }
+    .zyt_btn:active { transform: scale(0.97); }
+
+    .zyt_btnGhost {
+      background: #fff; border: 1px solid #e2d6cb; color: #8a7c72;
+    }
+
+    .zyt_textarea {
+      width: 100%;
+      min-height: 130px;
+      padding: 10px 12px;
+      border: 1px solid #e2d6cb;
+      border-radius: 8px;
+      font-family: "Consolas", "Monaco", monospace;
+      font-size: 12.5px;
+      line-height: 1.7;
+      color: #333;
+      resize: vertical;
+      outline: none;
+      margin-bottom: 10px;
+    }
+
+    .zyt_textarea:focus { border-color: var(--zyt_red); box-shadow: 0 0 0 3px rgba(213,61,61,0.1); }
+
+    .zyt_result {
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-family: "Consolas", "Monaco", monospace;
+      font-size: 12.5px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-break: break-all;
+      min-height: 46px;
+      background: #fff8f0;
+      border-left: 3px solid #f0b27a;
+      color: #8a5a2b;
+    }
+
+    .zyt_result.zyt_err { background: #fdeef0; border-left-color: #d53d3d; color: #b83333; }
+
+    .zyt_ruleTable {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .zyt_ruleTable th, .zyt_ruleTable td {
+      border: 1px solid var(--zyt_line);
+      padding: 8px 12px;
+      text-align: left;
+    }
+
+    .zyt_ruleTable th { background: #faf5f0; font-weight: 700; }
+    .zyt_ruleTable .zyt_yes { color: #2f9e44; font-weight: 700; }
+    .zyt_ruleTable .zyt_no { color: #d53d3d; font-weight: 700; }
+
+    .zyt_foot { text-align: center; font-size: 12px; color: #a89f99; margin-top: 24px; }
+
+    @media (max-width: 760px) {
+      .zyt_twoCol { grid-template-columns: 1fr; }
+      .zyt_title { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="zyt_header">
+    <h1 class="zyt_title">JSON —— JavaScript Object Notation</h1>
+    <p class="zyt_sub">轻量级数据交换格式：独立于语言、键必须双引号、方法只有 parse 和 stringify</p>
+  </header>
+
+  <main class="zyt_main">
+
+    <!-- 一、JSON 是什么 -->
+    <section class="zyt_card">
+      <div class="zyt_head">
+        <span class="zyt_num">1</span>
+        <h2 class="zyt_headTitle">JSON 语法规则</h2>
+      </div>
+      <p class="zyt_desc">
+        JSON 由「键值对」组成，键和字符串值都必须用<strong>双引号</strong>；值可以是字符串、数字、布尔、null、数组、对象，不支持函数和 undefined。
+      </p>
+      <div class="zyt_code">{
+  "name": "张语桐",
+  "age": 20,
+  "isStudent": true,
+  "hobbies": ["读书", "网页设计"],
+  "address": { "city": "北京", "zip": "100000" },
+  "remark": null
+}</div>
+      <table class="zyt_ruleTable">
+        <tr><th>对比项</th><th>JSON</th><th>JS 对象字面量</th></tr>
+        <tr><td>键（key）</td><td class="zyt_yes">必须双引号 "name"</td><td class="zyt_no">可省略引号 name</td></tr>
+        <tr><td>字符串值</td><td class="zyt_yes">只能双引号</td><td class="zyt_no">单、双引号皆可</td></tr>
+        <tr><td>函数 / undefined</td><td class="zyt_yes">不允许</td><td class="zyt_no">允许</td></tr>
+        <tr><td>末尾逗号</td><td class="zyt_yes">不允许</td><td class="zyt_no">允许（新引擎）</td></tr>
+      </table>
+    </section>
+
+    <!-- 二、序列化与解析 -->
+    <section class="zyt_card">
+      <div class="zyt_head">
+        <span class="zyt_num">2</span>
+        <h2 class="zyt_headTitle">JSON.stringify 与 JSON.parse</h2>
+      </div>
+      <p class="zyt_desc">
+        <strong>stringify</strong>：JS 对象 → JSON 字符串（发给服务器前）；<strong>parse</strong>：JSON 字符串 → JS 对象（收到响应后）。
+      </p>
+      <div class="zyt_twoCol">
+        <div>
+          <pre class="zyt_code">const zyt_obj = {
+  name: '张语桐',
+  age: 20,
+  greet: function () { return 'hi'; }
+};
+
+// 对象 → JSON 字符串（函数被丢弃）
+const zyt_json =
+  JSON.stringify(zyt_obj);
+
+// JSON 字符串 → 对象
+const zyt_back =
+  JSON.parse(zyt_json);</pre>
+          <div class="zyt_btnRow">
+            <button class="zyt_btn" type="button" data-zyt-act="stringify">执行 stringify</button>
+            <button class="zyt_btn" type="button" data-zyt-act="parse">执行 parse</button>
+            <button class="zyt_btn zyt_btnGhost" type="button" data-zyt-act="pretty">stringify(obj, null, 2) 缩进美化</button>
+          </div>
+        </div>
+        <div>
+          <div class="zyt_result" data-zyt-demoOut>点左侧按钮查看运行结果</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 三、格式化工具 -->
+    <section class="zyt_card">
+      <div class="zyt_head">
+        <span class="zyt_num">3</span>
+        <h2 class="zyt_headTitle">在线格式化与校验</h2>
+      </div>
+      <p class="zyt_desc">在下面粘贴或编辑 JSON 字符串，点「格式化」会用 JSON.parse 校验并高亮显示；写错会给出错误提示。</p>
+      <textarea class="zyt_textarea" data-zyt-input spellcheck="false">{"姓名":"张语桐","课程":"高级网页设计","成绩":[95,88,92],"是否及格":true}</textarea>
+      <div class="zyt_btnRow">
+        <button class="zyt_btn" type="button" data-zyt-tool="format">格式化 / 校验</button>
+        <button class="zyt_btn" type="button" data-zyt-tool="compact">压缩成一行</button>
+        <button class="zyt_btn zyt_btnGhost" type="button" data-zyt-tool="reset">恢复示例</button>
+      </div>
+      <div class="zyt_result" data-zyt-toolOut>等待操作……</div>
+    </section>
+
+    <p class="zyt_foot">张语桐 · 高级网页设计I · JSON 数据格式</p>
+  </main>
+
+  <script>
+    // ---------- 高亮 ----------
+    function zyt_escape(zyt_t) {
+      return String(zyt_t)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function zyt_highlight(zyt_jsonText) {
+      // 先转义，再按 JSON 词法上色
+      let zyt_s = zyt_escape(zyt_jsonText);
+      zyt_s = zyt_s.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false)\b|\bnull\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/g, function (zyt_m) {
+        let zyt_cls = 'zyt_numLit';
+        if (/^"/.test(zyt_m)) {
+          zyt_cls = /:$/.test(zyt_m) ? 'zyt_key' : 'zyt_str';
+        } else if (/true|false/.test(zyt_m)) {
+          zyt_cls = 'zyt_bool';
+        } else if (/null/.test(zyt_m)) {
+          zyt_cls = 'zyt_null';
+        }
+        return '<span class="' + zyt_cls + '">' + zyt_m + '</span>';
+      });
+      return zyt_s;
+    }
+
+    // ---------- stringify / parse 演示 ----------
+    const zyt_demoOut = document.querySelector('[data-zyt-demoOut]');
+    const zyt_obj = { name: '张语桐', age: 20, greet: function () { return 'hi'; } };
+    const zyt_jsonText = JSON.stringify(zyt_obj);
+
+    function zyt_showDemo(zyt_html, zyt_isErr) {
+      zyt_demoOut.className = 'zyt_result' + (zyt_isErr ? ' zyt_err' : '');
+      zyt_demoOut.innerHTML = zyt_html;
+    }
+
+    document.querySelector('[data-zyt-act="stringify"]').addEventListener('click', function () {
+      zyt_showDemo(
+        '<b>JSON.stringify(zyt_obj)</b> 结果：\n' +
+        zyt_highlight(zyt_jsonText) +
+        '\n\n注意：greet 是函数，序列化时被丢弃了'
+      );
+    });
+
+    document.querySelector('[data-zyt-act="parse"]').addEventListener('click', function () {
+      const zyt_back = JSON.parse(zyt_jsonText);
+      zyt_showDemo(
+        '<b>JSON.parse(jsonStr)</b> 结果：\n' +
+        'typeof → ' + typeof zyt_back + '\n' +
+        'zyt_back.name → ' + zyt_back.name + '\n' +
+        'zyt_back.age → ' + zyt_back.age
+      );
+    });
+
+    document.querySelector('[data-zyt-act="pretty"]').addEventListener('click', function () {
+      zyt_showDemo(
+        '<b>JSON.stringify(zyt_obj, null, 2)</b> 带缩进美化：\n' +
+        zyt_highlight(JSON.stringify({ name: '张语桐', age: 20, hobbies: ['读书', '网页设计'] }, null, 2))
+      );
+    });
+
+    // ---------- 格式化工具 ----------
+    const zyt_input = document.querySelector('[data-zyt-input]');
+    const zyt_toolOut = document.querySelector('[data-zyt-toolOut]');
+
+    function zyt_showTool(zyt_html, zyt_isErr) {
+      zyt_toolOut.className = 'zyt_result' + (zyt_isErr ? ' zyt_err' : '');
+      zyt_toolOut.innerHTML = zyt_html;
+    }
+
+    document.querySelector('[data-zyt-tool="format"]').addEventListener('click', function () {
+      try {
+        const zyt_obj2 = JSON.parse(zyt_input.value);
+        zyt_showTool('<b>✔ 校验通过</b>，美化结果：\n' + zyt_highlight(JSON.stringify(zyt_obj2, null, 2)));
+      } catch (zyt_e) {
+        zyt_showTool('<b>✘ JSON 语法错误：</b>\n' + zyt_escape(zyt_e.message) +
+          '\n提示：键和字符串必须用双引号，且不能有多余逗号', true);
+      }
+    });
+
+    document.querySelector('[data-zyt-tool="compact"]').addEventListener('click', function () {
+      try {
+        const zyt_obj3 = JSON.parse(zyt_input.value);
+        zyt_showTool('<b>压缩后：</b>\n' + zyt_highlight(JSON.stringify(zyt_obj3)));
+      } catch (zyt_e) {
+        zyt_showTool('<b>✘ JSON 语法错误：</b>\n' + zyt_escape(zyt_e.message), true);
+      }
+    });
+
+    document.querySelector('[data-zyt-tool="reset"]').addEventListener('click', function () {
+      zyt_input.value = '{"姓名":"张语桐","课程":"高级网页设计","成绩":[95,88,92],"是否及格":true}';
+      zyt_showTool('已恢复示例内容');
+    });
+  </script>
+</body>
+</html>

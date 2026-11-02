@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>17-2 fetch 获取狗狗图片</title>
+  <!--
+  姓名：张语桐
+  日期：2026-11-02
+  功能名称：fetch 异步请求 dog.ceo 接口——随机获取 3 张猎犬图片并展示
+  -->
+  <style>
+    :root {
+      --zyt_red: #d53d3d;
+      --zyt_bg: #f7f3ef;
+      --zyt_line: #f0e8e2;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background-color: var(--zyt_bg);
+      color: #333;
+      line-height: 1.7;
+      padding-bottom: 40px;
+    }
+
+    .zyt_header {
+      background: linear-gradient(135deg, #fdf1e7, #fbe2dc);
+      padding: 26px 20px;
+      text-align: center;
+      border-bottom: 1px solid var(--zyt_line);
+    }
+
+    .zyt_title { font-size: 26px; font-weight: 700; color: #b83333; letter-spacing: 1px; }
+    .zyt_sub { margin-top: 6px; font-size: 14px; color: #8a5a4a; }
+
+    .zyt_main { max-width: 1080px; margin: 0 auto; padding: 18px 14px; }
+
+    .zyt_card {
+      background: #fff;
+      border: 1px solid var(--zyt_line);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 18px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    }
+
+    .zyt_apiLine {
+      font-family: "Consolas", "Monaco", monospace;
+      font-size: 12.5px;
+      background: #282c34;
+      color: #98c379;
+      border-radius: 8px;
+      padding: 8px 12px;
+      word-break: break-all;
+      margin-bottom: 12px;
+    }
+
+    .zyt_btnRow { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+
+    .zyt_btn {
+      height: 36px; padding: 0 20px;
+      border: none; border-radius: 8px;
+      background: linear-gradient(135deg, #d53d3d, #b83333);
+      color: #fff; font-size: 13.5px; font-weight: 700; font-family: inherit;
+      cursor: pointer; transition: opacity 0.2s, transform 0.12s;
+    }
+    .zyt_btn:hover { opacity: 0.92; }
+    .zyt_btn:active { transform: scale(0.97); }
+    .zyt_btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+
+    .zyt_btnGhost { background: #fff; border: 1px solid #e2d6cb; color: #8a7c72; }
+
+    .zyt_status { font-size: 13px; color: #8a7c72; align-self: center; }
+
+    .zyt_gallery {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      min-height: 200px;
+    }
+
+    .zyt_dogCard {
+      border-radius: 12px;
+      overflow: hidden;
+      background: #faf7f4;
+      border: 1px solid var(--zyt_line);
+      animation: zyt_fadeIn 0.5s ease both;
+    }
+
+    .zyt_dogCard img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      display: block;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .zyt_dogCard img:hover { transform: scale(1.04); }
+
+    .zyt_dogUrl {
+      padding: 8px 10px;
+      font-family: "Consolas", monospace;
+      font-size: 11px;
+      color: #9a908a;
+      word-break: break-all;
+      border-top: 1px solid var(--zyt_line);
+    }
+
+    .zyt_empty {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 180px;
+      color: #b3aaa3;
+      font-size: 14px;
+      border: 2px dashed #e2d6cb;
+      border-radius: 12px;
+    }
+
+    .zyt_respCard {
+      background: #faf7f4;
+      border: 1px solid var(--zyt_line);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-family: "Consolas", monospace;
+      font-size: 12px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      word-break: break-all;
+      color: #5f5750;
+      margin-bottom: 14px;
+    }
+
+    .zyt_respCard b { color: #b83333; }
+
+    .zyt_foot { text-align: center; font-size: 12px; color: #a89f99; margin-top: 24px; }
+
+    @keyframes zyt_fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 760px) {
+      .zyt_gallery { grid-template-columns: 1fr; }
+      .zyt_title { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="zyt_header">
+    <h1 class="zyt_title">🐶 fetch 获取狗狗图片</h1>
+    <p class="zyt_sub">使用原生 fetch 请求 dog.ceo 公开接口（支持跨域），随机返回 3 张猎犬图片</p>
+  </header>
+
+  <main class="zyt_main">
+
+    <section class="zyt_card">
+      <div class="zyt_apiLine">GET https://dog.ceo/api/breed/hound/images/random/3</div>
+      <p style="font-size:13.5px;color:#666;margin-bottom:12px;">
+        接口返回 JSON：<code>{"status":"success","message":["图片1.jpg","图片2.jpg","图片3.jpg"]}</code>，
+        message 是图片地址数组，用 fetch + response.json() 解析后渲染成图片。
+      </p>
+
+      <div class="zyt_btnRow">
+        <button class="zyt_btn" type="button" data-zyt-load>🖼 换一批狗狗</button>
+        <button class="zyt_btn zyt_btnGhost" type="button" data-zyt-clear>清空</button>
+        <span class="zyt_status" data-zyt-status>点击按钮开始请求</span>
+      </div>
+
+      <div class="zyt_respCard" data-zyt-resp>原始响应 JSON 会显示在这里</div>
+
+      <div class="zyt_gallery" data-zyt-gallery>
+        <div class="zyt_empty">还没有图片，点上面按钮获取 🐾</div>
+      </div>
+    </section>
+
+    <p class="zyt_foot">张语桐 · 高级网页设计I · fetch 与异步数据获取</p>
+  </main>
+
+  <script>
+    const zyt_api = 'https://dog.ceo/api/breed/hound/images/random/3';
+    const zyt_gallery = document.querySelector('[data-zyt-gallery]');
+    const zyt_status = document.querySelector('[data-zyt-status]');
+    const zyt_respBox = document.querySelector('[data-zyt-resp]');
+    const zyt_loadBtn = document.querySelector('[data-zyt-load]');
+
+    async function zyt_loadDogs() {
+      zyt_loadBtn.disabled = true;
+      zyt_status.textContent = '⏳ 正在请求接口……';
+
+      try {
+        const zyt_res = await fetch(zyt_api);
+        if (!zyt_res.ok) {
+          throw new Error('HTTP 状态码：' + zyt_res.status);
+        }
+        const zyt_data = await zyt_res.json();
+
+        // 显示原始响应
+        zyt_respBox.innerHTML =
+          '<b>HTTP ' + zyt_res.status + ' ' + zyt_res.statusText + '</b>\n' +
+          JSON.stringify(zyt_data, null, 2);
+
+        // 渲染图片
+        zyt_gallery.innerHTML = zyt_data.message.map(function (zyt_url, zyt_i) {
+          return '<figure class="zyt_dogCard">' +
+              '<img src="' + zyt_url + '" alt="猎犬图片' + (zyt_i + 1) + '" loading="lazy">' +
+              '<figcaption class="zyt_dogUrl">' + zyt_url.split('/').pop() + '</figcaption>' +
+            '</figure>';
+        }).join('');
+
+        zyt_status.textContent = '✔ 请求成功，共获取 ' + zyt_data.message.length + ' 张图片';
+      } catch (zyt_e) {
+        zyt_status.textContent = '✘ 请求失败：' + zyt_e.message;
+        zyt_respBox.innerHTML = '<b>错误信息：</b>\n' + zyt_e.message;
+      } finally {
+        zyt_loadBtn.disabled = false;
+      }
+    }
+
+    zyt_loadBtn.addEventListener('click', zyt_loadDogs);
+
+    document.querySelector('[data-zyt-clear]').addEventListener('click', function () {
+      zyt_gallery.innerHTML = '<div class="zyt_empty">还没有图片，点上面按钮获取 🐾</div>';
+      zyt_respBox.textContent = '原始响应 JSON 会显示在这里';
+      zyt_status.textContent = '点击按钮开始请求';
+    });
+
+    // 进入页面自动加载一次
+    zyt_loadDogs();
+  </script>
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>17-3 商品详情</title>
+  <!--
+  姓名：张语桐
+  日期：2026-11-02
+  功能名称：fetch 按 ID 获取商品详情——解析 URL 参数请求 dummyjson 单品接口并渲染
+  -->
+  <style>
+    :root {
+      --zyt_red: #d53d3d;
+      --zyt_bg: #f7f3ef;
+      --zyt_line: #f0e8e2;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background-color: var(--zyt_bg);
+      color: #333;
+      line-height: 1.7;
+      padding-bottom: 40px;
+    }
+
+    .zyt_header {
+      background: linear-gradient(135deg, #fdf1e7, #fbe2dc);
+      padding: 20px;
+      text-align: center;
+      border-bottom: 1px solid var(--zyt_line);
+    }
+
+    .zyt_title { font-size: 24px; font-weight: 700; color: #b83333; letter-spacing: 1px; }
+    .zyt_sub { margin-top: 4px; font-size: 13px; color: #8a5a4a; }
+
+    .zyt_backLine {
+      max-width: 900px;
+      margin: 14px auto 0;
+      padding: 0 14px;
+    }
+
+    .zyt_back {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid #e2d6cb;
+      color: #8a7c72;
+      font-size: 13px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .zyt_back:hover { background: #faf6f2; }
+
+    .zyt_main { max-width: 900px; margin: 14px auto 0; padding: 0 14px; }
+
+    .zyt_detail {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 22px;
+      background: #fff;
+      border: 1px solid var(--zyt_line);
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    }
+
+    .zyt_galleryWrap { display: flex; flex-direction: column; gap: 10px; }
+
+    .zyt_bigImg {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
+      background: #faf7f4;
+      border: 1px solid var(--zyt_line);
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .zyt_thumbRow { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .zyt_thumb {
+      width: 58px; height: 58px;
+      object-fit: contain;
+      background: #faf7f4;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      padding: 4px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .zyt_thumb.zyt_on, .zyt_thumb:hover { border-color: var(--zyt_red); }
+
+    .zyt_cat {
+      display: inline-block;
+      padding: 1px 10px;
+      border-radius: 999px;
+      background: #fff1ef;
+      border: 1px solid #f5d0c8;
+      color: #c0392b;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .zyt_pTitle { font-size: 22px; font-weight: 700; color: #2b2b2b; line-height: 1.4; }
+
+    .zyt_brand { font-size: 13px; color: #9a908a; margin-top: 4px; }
+
+    .zyt_priceRow {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin: 14px 0;
+      padding: 12px 16px;
+      background: #fff8f0;
+      border-radius: 10px;
+    }
+
+    .zyt_price { font-size: 28px; font-weight: 700; color: var(--zyt_red); }
+    .zyt_priceOld { font-size: 14px; color: #b3aaa3; text-decoration: line-through; }
+    .zyt_off { font-size: 13px; font-weight: 700; color: #fff; background: var(--zyt_red); border-radius: 4px; padding: 0 6px; }
+
+    .zyt_desc { font-size: 14px; color: #555; margin-bottom: 14px; }
+
+    .zyt_infoGrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .zyt_infoItem {
+      padding: 8px 12px;
+      background: #faf7f4;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #555;
+    }
+
+    .zyt_infoItem b { color: #b83333; }
+
+    .zyt_stockBar {
+      height: 8px;
+      border-radius: 999px;
+      background: #f0e8e2;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .zyt_stockFill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #7cba3d, #5da02b);
+      transition: width 0.6s ease;
+    }
+
+    .zyt_review { border-top: 1px solid var(--zyt_line); padding-top: 12px; margin-top: 12px; }
+
+    .zyt_reviewHead { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+
+    .zyt_reviewItem {
+      padding: 8px 0;
+      border-bottom: 1px dashed var(--zyt_line);
+      font-size: 13px;
+    }
+
+    .zyt_reviewItem:last-child { border-bottom: none; }
+    .zyt_reviewUser { font-weight: 700; color: #b83333; margin-right: 8px; }
+    .zyt_reviewStars { color: #e8a33d; }
+    .zyt_reviewText { color: #666; }
+
+    .zyt_state {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 60px 20px;
+      text-align: center;
+      color: #b3aaa3;
+      font-size: 14px;
+    }
+
+    .zyt_state.zyt_err { color: #b83333; }
+
+    .zyt_foot { text-align: center; font-size: 12px; color: #a89f99; margin-top: 24px; }
+
+    @media (max-width: 760px) {
+      .zyt_detail { grid-template-columns: 1fr; }
+      .zyt_title { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="zyt_header">
+    <h1 class="zyt_title">📦 商品详情</h1>
+    <p class="zyt_sub">根据 URL 中的 id 参数请求 https://dummyjson.com/products/{id} 获取单品数据</p>
+  </header>
+
+  <div class="zyt_backLine">
+    <a class="zyt_back" href="17-3.html">← 返回商品列表</a>
+  </div>
+
+  <main class="zyt_main">
+    <div data-zyt-box>
+      <div class="zyt_state">正在加载商品详情……</div>
+    </div>
+  </main>
+
+  <p class="zyt_foot">张语桐 · 高级网页设计I · fetch 商品详情页</p>
+
+  <script>
+    // ---------- 从 URL 读取 id（无参数时默认 1） ----------
+    const zyt_params = new URLSearchParams(location.search);
+    const zyt_id = zyt_params.get('id') || '1';
+    const zyt_api = 'https://dummyjson.com/products/' + encodeURIComponent(zyt_id);
+
+    const zyt_box = document.querySelector('[data-zyt-box]');
+
+    async function zyt_loadDetail() {
+      try {
+        const zyt_res = await fetch(zyt_api);
+        if (!zyt_res.ok) throw new Error('HTTP 状态码：' + zyt_res.status + '（id=' + zyt_id + ' 不存在）');
+        const zyt_p = await zyt_res.json();
+
+        // 渲染缩略图（主图 + images 数组去重）
+        const zyt_imgs = [zyt_p.thumbnail].concat(zyt_p.images.filter(function (zyt_u) {
+          return zyt_u !== zyt_p.thumbnail;
+        }));
+
+        zyt_box.innerHTML =
+          '<div class="zyt_detail">' +
+            '<div class="zyt_galleryWrap">' +
+              '<img class="zyt_bigImg" data-zyt-big src="' + zyt_imgs[0] + '" alt="' + zyt_p.title + '">' +
+              '<div class="zyt_thumbRow">' +
+                zyt_imgs.map(function (zyt_u, zyt_i) {
+                  return '<img class="zyt_thumb' + (zyt_i === 0 ? ' zyt_on' : '') +
+                    '" data-zyt-thumb src="' + zyt_u + '" alt="缩略图' + (zyt_i + 1) + '">';
+                }).join('') +
+              '</div>' +
+            '</div>' +
+            '<div>' +
+              '<span class="zyt_cat">' + zyt_p.category + ' · ID ' + zyt_p.id + '</span>' +
+              '<h2 class="zyt_pTitle">' + zyt_p.title + '</h2>' +
+              '<p class="zyt_brand">品牌：' + (zyt_p.brand || '—') + ' · SKU：' + zyt_p.sku + '</p>' +
+              '<div class="zyt_priceRow">' +
+                '<span class="zyt_price">¥ ' + zyt_p.price + '</span>' +
+                '<span class="zyt_priceOld">¥ ' + Math.round(zyt_p.price / (1 - zyt_p.discountPercentage / 100)) + '</span>' +
+                '<span class="zyt_off">-' + Math.round(zyt_p.discountPercentage) + '%</span>' +
+              '</div>' +
+              '<p class="zyt_desc">' + zyt_p.description + '</p>' +
+              '<div class="zyt_infoGrid">' +
+                '<div class="zyt_infoItem">评分：<b>★ ' + zyt_p.rating.toFixed(2) + '</b>（' + zyt_p.reviews.length + ' 条评价）</div>' +
+                '<div class="zyt_infoItem">库存：<b>' + zyt_p.stock + '</b> 件</div>' +
+                '<div class="zyt_infoItem">标签：' + (zyt_p.tags.join(' / ') || '—') + '</div>' +
+                '<div class="zyt_infoItem">保修 / 政策：' +
+                  zyt_p.warrantyInformation + '，' + zyt_p.returnPolicy +
+                  '<div class="zyt_stockBar"><div class="zyt_stockFill" style="width:' +
+                    Math.min(zyt_p.stock, 100) + '%"></div></div>' +
+                '</div>' +
+              '</div>' +
+              '<div class="zyt_review">' +
+                '<p class="zyt_reviewHead">用户评价</p>' +
+                zyt_p.reviews.slice(0, 3).map(function (zyt_r) {
+                  return '<div class="zyt_reviewItem">' +
+                      '<span class="zyt_reviewUser">' + zyt_r.reviewerName + '</span>' +
+                      '<span class="zyt_reviewStars">' + '★'.repeat(Math.round(zyt_r.rating)) + '</span>' +
+                      '<div class="zyt_reviewText">' + zyt_r.comment + '</div>' +
+                    '</div>';
+                }).join('') +
+              '</div>' +
+            '</div>' +
+          '</div>';
+
+        // 点击缩略图切换主图
+        const zyt_big = document.querySelector('[data-zyt-big]');
+        document.querySelectorAll('[data-zyt-thumb]').forEach(function (zyt_t) {
+          zyt_t.addEventListener('click', function () {
+            document.querySelectorAll('[data-zyt-thumb]').forEach(function (zyt_x) {
+              zyt_x.classList.remove('zyt_on');
+            });
+            zyt_t.classList.add('zyt_on');
+            zyt_big.src = zyt_t.src;
+          });
+        });
+
+        document.title = '17-3 商品详情 · ' + zyt_p.title;
+      } catch (zyt_e) {
+        zyt_box.innerHTML =
+          '<div class="zyt_state zyt_err">✘ 商品详情获取失败：' + zyt_e.message +
+            '<br><br><a class="zyt_back" href="17-3.html">← 返回商品列表</a></div>';
+      }
+    }
+
+    zyt_loadDetail();
+  </script>
+</body>
+</html>

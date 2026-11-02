@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>17-3 商品列表</title>
+  <!--
+  姓名：张语桐
+  日期：2026-11-02
+  功能名称：fetch 获取 dummyjson 商品列表——渲染 8 件商品并可跳转详情页
+  -->
+  <style>
+    :root {
+      --zyt_red: #d53d3d;
+      --zyt_bg: #f7f3ef;
+      --zyt_line: #f0e8e2;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background-color: var(--zyt_bg);
+      color: #333;
+      line-height: 1.7;
+      padding-bottom: 40px;
+    }
+
+    .zyt_header {
+      background: linear-gradient(135deg, #fdf1e7, #fbe2dc);
+      padding: 24px 20px;
+      text-align: center;
+      border-bottom: 1px solid var(--zyt_line);
+    }
+
+    .zyt_title { font-size: 26px; font-weight: 700; color: #b83333; letter-spacing: 1px; }
+    .zyt_sub { margin-top: 6px; font-size: 14px; color: #8a5a4a; }
+
+    .zyt_main { max-width: 1180px; margin: 0 auto; padding: 18px 14px; }
+
+    .zyt_toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .zyt_status { font-size: 13px; color: #8a7c72; }
+
+    .zyt_btn {
+      height: 34px; padding: 0 16px;
+      border: none; border-radius: 8px;
+      background: linear-gradient(135deg, #d53d3d, #b83333);
+      color: #fff; font-size: 13px; font-weight: 700; font-family: inherit;
+      cursor: pointer; transition: opacity 0.2s, transform 0.12s;
+    }
+    .zyt_btn:hover { opacity: 0.92; }
+    .zyt_btn:active { transform: scale(0.97); }
+    .zyt_btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+
+    .zyt_grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      min-height: 240px;
+    }
+
+    .zyt_pcard {
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      border: 1px solid var(--zyt_line);
+      border-radius: 14px;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      animation: zyt_fadeIn 0.4s ease both;
+    }
+
+    .zyt_pcard:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.1);
+    }
+
+    .zyt_pimgWrap {
+      position: relative;
+      background: #fff;
+      padding: 14px;
+    }
+
+    .zyt_pimg {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
+      display: block;
+    }
+
+    .zyt_pcat {
+      position: absolute;
+      top: 10px; left: 10px;
+      padding: 1px 8px;
+      border-radius: 999px;
+      background: #fff1ef;
+      border: 1px solid #f5d0c8;
+      color: #c0392b;
+      font-size: 11px;
+    }
+
+    .zyt_pbody {
+      padding: 12px 14px 14px;
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+    }
+
+    .zyt_ptitle {
+      font-size: 14px;
+      font-weight: 700;
+      color: #2b2b2b;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      min-height: 42px;
+    }
+
+    .zyt_pdesc {
+      margin-top: 4px;
+      font-size: 12px;
+      color: #9a908a;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .zyt_pmeta {
+      margin-top: auto;
+      padding-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .zyt_pprice { font-size: 16px; font-weight: 700; color: var(--zyt_red); }
+    .zyt_pdel { font-size: 12px; color: #b3aaa3; text-decoration: line-through; }
+    .zyt_prating { margin-left: auto; font-size: 12px; color: #e8a33d; font-weight: 700; }
+
+    .zyt_empty, .zyt_loading {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 200px;
+      color: #b3aaa3;
+      font-size: 14px;
+      border: 2px dashed #e2d6cb;
+      border-radius: 12px;
+    }
+
+    .zyt_empty.zyt_err { color: #b83333; border-color: #e7b2b2; background: #fdf3f3; }
+
+    .zyt_foot { text-align: center; font-size: 12px; color: #a89f99; margin-top: 24px; }
+
+    @keyframes zyt_fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 1000px) { .zyt_grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 720px) { .zyt_grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 420px) { .zyt_grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+  <header class="zyt_header">
+    <h1 class="zyt_title">🛒 商品列表</h1>
+    <p class="zyt_sub">fetch 请求 dummyjson 接口 · 共 8 件商品 · 点击卡片查看详情</p>
+  </header>
+
+  <main class="zyt_main">
+
+    <div class="zyt_toolbar">
+      <button class="zyt_btn" type="button" data-zyt-reload>↻ 重新加载</button>
+      <span class="zyt_status" data-zyt-status>正在请求接口……</span>
+    </div>
+
+    <div class="zyt_grid" data-zyt-grid>
+      <div class="zyt_loading">加载中，请稍候……</div>
+    </div>
+
+    <p class="zyt_foot">张语桐 · 高级网页设计I · fetch 商品列表页</p>
+  </main>
+
+  <script>
+    const zyt_api = 'https://dummyjson.com/products?limit=8';
+    const zyt_grid = document.querySelector('[data-zyt-grid]');
+    const zyt_status = document.querySelector('[data-zyt-status]');
+    const zyt_reloadBtn = document.querySelector('[data-zyt-reload]');
+
+    async function zyt_loadProducts() {
+      zyt_reloadBtn.disabled = true;
+      zyt_status.textContent = '⏳ 正在请求 https://dummyjson.com/products?limit=8 ……';
+      zyt_grid.innerHTML = '<div class="zyt_loading">加载中，请稍候……</div>';
+
+      try {
+        const zyt_res = await fetch(zyt_api);
+        if (!zyt_res.ok) throw new Error('HTTP 状态码：' + zyt_res.status);
+        const zyt_data = await zyt_res.json();
+
+        zyt_status.textContent = '✔ 请求成功，共 ' + zyt_data.total + ' 件商品，本页显示 ' + zyt_data.products.length + ' 件';
+
+        zyt_grid.innerHTML = zyt_data.products.map(function (zyt_p) {
+          return '<a class="zyt_pcard" href="17-3-detail.html?id=' + zyt_p.id + '">' +
+              '<div class="zyt_pimgWrap">' +
+                '<span class="zyt_pcat">' + zyt_p.category + '</span>' +
+                '<img class="zyt_pimg" src="' + zyt_p.thumbnail + '" alt="' + zyt_p.title + '" loading="lazy">' +
+              '</div>' +
+              '<div class="zyt_pbody">' +
+                '<p class="zyt_ptitle">' + zyt_p.title + '</p>' +
+                '<p class="zyt_pdesc">' + zyt_p.description + '</p>' +
+                '<div class="zyt_pmeta">' +
+                  '<span class="zyt_pprice">¥ ' + zyt_p.price + '</span>' +
+                  '<span class="zyt_pdel">¥ ' + Math.round(zyt_p.price / (1 - zyt_p.discountPercentage / 100)) + '</span>' +
+                  '<span class="zyt_prating">★ ' + zyt_p.rating.toFixed(1) + '</span>' +
+                '</div>' +
+              '</div>' +
+            '</a>';
+        }).join('');
+      } catch (zyt_e) {
+        zyt_status.textContent = '✘ 请求失败：' + zyt_e.message;
+        zyt_grid.innerHTML = '<div class="zyt_empty zyt_err">接口请求失败：' + zyt_e.message +
+          '<br>请检查网络后点「重新加载」</div>';
+      } finally {
+        zyt_reloadBtn.disabled = false;
+      }
+    }
+
+    zyt_reloadBtn.addEventListener('click', zyt_loadProducts);
+    zyt_loadProducts();
+  </script>
+</body>
+</html>

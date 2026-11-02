@@ -119,3 +119,11 @@
 ## 2026-10-29-16-42
 模型: GLM-5.3-Flash
 提示词: 将今天新建的页面上传到github
+
+## 2026-11-02-15-38
+模型: GLM-5.3-Flash
+提示词: 1、完成17-1.html，展示json。2、完成17-2.html 获取https://dog.ceo/api/breed/hound/images/random/3的数据并展示。接口可以跨域访问。使用fetch和原生代码实现。3、完成17-3.html 和17-3-detail.html,显示列表和列表详情，数据来源于接口，使用fetch。列表：https://dummyjson.com/products?limit=8，详情：https://dummyjson.com/products/1，根据ID获取单个商品。
+
+## 2026-11-02-15-46
+模型: GLM-5.3-Flash
+提示词: 好的，推送到 GitHub
