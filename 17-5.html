@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>17-5 JavaScript 两种定时器</title>
+  <!--
+  姓名：张语桐
+  日期：2026-11-02
+  功能名称：JavaScript 定时器展示——setTimeout 一次性定时器与 setInterval 循环定时器
+  -->
+  <style>
+    :root {
+      --zyt_red: #d53d3d;
+      --zyt_bg: #f7f3ef;
+      --zyt_line: #f0e8e2;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background-color: var(--zyt_bg);
+      color: #333;
+      line-height: 1.7;
+      padding-bottom: 40px;
+    }
+
+    .zyt_header {
+      background: linear-gradient(135deg, #fdf1e7, #fbe2dc);
+      padding: 24px 20px;
+      text-align: center;
+      border-bottom: 1px solid var(--zyt_line);
+    }
+
+    .zyt_title { font-size: 26px; font-weight: 700; color: #b83333; letter-spacing: 1px; }
+    .zyt_sub { margin-top: 6px; font-size: 14px; color: #8a5a4a; }
+
+    .zyt_main { max-width: 1080px; margin: 0 auto; padding: 18px 14px; }
+
+    .zyt_card {
+      background: #fff;
+      border: 1px solid var(--zyt_line);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 18px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    }
+
+    .zyt_head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--zyt_line);
+      margin-bottom: 14px;
+    }
+
+    .zyt_num {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #d53d3d, #b83333);
+      color: #fff;
+      font-size: 14px; font-weight: 700;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex: 0 0 auto;
+    }
+
+    .zyt_headTitle { font-size: 18px; font-weight: 700; }
+    .zyt_headSub { margin-left: auto; font-size: 12px; color: #b3aaa3; }
+
+    .zyt_code {
+      background: #282c34;
+      color: #abb2bf;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-family: "Consolas", "Monaco", monospace;
+      font-size: 12.5px;
+      line-height: 1.7;
+      overflow-x: auto;
+      white-space: pre;
+      margin-bottom: 14px;
+    }
+
+    .zyt_code .zyt_kw { color: #c678dd; }
+    .zyt_code .zyt_fn { color: #61afef; }
+    .zyt_code .zyt_str { color: #98c379; }
+    .zyt_code .zyt_cm { color: #5c6370; }
+
+    .zyt_demo {
+      display: grid;
+      grid-template-columns: minmax(200px, 260px) 1fr;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .zyt_timerBox {
+      border-radius: 14px;
+      background: #faf7f4;
+      border: 1px solid var(--zyt_line);
+      padding: 18px;
+      text-align: center;
+    }
+
+    .zyt_bigTime {
+      font-family: "Consolas", "Monaco", monospace;
+      font-size: 42px;
+      font-weight: 700;
+      color: #b83333;
+      line-height: 1.2;
+    }
+
+    .zyt_bigTime.zyt_done { color: #2f9e44; }
+    .zyt_timerTip { font-size: 12px; color: #9a908a; margin-top: 6px; }
+
+    .zyt_btnRow { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .zyt_btn {
+      height: 36px; padding: 0 18px;
+      border: none; border-radius: 8px;
+      background: linear-gradient(135deg, #d53d3d, #b83333);
+      color: #fff; font-size: 13px; font-weight: 700; font-family: inherit;
+      cursor: pointer; transition: opacity 0.2s, transform 0.12s;
+    }
+    .zyt_btn:hover { opacity: 0.92; }
+    .zyt_btn:active { transform: scale(0.97); }
+    .zyt_btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+
+    .zyt_btnGreen { background: linear-gradient(135deg, #3fa651, #2f9e44); }
+    .zyt_btnGray { background: linear-gradient(135deg, #9a908a, #7c736d); }
+
+    .zyt_log {
+      margin-top: 14px;
+      background: #282c34;
+      color: #abb2bf;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-family: "Consolas", monospace;
+      font-size: 12px;
+      line-height: 1.8;
+      max-height: 160px;
+      overflow-y: auto;
+      min-height: 64px;
+    }
+
+    .zyt_log .zyt_dim { color: #5c6370; }
+    .zyt_log .zyt_ok { color: #98c379; }
+    .zyt_log .zyt_warn { color: #e5c07b; }
+
+    .zyt_logLine { animation: zyt_fadeIn 0.25s ease both; }
+
+    /* 秒表 */
+    .zyt_stopwatch {
+      font-family: "Consolas", "Monaco", monospace;
+      font-size: 46px;
+      font-weight: 700;
+      color: #2b2b2b;
+      text-align: center;
+      letter-spacing: 2px;
+    }
+
+    .zyt_stopwatch .zyt_ms { font-size: 24px; color: #b3aaa3; }
+
+    .zyt_laps { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+
+    .zyt_lap {
+      padding: 2px 10px;
+      border-radius: 999px;
+      background: #faf7f4;
+      border: 1px solid var(--zyt_line);
+      font-size: 12px;
+      font-family: "Consolas", monospace;
+      color: #8a7c72;
+    }
+
+    .zyt_compare {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .zyt_compare th, .zyt_compare td {
+      border: 1px solid var(--zyt_line);
+      padding: 8px 12px;
+      text-align: left;
+    }
+
+    .zyt_compare th { background: #faf5f0; }
+
+    .zyt_foot { text-align: center; font-size: 12px; color: #a89f99; margin-top: 24px; }
+
+    @keyframes zyt_fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 720px) {
+      .zyt_demo { grid-template-columns: 1fr; }
+      .zyt_title { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="zyt_header">
+    <h1 class="zyt_title">⏱ JavaScript 两种定时器</h1>
+    <p class="zyt_sub">setTimeout 一次性定时器 · setInterval 循环定时器 —— 用 clearTimeout / clearInterval 停止</p>
+  </header>
+
+  <main class="zyt_main">
+
+    <!-- 一、setTimeout -->
+    <section class="zyt_card">
+      <div class="zyt_head">
+        <span class="zyt_num">1</span>
+        <h2 class="zyt_headTitle">setTimeout —— 等到时间后只执行一次</h2>
+        <span class="zyt_headSub">用 clearTimeout(id) 取消</span>
+      </div>
+      <pre class="zyt_code"><span class="zyt_cm">// 返回一个定时器编号，可传给 clearTimeout 取消</span>
+<span class="zyt_kw">const</span> zyt_timerId = <span class="zyt_fn">setTimeout</span>(() =&gt; {
+  <span class="zyt_fn">console</span>.log(<span class="zyt_str">'3 秒后我只执行这一次'</span>);
+}, <span class="zyt_str">3000</span>);
+
+<span class="zyt_cm">// clearTimeout(zyt_timerId);  ← 在 3 秒内调用则不会执行</span></pre>
+
+      <div class="zyt_demo">
+        <div class="zyt_timerBox">
+          <div class="zyt_bigTime" data-zyt-countdown>5</div>
+          <p class="zyt_timerTip">5 秒倒计时（setTimeout 链式递归）</p>
+        </div>
+        <div>
+          <div class="zyt_btnRow">
+            <button class="zyt_btn" type="button" data-zyt-cdStart>▶ 开始倒计时</button>
+            <button class="zyt_btn zyt_btnGray" type="button" data-zyt-cdCancel>✖ clearTimeout 取消</button>
+          </div>
+          <div class="zyt_log" data-zyt-cdLog><span class="zyt_dim">// 运行日志显示在这里</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 二、setInterval -->
+    <section class="zyt_card">
+      <div class="zyt_head">
+        <span class="zyt_num">2</span>
+        <h2 class="zyt_headTitle">setInterval —— 每隔一段时间反复执行</h2>
+        <span class="zyt_headSub">用 clearInterval(id) 停止</span>
+      </div>
+      <pre class="zyt_code"><span class="zyt_cm">// 每 1000 毫秒执行一次，直到 clearInterval</span>
+<span class="zyt_kw">const</span> zyt_loopId = <span class="zyt_fn">setInterval</span>(() =&gt; {
+  <span class="zyt_fn">console</span>.log(<span class="zyt_str">'这是第 n 次执行'</span>);
+}, <span class="zyt_str">1000</span>);
+
+<span class="zyt_cm">// clearInterval(zyt_loopId);  ← 停止循环</span></pre>
+
+      <div class="zyt_demo">
+        <div class="zyt_timerBox">
+          <div class="zyt_stopwatch"><span data-zyt-swMain>00:00</span><span class="zyt_ms">.<span data-zyt-swMs>0</span></span></div>
+          <p class="zyt_tip" style="font-size:12px;color:#9a908a;">秒表（setInterval 每 100ms 走一次）</p>
+        </div>
+        <div>
+          <div class="zyt_btnRow">
+            <button class="zyt_btn zyt_btnGreen" type="button" data-zyt-swStart>▶ 启动</button>
+            <button class="zyt_btn" type="button" data-zyt-swLap>⏱ 计次</button>
+            <button class="zyt_btn zyt_btnGray" type="button" data-zyt-swStop>⏹ 停止</button>
+            <button class="zyt_btn zyt_btnGray" type="button" data-zyt-swReset>↺ 归零</button>
+          </div>
+          <div class="zyt_laps" data-zyt-laps></div>
+          <div class="zyt_log" data-zyt-swLog><span class="zyt_dim">// setInterval 每 100 毫秒触发一次，停止即 clearInterval</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 三、对比表 -->
+    <section class="zyt_card">
+      <div class="zyt_head">
+        <span class="zyt_num">3</span>
+        <h2 class="zyt_headTitle">两种定时器对比</h2>
+      </div>
+      <table class="zyt_compare">
+        <tr><th>对比项</th><th>setTimeout</th><th>setInterval</th></tr>
+        <tr><td>执行次数</td><td>到时后只执行 <b>1 次</b></td><td>每隔指定毫秒<b>反复执行</b></td></tr>
+        <tr><td>取消方法</td><td>clearTimeout(id)</td><td>clearInterval(id)</td></tr>
+        <tr><td>典型用途</td><td>延迟提示、倒计时、防抖</td><td>秒表、轮播图、时钟、轮询</td></tr>
+        <tr><td>注意事项</td><td>嵌套调用可实现精确循环</td><td>页面隐藏时可能被浏览器节流</td></tr>
+      </table>
+    </section>
+
+    <p class="zyt_foot">张语桐 · 高级网页设计I · JavaScript 定时器</p>
+  </main>
+
+  <script>
+    // ---------- 日志工具 ----------
+    function zyt_log(zyt_box, zyt_text, zyt_cls) {
+      const zyt_line = document.createElement('div');
+      zyt_line.className = 'zyt_logLine' + (zyt_cls ? ' ' + zyt_cls : '');
+      const zyt_now = new Date();
+      const zyt_stamp = String(zyt_now.getMinutes()).padStart(2, '0') + ':' +
+        String(zyt_now.getSeconds()).padStart(2, '0') + '.' +
+        String(zyt_now.getMilliseconds()).padStart(3, '0');
+      zyt_line.textContent = '[' + zyt_stamp + '] ' + zyt_text;
+      zyt_box.appendChild(zyt_line);
+      zyt_box.scrollTop = zyt_box.scrollHeight;
+    }
+
+    // ================= 一、setTimeout 倒计时 =================
+    const zyt_cdNum = document.querySelector('[data-zyt-countdown]');
+    const zyt_cdLog = document.querySelector('[data-zyt-cdLog]');
+    const zyt_cdStartBtn = document.querySelector('[data-zyt-cdStart]');
+    const zyt_cdCancelBtn = document.querySelector('[data-zyt-cdCancel]');
+
+    let zyt_cdTimerId = null;   // setTimeout 编号
+    let zyt_cdLeft = 5;         // 剩余秒数
+
+    function zyt_cdTick() {
+      zyt_cdNum.textContent = zyt_cdLeft;
+      zyt_cdNum.className = 'zyt_bigTime';
+      if (zyt_cdLeft > 0) {
+        zyt_log(zyt_cdLog, 'setTimeout 启动，还剩 ' + zyt_cdLeft + ' 秒', 'zyt_dim');
+        // 每次都用 setTimeout 再排下一次 → 倒计时
+        zyt_cdTimerId = setTimeout(function () {
+          zyt_cdLeft--;
+          zyt_cdTick();
+        }, 1000);
+      } else {
+        zyt_cdNum.textContent = '🎉 到点啦！';
+        zyt_cdNum.className = 'zyt_bigTime zyt_done';
+        zyt_log(zyt_cdLog, 'setTimeout 回调执行完毕（只执行一次）', 'zyt_ok');
+        zyt_cdStartBtn.disabled = false;
+        zyt_cdCancelBtn.disabled = true;
+        zyt_cdLeft = 5;
+      }
+    }
+
+    zyt_cdStartBtn.addEventListener('click', function () {
+      if (zyt_cdTimerId !== null) return; // 防止重复启动
+      zyt_cdLeft = 5;
+      zyt_cdStartBtn.disabled = true;
+      zyt_cdCancelBtn.disabled = false;
+      zyt_log(zyt_cdLog, '▶ 开始倒计时', 'zyt_warn');
+      zyt_cdTick();
+    });
+
+    zyt_cdCancelBtn.addEventListener('click', function () {
+      if (zyt_cdTimerId !== null) {
+        clearTimeout(zyt_cdTimerId);   // 取消未执行的 setTimeout
+        zyt_cdTimerId = null;
+      }
+      zyt_cdNum.textContent = '已取消';
+      zyt_cdNum.className = 'zyt_bigTime';
+      zyt_log(zyt_cdLog, '✖ clearTimeout 已取消，回调将不再执行', 'zyt_warn');
+      zyt_cdStartBtn.disabled = false;
+      zyt_cdCancelBtn.disabled = true;
+      zyt_cdLeft = 5;
+    });
+
+    // ================= 二、setInterval 秒表 =================
+    const zyt_swMain = document.querySelector('[data-zyt-swMain]');
+    const zyt_swMs = document.querySelector('[data-zyt-swMs]');
+    const zyt_swLog = document.querySelector('[data-zyt-swLog]');
+    const zyt_lapsBox = document.querySelector('[data-zyt-laps]');
+    const zyt_swStartBtn = document.querySelector('[data-zyt-swStart]');
+    const zyt_swStopBtn = document.querySelector('[data-zyt-swStop]');
+
+    let zyt_swTimerId = null;   // setInterval 编号
+    let zyt_swMsCount = 0;      // 累计百分秒
+
+    function zyt_swRender() {
+      const zyt_totalCs = zyt_swMsCount; // 1 单位 = 100ms
+      const zyt_sec = Math.floor(zyt_totalCs / 10) % 60;
+      const zyt_min = Math.floor(zyt_totalCs / 600);
+      zyt_swMain.textContent =
+        String(zyt_min).padStart(2, '0') + ':' + String(zyt_sec).padStart(2, '0');
+      zyt_swMs.textContent = Math.floor((zyt_totalCs % 10));
+    }
+
+    zyt_swStartBtn.addEventListener('click', function () {
+      if (zyt_swTimerId !== null) return; // 已在运行
+      zyt_log(zyt_swLog, '▶ setInterval 启动，每 100ms 触发一次', 'zyt_warn');
+      zyt_swTimerId = setInterval(function () {
+        zyt_swMsCount++;
+        zyt_swRender();
+      }, 100);
+      zyt_swStartBtn.disabled = true;
+      zyt_swStopBtn.disabled = false;
+    });
+
+    zyt_swStopBtn.addEventListener('click', function () {
+      if (zyt_swTimerId === null) return;
+      clearInterval(zyt_swTimerId);   // 停止循环
+      zyt_swTimerId = null;
+      zyt_log(zyt_swLog, '⏹ clearInterval 已停止', 'zyt_ok');
+      zyt_swStartBtn.disabled = false;
+      zyt_swStopBtn.disabled = true;
+    });
+
+    document.querySelector('[data-zyt-swLap]').addEventListener('click', function () {
+      const zyt_sec = Math.floor(zyt_swMsCount / 10) % 60;
+      const zyt_min = Math.floor(zyt_swMsCount / 600);
+      const zyt_lapText = '计次 ' + (zyt_lapsBox.children.length + 1) + '：' +
+        String(zyt_min).padStart(2, '0') + ':' + String(zyt_sec).padStart(2, '0') + '.' +
+        (zyt_swMsCount % 10);
+      const zyt_lap = document.createElement('span');
+      zyt_lap.className = 'zyt_lap';
+      zyt_lap.textContent = zyt_lapText;
+      zyt_lapsBox.appendChild(zyt_lap);
+    });
+
+    document.querySelector('[data-zyt-swReset]').addEventListener('click', function () {
+      if (zyt_swTimerId !== null) {
+        clearInterval(zyt_swTimerId);
+        zyt_swTimerId = null;
+      }
+      zyt_swMsCount = 0;
+      zyt_swRender();
+      zyt_lapsBox.innerHTML = '';
+      zyt_swStartBtn.disabled = false;
+      zyt_swStopBtn.disabled = true;
+      zyt_log(zyt_swLog, '↺ 秒表已归零', 'zyt_dim');
+    });
+
+    zyt_swRender();
+  </script>
+</body>
+</html>

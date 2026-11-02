@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>17-4 接口测试工具</title>
+  <!--
+  姓名：张语桐
+  日期：2026-11-02
+  功能名称：远程数据接口测试工具——支持 GET/POST/PUT/PATCH/DELETE，展示响应数据与错误提示
+  -->
+  <style>
+    :root {
+      --zyt_red: #d53d3d;
+      --zyt_bg: #f7f3ef;
+      --zyt_line: #f0e8e2;
+      --zyt_code_bg: #282c34;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background-color: var(--zyt_bg);
+      color: #333;
+      line-height: 1.7;
+      padding-bottom: 40px;
+    }
+
+    .zyt_header {
+      background: linear-gradient(135deg, #fdf1e7, #fbe2dc);
+      padding: 24px 20px;
+      text-align: center;
+      border-bottom: 1px solid var(--zyt_line);
+    }
+
+    .zyt_title { font-size: 26px; font-weight: 700; color: #b83333; letter-spacing: 1px; }
+    .zyt_sub { margin-top: 6px; font-size: 14px; color: #8a5a4a; }
+
+    .zyt_main { max-width: 980px; margin: 0 auto; padding: 18px 14px; }
+
+    .zyt_card {
+      background: #fff;
+      border: 1px solid var(--zyt_line);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 18px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    }
+
+    /* ---------- 请求构造区 ---------- */
+    .zyt_reqRow {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .zyt_method {
+      flex: 0 0 120px;
+      height: 40px;
+      border: 1px solid #e2d6cb;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: "Consolas", monospace;
+      color: #b83333;
+      background: #fff8f0;
+      padding: 0 10px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .zyt_url {
+      flex: 1 1 320px;
+      height: 40px;
+      border: 1px solid #e2d6cb;
+      border-radius: 8px;
+      padding: 0 12px;
+      font-family: "Consolas", monospace;
+      font-size: 13px;
+      color: #333;
+      outline: none;
+    }
+
+    .zyt_url:focus, .zyt_method:focus, .zyt_body:focus {
+      border-color: var(--zyt_red);
+      box-shadow: 0 0 0 3px rgba(213,61,61,0.1);
+    }
+
+    .zyt_body {
+      width: 100%;
+      min-height: 110px;
+      border: 1px solid #e2d6cb;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-family: "Consolas", monospace;
+      font-size: 12.5px;
+      line-height: 1.7;
+      color: #333;
+      outline: none;
+      resize: vertical;
+      margin-bottom: 10px;
+    }
+
+    .zyt_body[disabled] { background: #f6f2ee; color: #b3aaa3; cursor: not-allowed; }
+
+    .zyt_bodyLabel { font-size: 12px; color: #9a908a; margin-bottom: 6px; }
+
+    .zyt_btn {
+      height: 40px; padding: 0 26px;
+      border: none; border-radius: 8px;
+      background: linear-gradient(135deg, #d53d3d, #b83333);
+      color: #fff; font-size: 14px; font-weight: 700; font-family: inherit;
+      cursor: pointer; transition: opacity 0.2s, transform 0.12s;
+    }
+    .zyt_btn:hover { opacity: 0.92; }
+    .zyt_btn:active { transform: scale(0.97); }
+    .zyt_btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+
+    .zyt_exampleRow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+    .zyt_exBtn {
+      height: 30px; padding: 0 12px;
+      border: 1px solid #e2d6cb; border-radius: 999px;
+      background: #fff; color: #8a7c72;
+      font-size: 12px; font-family: inherit; cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .zyt_exBtn:hover { border-color: var(--zyt_red); color: var(--zyt_red); }
+
+    /* ---------- 响应区 ---------- */
+    .zyt_respMeta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      min-height: 32px;
+    }
+
+    .zyt_statusPill {
+      display: none;
+      padding: 2px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: "Consolas", monospace;
+    }
+
+    .zyt_statusPill.zyt_show { display: inline-block; }
+    .zyt_statusPill.zyt_ok { background: #eaf7ec; color: #2f9e44; border: 1px solid #bfe3c6; }
+    .zyt_statusPill.zyt_bad { background: #fdeef0; color: #b83333; border: 1px solid #e7b2b2; }
+
+    .zyt_timeCost, .zyt_sizeInfo {
+      display: none;
+      font-size: 12.5px;
+      color: #8a7c72;
+      font-family: "Consolas", monospace;
+    }
+    .zyt_timeCost.zyt_show, .zyt_sizeInfo.zyt_show { display: inline; }
+
+    .zyt_respBox {
+      background: var(--zyt_code_bg);
+      color: #abb2bf;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-family: "Consolas", "Monaco", monospace;
+      font-size: 12.5px;
+      line-height: 1.75;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 380px;
+      overflow-y: auto;
+      min-height: 120px;
+    }
+
+    .zyt_respBox .zyt_errLine { color: #e06c75; }
+    .zyt_respBox .zyt_okLine { color: #98c379; }
+    .zyt_respBox .zyt_dim { color: #5c6370; }
+
+    .zyt_respBox .zyt_key { color: #e06c75; }
+    .zyt_respBox .zyt_str { color: #98c379; }
+    .zyt_respBox .zyt_numLit { color: #d19a66; }
+    .zyt_respBox .zyt_bool { color: #61afef; }
+    .zyt_respBox .zyt_null { color: #c678dd; }
+
+    .zyt_foot { text-align: center; font-size: 12px; color: #a89f99; margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+  <header class="zyt_header">
+    <h1 class="zyt_title">🧪 远程接口测试工具</h1>
+    <p class="zyt_sub">原生 fetch 实现 · 支持 GET / POST / PUT / PATCH / DELETE · 显示响应数据与错误提示</p>
+  </header>
+
+  <main class="zyt_main">
+
+    <!-- 请求构造 -->
+    <section class="zyt_card">
+      <div class="zyt_reqRow">
+        <select class="zyt_method" data-zyt-method>
+          <option value="GET">GET</option>
+          <option value="POST">POST</option>
+          <option value="PUT">PUT</option>
+          <option value="PATCH">PATCH</option>
+          <option value="DELETE">DELETE</option>
+        </select>
+        <input class="zyt_url" type="text" data-zyt-url spellcheck="false"
+               value="https://jsonplaceholder.typicode.com/posts">
+        <button class="zyt_btn" type="button" data-zyt-send>发送请求</button>
+      </div>
+
+      <div class="zyt_bodyLabel">请求体 body（POST / PUT / PATCH 时生效，须为合法 JSON）</div>
+      <textarea class="zyt_body" data-zyt-body spellcheck="false" disabled></textarea>
+
+      <div class="zyt_exampleRow">
+        <span style="font-size:12px;color:#b3aaa3;align-self:center;">快速示例：</span>
+        <button class="zyt_exBtn" type="button" data-zyt-ex="get">GET 文章列表</button>
+        <button class="zyt_exBtn" type="button" data-zyt-ex="getOne">GET 单篇文章 (id=1)</button>
+        <button class="zyt_exBtn" type="button" data-zyt-ex="post">POST 新建文章</button>
+        <button class="zyt_exBtn" type="button" data-zyt-ex="put">PUT 整体更新</button>
+        <button class="zyt_exBtn" type="button" data-zyt-ex="patch">PATCH 局部更新</button>
+        <button class="zyt_exBtn" type="button" data-zyt-ex="delete">DELETE 删除</button>
+        <button class="zyt_exBtn" type="button" data-zyt-ex="bad">错误演示（404）</button>
+      </div>
+    </section>
+
+    <!-- 响应展示 -->
+    <section class="zyt_card">
+      <div class="zyt_respMeta">
+        <span class="zyt_statusPill" data-zyt-pill></span>
+        <span class="zyt_timeCost" data-zyt-time></span>
+        <span class="zyt_sizeInfo" data-zyt-size></span>
+      </div>
+      <div class="zyt_respBox" data-zyt-resp><span class="zyt_dim">// 响应结果会显示在这里，先填好请求再点「发送请求」</span></div>
+    </section>
+
+    <p class="zyt_foot">张语桐 · 高级网页设计I · fetch 接口测试（示例接口 jsonplaceholder.typicode.com）</p>
+  </main>
+
+  <script>
+    // ---------- 元素 ----------
+    const zyt_methodEl = document.querySelector('[data-zyt-method]');
+    const zyt_urlEl = document.querySelector('[data-zyt-url]');
+    const zyt_bodyEl = document.querySelector('[data-zyt-body]');
+    const zyt_sendBtn = document.querySelector('[data-zyt-send]');
+    const zyt_pill = document.querySelector('[data-zyt-pill]');
+    const zyt_timeEl = document.querySelector('[data-zyt-time]');
+    const zyt_sizeEl = document.querySelector('[data-zyt-size]');
+    const zyt_resp = document.querySelector('[data-zyt-resp]');
+
+    // 有请求体的方法集合
+    const zyt_bodyMethods = ['POST', 'PUT', 'PATCH'];
+
+    // ---------- body 输入框随方法切换启用/禁用 ----------
+    zyt_methodEl.addEventListener('change', function () {
+      const zyt_m = zyt_methodEl.value;
+      zyt_bodyEl.disabled = !zyt_bodyMethods.includes(zyt_m);
+      if (zyt_bodyMethods.includes(zyt_m) && !zyt_bodyEl.value.trim()) {
+        zyt_bodyEl.value = '{\n  "title": "张语桐的测试文章",\n  "body": "这是用 fetch 发出的内容",\n  "userId": 830\n}';
+      }
+    });
+
+    // ---------- JSON 高亮 ----------
+    function zyt_escape(zyt_t) {
+      return String(zyt_t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function zyt_highlight(zyt_text) {
+      let zyt_s = zyt_escape(zyt_text);
+      zyt_s = zyt_s.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false)\b|\bnull\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/g, function (zyt_m) {
+        let zyt_cls = 'zyt_numLit';
+        if (/^"/.test(zyt_m)) {
+          zyt_cls = /:$/.test(zyt_m) ? 'zyt_key' : 'zyt_str';
+        } else if (/^(true|false)$/.test(zyt_m)) {
+          zyt_cls = 'zyt_bool';
+        } else if (zyt_m === 'null') {
+          zyt_cls = 'zyt_null';
+        }
+        return '<span class="' + zyt_cls + '">' + zyt_m + '</span>';
+      });
+      return zyt_s;
+    }
+
+    // ---------- 发送请求 ----------
+    async function zyt_send() {
+      const zyt_method = zyt_methodEl.value;
+      const zyt_url = zyt_urlEl.value.trim();
+
+      // 前置校验
+      if (!zyt_url) {
+        zyt_showError('✘ 请先填写接口 URL');
+        return;
+      }
+      if (!/^https?:\/\//.test(zyt_url)) {
+        zyt_showError('✘ URL 必须以 http:// 或 https:// 开头');
+        return;
+      }
+
+      const zyt_opts = { method: zyt_method, headers: {} };
+      if (zyt_bodyMethods.includes(zyt_method)) {
+        const zyt_raw = zyt_bodyEl.value.trim();
+        if (zyt_raw) {
+          try {
+            JSON.parse(zyt_raw); // 先校验合法性
+          } catch (zyt_e) {
+            zyt_showError('✘ 请求体不是合法 JSON：' + zyt_e.message);
+            return;
+          }
+          zyt_opts.headers = { 'Content-Type': 'application/json; charset=UTF-8' };
+          zyt_opts.body = zyt_raw;
+        }
+      }
+
+      zyt_sendBtn.disabled = true;
+      zyt_pill.className = 'zyt_statusPill zyt_show zyt_ok';
+      zyt_pill.textContent = '请求中…';
+      zyt_timeEl.className = 'zyt_timeCost zyt_show';
+      zyt_timeEl.textContent = '⏳ 计时开始';
+      zyt_sizeEl.className = 'zyt_sizeInfo';
+      zyt_resp.innerHTML = '<span class="zyt_dim">// 正在请求 ' + zyt_escape(zyt_url) + ' ……</span>';
+
+      const zyt_start = performance.now();
+
+      try {
+        const zyt_res = await fetch(zyt_url, zyt_opts);
+        const zyt_cost = Math.round(performance.now() - zyt_start);
+        const zyt_text = await zyt_res.text();
+
+        // 状态徽标
+        const zyt_ok = zyt_res.ok;
+        zyt_pill.className = 'zyt_statusPill zyt_show ' + (zyt_ok ? 'zyt_ok' : 'zyt_bad');
+        zyt_pill.textContent = 'HTTP ' + zyt_res.status + ' ' + zyt_res.statusText;
+        zyt_timeEl.textContent = '耗时 ' + zyt_cost + ' ms';
+        zyt_sizeEl.className = 'zyt_sizeInfo zyt_show';
+        zyt_sizeEl.textContent = '响应大小 ' + (new Blob([zyt_text]).size / 1024).toFixed(2) + ' KB';
+
+        // 尝试按 JSON 解析展示
+        let zyt_out;
+        try {
+          zyt_out = zyt_highlight(JSON.stringify(JSON.parse(zyt_text), null, 2));
+        } catch (zyt_e) {
+          zyt_out = zyt_escape(zyt_text || '（空响应体）');
+        }
+
+        zyt_resp.innerHTML =
+          '<span class="' + (zyt_ok ? 'zyt_okLine' : 'zyt_errLine') + '">//' +
+          (zyt_ok ? '请求成功' : '请求完成，但状态码表示失败') + '</span>\n' + zyt_out;
+      } catch (zyt_e) {
+        // 网络层错误：断网、DNS 失败、CORS 拦截等
+        const zyt_cost = Math.round(performance.now() - zyt_start);
+        zyt_pill.className = 'zyt_statusPill zyt_show zyt_bad';
+        zyt_pill.textContent = '请求失败';
+        zyt_timeEl.textContent = '耗时 ' + zyt_cost + ' ms';
+        zyt_sizeEl.className = 'zyt_sizeInfo';
+        zyt_resp.innerHTML =
+          '<span class="zyt_errLine">✘ 网络请求错误：</span>\n' +
+          zyt_escape(zyt_e.name + ': ' + zyt_e.message) +
+          '\n<span class="zyt_dim">// 常见原因：断网、域名写错、接口不支持跨域(CORS)、URL 协议错误</span>';
+      } finally {
+        zyt_sendBtn.disabled = false;
+      }
+    }
+
+    function zyt_showError(zyt_msg) {
+      zyt_pill.className = 'zyt_statusPill zyt_show zyt_bad';
+      zyt_pill.textContent = '参数错误';
+      zyt_timeEl.className = 'zyt_timeCost';
+      zyt_sizeEl.className = 'zyt_sizeInfo';
+      zyt_resp.innerHTML = '<span class="zyt_errLine">' + zyt_escape(zyt_msg) + '</span>';
+    }
+
+    zyt_sendBtn.addEventListener('click', zyt_send);
+
+    // ---------- 快速示例 ----------
+    const zyt_examples = {
+      get: { zyt_m: 'GET', zyt_u: 'https://jsonplaceholder.typicode.com/posts', zyt_b: '' },
+      getOne: { zyt_m: 'GET', zyt_u: 'https://jsonplaceholder.typicode.com/posts/1', zyt_b: '' },
+      post: {
+        zyt_m: 'POST',
+        zyt_u: 'https://jsonplaceholder.typicode.com/posts',
+        zyt_b: '{\n  "title": "张语桐的测试文章",\n  "body": "这是用 fetch 发出的内容",\n  "userId": 830\n}'
+      },
+      put: {
+        zyt_m: 'PUT',
+        zyt_u: 'https://jsonplaceholder.typicode.com/posts/1',
+        zyt_b: '{\n  "id": 1,\n  "title": "整体更新后的标题",\n  "body": "PUT 会整体替换资源",\n  "userId": 830\n}'
+      },
+      patch: {
+        zyt_m: 'PATCH',
+        zyt_u: 'https://jsonplaceholder.typicode.com/posts/1',
+        zyt_b: '{\n  "title": "只改标题（PATCH 局部更新）"\n}'
+      },
+      delete: { zyt_m: 'DELETE', zyt_u: 'https://jsonplaceholder.typicode.com/posts/1', zyt_b: '' },
+      bad: { zyt_m: 'GET', zyt_u: 'https://jsonplaceholder.typicode.com/不存在的路径999', zyt_b: '' }
+    };
+
+    document.querySelectorAll('[data-zyt-ex]').forEach(function (zyt_btn) {
+      zyt_btn.addEventListener('click', function () {
+        const zyt_ex = zyt_examples[zyt_btn.getAttribute('data-zyt-ex')];
+        if (!zyt_ex) return;
+        zyt_methodEl.value = zyt_ex.zyt_m;
+        zyt_methodEl.dispatchEvent(new Event('change'));
+        zyt_urlEl.value = zyt_ex.zyt_u;
+        zyt_bodyEl.value = zyt_ex.zyt_b;
+        zyt_send();
+      });
+    });
+  </script>
+</body>
+</html>

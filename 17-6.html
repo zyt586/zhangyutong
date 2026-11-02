@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>17-6 Promise 异步包饺子</title>
+  <!--
+  姓名：张语桐
+  日期：2026-11-02
+  功能名称：Promise 与 async/await 异步流程演示——包饺子（Promise.race 买原料 / Promise.all 和面和馅 / setTimeout 模拟耗时）
+  -->
+  <style>
+    :root {
+      --zyt_red: #d53d3d;
+      --zyt_bg: #f7f3ef;
+      --zyt_line: #f0e8e2;
+      --zyt_blue: #2d6bb8;
+      --zyt_green: #2f9e44;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background-color: var(--zyt_bg);
+      color: #333;
+      line-height: 1.7;
+      padding-bottom: 40px;
+    }
+
+    .zyt_header {
+      background: linear-gradient(135deg, #fdf1e7, #fbe2dc);
+      padding: 24px 20px;
+      text-align: center;
+      border-bottom: 1px solid var(--zyt_line);
+    }
+
+    .zyt_title { font-size: 26px; font-weight: 700; color: #b83333; letter-spacing: 1px; }
+    .zyt_sub { margin-top: 6px; font-size: 14px; color: #8a5a4a; }
+
+    .zyt_main { max-width: 1080px; margin: 0 auto; padding: 18px 14px; }
+
+    .zyt_card {
+      background: #fff;
+      border: 1px solid var(--zyt_line);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 18px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    }
+
+    .zyt_btnRow { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px; }
+
+    .zyt_btn {
+      height: 40px; padding: 0 24px;
+      border: none; border-radius: 8px;
+      background: linear-gradient(135deg, #d53d3d, #b83333);
+      color: #fff; font-size: 14px; font-weight: 700; font-family: inherit;
+      cursor: pointer; transition: opacity 0.2s, transform 0.12s;
+    }
+    .zyt_btn:hover { opacity: 0.92; }
+    .zyt_btn:active { transform: scale(0.97); }
+    .zyt_btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+
+    .zyt_btnGray { background: linear-gradient(135deg, #9a908a, #7c736d); }
+
+    .zyt_totalInfo { font-size: 13px; color: #8a7c72; font-family: "Consolas", monospace; }
+
+    /* ---------- 流程图 ---------- */
+    .zyt_flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: stretch;
+      margin-bottom: 6px;
+    }
+
+    .zyt_step {
+      flex: 1 1 120px;
+      min-width: 130px;
+      border: 2px solid #e2d6cb;
+      border-radius: 12px;
+      background: #faf7f4;
+      padding: 12px 10px;
+      text-align: center;
+      position: relative;
+      transition: border-color 0.3s, background 0.3s, transform 0.3s;
+    }
+
+    .zyt_step.zyt_running {
+      border-color: var(--zyt_blue);
+      background: #f2f8ff;
+      transform: translateY(-4px);
+      box-shadow: 0 8px 18px rgba(45,107,184,0.15);
+    }
+
+    .zyt_step.zyt_done {
+      border-color: var(--zyt_green);
+      background: #f2fbf4;
+    }
+
+    .zyt_step.zyt_cancel {
+      border-color: #d9b2b2;
+      background: #fbf3f3;
+    }
+
+    .zyt_stepIcon { font-size: 26px; line-height: 1.3; }
+    .zyt_stepName { font-size: 14px; font-weight: 700; margin-top: 4px; }
+    .zyt_stepTime { font-size: 11px; color: #b3aaa3; font-family: "Consolas", monospace; }
+
+    .zyt_stepState {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 0 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #efe9e3;
+      color: #9a908a;
+    }
+
+    .zyt_running .zyt_stepState { background: #dcebfb; color: var(--zyt_blue); }
+    .zyt_done .zyt_stepState { background: #d9f2de; color: var(--zyt_green); }
+    .zyt_cancel .zyt_stepState { background: #f3dcdc; color: #b85c5c; }
+
+    .zyt_bar {
+      height: 6px;
+      border-radius: 999px;
+      background: #e8e0d8;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+
+    .zyt_barFill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #6db1e8, var(--zyt_blue));
+      transition: width 0.15s linear;
+    }
+
+    .zyt_done .zyt_barFill { background: linear-gradient(90deg, #7cba3d, var(--zyt_green)); }
+
+    .zyt_arrow {
+      align-self: center;
+      font-size: 18px;
+      color: #c9bfb6;
+      font-weight: 700;
+      flex: 0 0 auto;
+    }
+
+    .zyt_branchNote {
+      font-size: 11px;
+      color: #b85c5c;
+      margin-top: 4px;
+      display: none;
+    }
+
+    .zyt_cancel .zyt_branchNote { display: block; }
+
+    .zyt_groupTag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      border-radius: 4px;
+      padding: 0 6px;
+      margin-bottom: 4px;
+    }
+
+    .zyt_tagRace { background: #e8a33d; }
+    .zyt_tagAll { background: var(--zyt_blue); }
+
+    /* ---------- 代码与日志 ---------- */
+    .zyt_twoCol {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .zyt_code {
+      background: #282c34;
+      color: #abb2bf;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-family: "Consolas", "Monaco", monospace;
+      font-size: 12px;
+      line-height: 1.75;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .zyt_code .zyt_kw { color: #c678dd; }
+    .zyt_code .zyt_fn { color: #61afef; }
+    .zyt_code .zyt_str { color: #98c379; }
+    .zyt_code .zyt_cm { color: #5c6370; }
+
+    .zyt_log {
+      background: #282c34;
+      color: #abb2bf;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-family: "Consolas", monospace;
+      font-size: 12px;
+      line-height: 1.8;
+      max-height: 420px;
+      overflow-y: auto;
+      min-height: 240px;
+    }
+
+    .zyt_log .zyt_dim { color: #5c6370; }
+    .zyt_log .zyt_ok { color: #98c379; }
+    .zyt_log .zyt_warn { color: #e5c07b; }
+    .zyt_log .zyt_info { color: #61afef; }
+    .zyt_logLine { animation: zyt_fadeIn 0.25s ease both; }
+
+    .zyt_foot { text-align: center; font-size: 12px; color: #a89f99; margin-top: 24px; }
+
+    @keyframes zyt_fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 760px) {
+      .zyt_twoCol { grid-template-columns: 1fr; }
+      .zyt_title { font-size: 22px; }
+      .zyt_step { min-width: 100px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="zyt_header">
+    <h1 class="zyt_title">🥟 Promise 异步包饺子</h1>
+    <p class="zyt_sub">Promise.race（买原料：线上线下任一完成）→ 取原料 → Promise.all（和面 + 和馅）→ 包饺子 → 煮饺子 → 吃饺子</p>
+  </header>
+
+  <main class="zyt_main">
+
+    <!-- 控制与流程图 -->
+    <section class="zyt_card">
+      <div class="zyt_btnRow">
+        <button class="zyt_btn" type="button" data-zyt-start>🥟 开始包饺子</button>
+        <button class="zyt_btn zyt_btnGray" type="button" data-zyt-reset>↺ 重置</button>
+        <span class="zyt_totalInfo" data-zyt-total>总耗时：--</span>
+      </div>
+
+      <div class="zyt_flow">
+        <div class="zyt_step" data-zyt-step="buyOnline">
+          <div class="zyt_groupTag zyt_tagRace">race</div>
+          <div class="zyt_stepIcon">📱</div>
+          <div class="zyt_stepName">线上买原料</div>
+          <div class="zyt_stepTime">6s</div>
+          <div class="zyt_stepState">待开始</div>
+          <div class="zyt_bar"><div class="zyt_barFill"></div></div>
+          <div class="zyt_branchNote">对方先到，本路被取消</div>
+        </div>
+
+        <div class="zyt_step" data-zyt-step="buyOffline">
+          <div class="zyt_groupTag zyt_tagRace">race</div>
+          <div class="zyt_stepIcon">🏪</div>
+          <div class="zyt_stepName">线下买原料</div>
+          <div class="zyt_stepTime">4s</div>
+          <div class="zyt_stepState">待开始</div>
+          <div class="zyt_bar"><div class="zyt_barFill"></div></div>
+          <div class="zyt_branchNote">对方先到，本路被取消</div>
+        </div>
+
+        <div class="zyt_arrow">➜</div>
+
+        <div class="zyt_step" data-zyt-step="fetch">
+          <div class="zyt_stepIcon">📦</div>
+          <div class="zyt_stepName">取原料</div>
+          <div class="zyt_stepTime">2s</div>
+          <div class="zyt_stepState">待开始</div>
+          <div class="zyt_bar"><div class="zyt_barFill"></div></div>
+        </div>
+
+        <div class="zyt_arrow">➜</div>
+
+        <div class="zyt_step" data-zyt-step="dough">
+          <div class="zyt_groupTag zyt_tagAll">all</div>
+          <div class="zyt_stepIcon">🌾</div>
+          <div class="zyt_stepName">和面</div>
+          <div class="zyt_stepTime">5s</div>
+          <div class="zyt_stepState">待开始</div>
+          <div class="zyt_bar"><div class="zyt_barFill"></div></div>
+        </div>
+
+        <div class="zyt_step" data-zyt-step="filling">
+          <div class="zyt_groupTag zyt_tagAll">all</div>
+          <div class="zyt_stepIcon">🥬</div>
+          <div class="zyt_stepName">和馅</div>
+          <div class="zyt_stepTime">3s</div>
+          <div class="zyt_stepState">待开始</div>
+          <div class="zyt_bar"><div class="zyt_barFill"></div></div>
+        </div>
+
+        <div class="zyt_arrow">➜</div>
+
+        <div class="zyt_step" data-zyt-step="wrap">
+          <div class="zyt_stepIcon">🥟</div>
+          <div class="zyt_stepName">包饺子</div>
+          <div class="zyt_stepTime">4s</div>
+          <div class="zyt_stepState">待开始</div>
+          <div class="zyt_bar"><div class="zyt_barFill"></div></div>
+        </div>
+
+        <div class="zyt_arrow">➜</div>
+
+        <div class="zyt_step" data-zyt-step="boil">
+          <div class="zyt_stepIcon">🍲</div>
+          <div class="zyt_stepName">煮饺子</div>
+          <div class="zyt_stepTime">5s</div>
+          <div class="zyt_stepState">待开始</div>
+          <div class="zyt_bar"><div class="zyt_barFill"></div></div>
+        </div>
+
+        <div class="zyt_arrow">➜</div>
+
+        <div class="zyt_step" data-zyt-step="eat">
+          <div class="zyt_stepIcon">😋</div>
+          <div class="zyt_stepName">吃饺子</div>
+          <div class="zyt_stepTime">1s</div>
+          <div class="zyt_stepState">待开始</div>
+          <div class="zyt_bar"><div class="zyt_barFill"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 代码与日志 -->
+    <section class="zyt_card">
+      <div class="zyt_twoCol">
+        <pre class="zyt_code"><span class="zyt_cm">// 用 setTimeout 把每一步包装成 Promise</span>
+<span class="zyt_kw">function</span> <span class="zyt_fn">zyt_doStep</span>(zyt_name, zyt_ms) {
+  <span class="zyt_kw">return new</span> <span class="zyt_fn">Promise</span>(zyt_resolve =&gt; {
+    <span class="zyt_fn">setTimeout</span>(() =&gt; zyt_resolve(zyt_name), zyt_ms);
+  });
+}
+
+<span class="zyt_kw">async function</span> <span class="zyt_fn">zyt_makeDumplings</span>() {
+  <span class="zyt_cm">// ① 买原料：线上线下同时买，任一完成即可</span>
+  <span class="zyt_kw">await</span> <span class="zyt_fn">Promise.race</span>([
+    zyt_doStep(<span class="zyt_str">'线上买原料'</span>, 6000),
+    zyt_doStep(<span class="zyt_str">'线下买原料'</span>, 4000)
+  ]);
+
+  <span class="zyt_cm">// ② 取原料</span>
+  <span class="zyt_kw">await</span> zyt_doStep(<span class="zyt_str">'取原料'</span>, 2000);
+
+  <span class="zyt_cm">// ③ 和面、和馅同时进行，都完成才继续</span>
+  <span class="zyt_kw">await</span> <span class="zyt_fn">Promise.all</span>([
+    zyt_doStep(<span class="zyt_str">'和面'</span>, 5000),
+    zyt_doStep(<span class="zyt_str">'和馅'</span>, 3000)
+  ]);
+
+  <span class="zyt_cm">// ④⑤⑥ 依次串行</span>
+  <span class="zyt_kw">await</span> zyt_doStep(<span class="zyt_str">'包饺子'</span>, 4000);
+  <span class="zyt_kw">await</span> zyt_doStep(<span class="zyt_str">'煮饺子'</span>, 5000);
+  <span class="zyt_kw">await</span> zyt_doStep(<span class="zyt_str">'吃饺子'</span>, 1000);
+}</pre>
+
+        <div class="zyt_log" data-zyt-log><span class="zyt_dim">// 流程日志：点「开始包饺子」查看每一步的触发与完成时间</span></div>
+      </div>
+    </section>
+
+    <p class="zyt_foot">张语桐 · 高级网页设计I · Promise 与 async/await 异步流程</p>
+  </main>
+
+  <script>
+    // ---------- 元素 ----------
+    const zyt_logBox = document.querySelector('[data-zyt-log]');
+    const zyt_totalEl = document.querySelector('[data-zyt-total]');
+    const zyt_startBtn = document.querySelector('[data-zyt-start]');
+
+    function zyt_getStep(zyt_key) {
+      return document.querySelector('[data-zyt-step="' + zyt_key + '"]');
+    }
+
+    function zyt_log(zyt_text, zyt_cls) {
+      const zyt_line = document.createElement('div');
+      zyt_line.className = 'zyt_logLine' + (zyt_cls ? ' ' + zyt_cls : '');
+      const zyt_now = new Date();
+      const zyt_stamp = String(zyt_now.getMinutes()).padStart(2, '0') + ':' +
+        String(zyt_now.getSeconds()).padStart(2, '0') + '.' +
+        String(zyt_now.getMilliseconds()).padStart(3, '0');
+      zyt_line.textContent = '[' + zyt_stamp + '] ' + zyt_text;
+      zyt_logBox.appendChild(zyt_line);
+      zyt_logBox.scrollTop = zyt_logBox.scrollHeight;
+    }
+
+    // ---------- 核心：把耗时操作包装成 Promise，并同步驱动进度条 ----------
+    function zyt_doStep(zyt_key, zyt_ms) {
+      return new Promise(function (zyt_resolve) {
+        const zyt_el = zyt_getStep(zyt_key);
+        const zyt_state = zyt_el.querySelector('.zyt_stepState');
+        const zyt_fill = zyt_el.querySelector('.zyt_barFill');
+
+        zyt_el.classList.remove('zyt_done', 'zyt_cancel');
+        zyt_el.classList.add('zyt_running');
+        zyt_state.textContent = '进行中…';
+
+        const zyt_start = performance.now();
+        const zyt_ticker = setInterval(function () {
+          const zyt_pct = Math.min(((performance.now() - zyt_start) / zyt_ms) * 100, 100);
+          zyt_fill.style.width = zyt_pct + '%';
+        }, 100);
+
+        setTimeout(function () {
+          clearInterval(zyt_ticker);
+          zyt_fill.style.width = '100%';
+          zyt_el.classList.remove('zyt_running');
+          zyt_el.classList.add('zyt_done');
+          zyt_state.textContent = '✔ 完成';
+          zyt_resolve(zyt_key);
+        }, zyt_ms);
+      });
+    }
+
+    // 标记 race 落选的一路
+    function zyt_markCancel(zyt_key) {
+      const zyt_el = zyt_getStep(zyt_key);
+      const zyt_state = zyt_el.querySelector('.zyt_stepState');
+      zyt_el.classList.remove('zyt_running');
+      zyt_el.classList.add('zyt_cancel');
+      zyt_state.textContent = '已取消';
+    }
+
+    function zyt_resetUI() {
+      document.querySelectorAll('.zyt_step').forEach(function (zyt_el) {
+        zyt_el.classList.remove('zyt_running', 'zyt_done', 'zyt_cancel');
+        zyt_el.querySelector('.zyt_stepState').textContent = '待开始';
+        zyt_el.querySelector('.zyt_barFill').style.width = '0%';
+      });
+      zyt_totalEl.textContent = '总耗时：--';
+    }
+
+    // ---------- async 流程 ----------
+    async function zyt_makeDumplings() {
+      const zyt_begin = performance.now();
+
+      try {
+        // ① 买原料：线上线下同时进行，Promise.race 任一完成即可进入下一步
+        zyt_log('① 买原料：线上(6s) 与 线下(4s) 同时下单 —— Promise.race', 'zyt_info');
+        const zyt_buyStart = performance.now();
+        const zyt_winner = await Promise.race([
+          zyt_doStep('buyOnline', 6000),
+          zyt_doStep('buyOffline', 4000)
+        ]);
+        const zyt_loser = zyt_winner === 'buyOnline' ? 'buyOffline' : 'buyOnline';
+        zyt_markCancel(zyt_loser);
+        zyt_log('① ' + zyt_winner + ' 先完成（耗时 ' +
+          Math.round(performance.now() - zyt_buyStart) / 1000 + 's），race 决出胜者，进入下一步', 'zyt_ok');
+
+        // ② 取原料
+        zyt_log('② 取原料（2s）', 'zyt_info');
+        await zyt_doStep('fetch', 2000);
+        zyt_log('② 原料到手', 'zyt_ok');
+
+        // ③ 和面 + 和馅 同时进行，两个都完成才继续
+        zyt_log('③ 和面(5s) 与 和馅(3s) 同时进行 —— Promise.all', 'zyt_info');
+        const zyt_allStart = performance.now();
+        await Promise.all([
+          zyt_doStep('dough', 5000),
+          zyt_doStep('filling', 3000)
+        ]);
+        zyt_log('③ 和面与和馅全部完成（并行耗时 ' +
+          Math.round(performance.now() - zyt_allStart) / 1000 + 's，而非 8s）', 'zyt_ok');
+
+        // ④⑤⑥ 串行步骤
+        zyt_log('④ 包饺子（4s）', 'zyt_info');
+        await zyt_doStep('wrap', 4000);
+        zyt_log('④ 饺子包好了，摆了满满一盖帘', 'zyt_ok');
+
+        zyt_log('⑤ 煮饺子（5s）', 'zyt_info');
+        await zyt_doStep('boil', 5000);
+        zyt_log('⑤ 饺子浮起来了，出锅！', 'zyt_ok');
+
+        zyt_log('⑥ 吃饺子（1s）', 'zyt_info');
+        await zyt_doStep('eat', 1000);
+        zyt_log('⑥ 真香！全部流程结束 🎉', 'zyt_ok');
+
+        const zyt_total = ((performance.now() - zyt_begin) / 1000).toFixed(1);
+        zyt_totalEl.textContent = '总耗时：' + zyt_total + 's（串行需 26s，race+all 优化后仅 ' + zyt_total + 's）';
+        zyt_log('流程总耗时 ' + zyt_total + 's', 'zyt_warn');
+      } finally {
+        zyt_startBtn.disabled = false;
+      }
+    }
+
+    zyt_startBtn.addEventListener('click', function () {
+      zyt_startBtn.disabled = true;
+      zyt_resetUI();
+      zyt_logBox.innerHTML = '';
+      zyt_log('🥟 开始包饺子流程', 'zyt_warn');
+      zyt_makeDumplings();
+    });
+
+    document.querySelector('[data-zyt-reset]').addEventListener('click', function () {
+      zyt_resetUI();
+      zyt_logBox.innerHTML = '<span class="zyt_dim">// 流程日志：点「开始包饺子」查看每一步的触发与完成时间</span>';
+    });
+  </script>
+</body>
+</html>
