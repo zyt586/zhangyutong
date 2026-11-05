@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>18-1 Canvas 文字动画</title>
+  <!--
+  姓名：张语桐
+  日期：2026-11-05
+  功能名称：Canvas 动画——粒子星空背景上的发光文字"张语桐"呼吸脉冲、环绕光点与流星拖尾
+  -->
+  <style>
+    :root {
+      --zyt_bg: #0b0e1a;
+      --zyt_line: #232a45;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background-color: var(--zyt_bg);
+      color: #dfe4ff;
+      line-height: 1.7;
+      padding-bottom: 40px;
+    }
+
+    .zyt_header {
+      padding: 24px 20px;
+      text-align: center;
+      border-bottom: 1px solid var(--zyt_line);
+    }
+
+    .zyt_title { font-size: 26px; font-weight: 700; color: #8fb7ff; letter-spacing: 1px; }
+    .zyt_sub { margin-top: 6px; font-size: 14px; color: #6d78a8; }
+
+    .zyt_main { max-width: 960px; margin: 0 auto; padding: 18px 14px; }
+
+    .zyt_stage {
+      position: relative;
+      border: 1px solid var(--zyt_line);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(30,50,120,0.25);
+      background: #0b0e1a;
+    }
+
+    .zyt_canvas {
+      display: block;
+      width: 100%;
+      height: 480px;
+    }
+
+    .zyt_ctrlRow {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .zyt_btn {
+      height: 32px; padding: 0 14px;
+      border: 1px solid #33406e;
+      border-radius: 999px;
+      background: rgba(20,26,50,0.75);
+      color: #9fc0ff;
+      font-size: 12px; font-weight: 700; font-family: inherit;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .zyt_btn:hover { border-color: #8fb7ff; color: #fff; }
+
+    .zyt_card {
+      background: #12172b;
+      border: 1px solid var(--zyt_line);
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin-top: 16px;
+    }
+
+    .zyt_cardTitle {
+      font-size: 15px;
+      font-weight: 700;
+      color: #9fc0ff;
+      margin-bottom: 10px;
+    }
+
+    .zyt_points { font-size: 13px; color: #8d97c4; }
+    .zyt_points li { margin: 4px 0 4px 18px; }
+    .zyt_points code {
+      background: #1a2140;
+      border: 1px solid #2a3260;
+      border-radius: 4px;
+      padding: 0 6px;
+      font-family: "Consolas", monospace;
+      font-size: 12px;
+      color: #ffd479;
+    }
+
+    .zyt_foot { text-align: center; font-size: 12px; color: #55608c; margin-top: 22px; }
+  </style>
+</head>
+<body>
+
+  <header class="zyt_header">
+    <h1 class="zyt_title">🌌 Canvas 文字动画</h1>
+    <p class="zyt_sub">requestAnimationFrame 驱动 · 粒子星空 + 发光呼吸文字「张语桐」+ 环绕光点 + 流星拖尾</p>
+  </header>
+
+  <main class="zyt_main">
+
+    <div class="zyt_stage">
+      <canvas class="zyt_canvas" data-zyt-canvas width="920" height="480"></canvas>
+      <div class="zyt_ctrlRow">
+        <button class="zyt_btn" type="button" data-zyt-toggle>⏸ 暂停</button>
+      </div>
+    </div>
+
+    <section class="zyt_card">
+      <div class="zyt_cardTitle">✨ 动画说明</div>
+      <ul class="zyt_points">
+        <li>120 颗星星随机漂移并闪烁（<code>globalAlpha</code> 正弦呼吸）；</li>
+        <li>中央大字「张语桐」使用 <code>shadowBlur</code> 霓虹光晕，字号随时间正弦缩放，形成呼吸感；</li>
+        <li>文字外圈 6 个光点沿椭圆轨道环绕，轨迹带渐隐尾迹；</li>
+        <li>每 2~5 秒随机划过一颗流星，用 <code>lineTo</code> 渐变拖尾绘制；</li>
+        <li>整个循环由 <code>requestAnimationFrame</code> 驱动，可暂停/继续。</li>
+      </ul>
+    </section>
+
+    <p class="zyt_foot">张语桐 · 高级网页设计I · Canvas 动画</p>
+  </main>
+
+  <script>
+    // ---------- 元素 ----------
+    const zyt_canvas = document.querySelector('[data-zyt-canvas]');
+    const zyt_ctx = zyt_canvas.getContext('2d');
+    const zyt_toggleBtn = document.querySelector('[data-zyt-toggle]');
+    const zyt_W = zyt_canvas.width;
+    const zyt_H = zyt_canvas.height;
+
+    // ---------- 星星 ----------
+    const zyt_stars = [];
+    for (let zyt_i = 0; zyt_i < 120; zyt_i++) {
+      zyt_stars.push({
+        zyt_x: Math.random() * zyt_W,
+        zyt_y: Math.random() * zyt_H,
+        zyt_r: Math.random() * 1.6 + 0.4,
+        zyt_vx: (Math.random() - 0.5) * 0.25,
+        zyt_vy: (Math.random() - 0.5) * 0.25,
+        zyt_phase: Math.random() * Math.PI * 2,   // 闪烁相位
+        zyt_speed: Math.random() * 2 + 1          // 闪烁速度
+      });
+    }
+
+    // ---------- 环绕光点 ----------
+    const zyt_orbits = [];
+    for (let zyt_i = 0; zyt_i < 6; zyt_i++) {
+      zyt_orbits.push({
+        zyt_angle: (Math.PI * 2 / 6) * zyt_i,
+        zyt_speed: 0.008 + zyt_i * 0.0022,
+        zyt_rx: 300 + zyt_i * 14,     // 椭圆横半径
+        zyt_ry: 150 + zyt_i * 7,      // 椭圆纵半径
+        zyt_color: [' #ffd479', '#8fb7ff', '#7ce0c3', '#ff9db1', '#c39bff', '#7ce0ff'][zyt_i]
+      });
+    }
+
+    // ---------- 流星 ----------
+    const zyt_meteors = [];
+    function zyt_spawnMeteor() {
+      zyt_meteors.push({
+        zyt_x: Math.random() * zyt_W * 0.8 + zyt_W * 0.1,
+        zyt_y: -20,
+        zyt_vx: -(Math.random() * 3 + 2),
+        zyt_vy: Math.random() * 3 + 3,
+        zyt_len: Math.random() * 90 + 60,
+        zyt_life: 1
+      });
+      setTimeout(zyt_spawnMeteor, Math.random() * 3000 + 2000);
+    }
+    setTimeout(zyt_spawnMeteor, 1200);
+
+    // ---------- 主循环 ----------
+    let zyt_running = true;
+    let zyt_frame = 0;
+
+    function zyt_draw() {
+      if (!zyt_running) return;
+      zyt_frame++;
+
+      // 背景（半透明涂一层制造轻微拖影）
+      zyt_ctx.fillStyle = 'rgba(11,14,26,0.4)';
+      zyt_ctx.fillRect(0, 0, zyt_W, zyt_H);
+
+      // 星星
+      zyt_stars.forEach(function (zyt_s) {
+        zyt_s.zyt_x += zyt_s.zyt_vx;
+        zyt_s.zyt_y += zyt_s.zyt_vy;
+        if (zyt_s.zyt_x < 0) zyt_s.zyt_x = zyt_W;
+        if (zyt_s.zyt_x > zyt_W) zyt_s.zyt_x = 0;
+        if (zyt_s.zyt_y < 0) zyt_s.zyt_y = zyt_H;
+        if (zyt_s.zyt_y > zyt_H) zyt_s.zyt_y = 0;
+
+        zyt_ctx.globalAlpha = 0.35 + 0.65 * Math.abs(Math.sin(zyt_frame / (20 * zyt_s.zyt_speed) + zyt_s.zyt_phase));
+        zyt_ctx.fillStyle = '#cfe0ff';
+        zyt_ctx.beginPath();
+        zyt_ctx.arc(zyt_s.zyt_x, zyt_s.zyt_y, zyt_s.zyt_r, 0, Math.PI * 2);
+        zyt_ctx.fill();
+      });
+      zyt_ctx.globalAlpha = 1;
+
+      // 环绕光点 + 轨迹
+      const zyt_cx = zyt_W / 2;
+      const zyt_cy = zyt_H / 2 - 10;
+      zyt_orbits.forEach(function (zyt_o) {
+        zyt_o.zyt_angle += zyt_o.zyt_speed;
+        const zyt_px = zyt_cx + Math.cos(zyt_o.zyt_angle) * zyt_o.zyt_rx;
+        const zyt_py = zyt_cy + Math.sin(zyt_o.zyt_angle) * zyt_o.zyt_ry;
+
+        // 轨道虚线
+        zyt_ctx.strokeStyle = 'rgba(120,145,220,0.10)';
+        zyt_ctx.setLineDash([4, 8]);
+        zyt_ctx.beginPath();
+        zyt_ctx.ellipse(zyt_cx, zyt_cy, zyt_o.zyt_rx, zyt_o.zyt_ry, 0, 0, Math.PI * 2);
+        zyt_ctx.stroke();
+        zyt_ctx.setLineDash([]);
+
+        // 光点 + 尾迹
+        for (let zyt_t = 0; zyt_t < 12; zyt_t++) {
+          const zyt_tailA = zyt_o.zyt_angle - zyt_t * 0.035;
+          zyt_ctx.globalAlpha = (1 - zyt_t / 12) * 0.55;
+          zyt_ctx.fillStyle = zyt_o.zyt_color;
+          zyt_ctx.beginPath();
+          zyt_ctx.arc(
+            zyt_cx + Math.cos(zyt_tailA) * zyt_o.zyt_rx,
+            zyt_cy + Math.sin(zyt_tailA) * zyt_o.zyt_ry,
+            3.4 * (1 - zyt_t / 16), 0, Math.PI * 2
+          );
+          zyt_ctx.fill();
+        }
+        zyt_ctx.globalAlpha = 1;
+      });
+
+      // 流星
+      for (let zyt_i = zyt_meteors.length - 1; zyt_i >= 0; zyt_i--) {
+        const zyt_m = zyt_meteors[zyt_i];
+        zyt_m.zyt_x += zyt_m.zyt_vx;
+        zyt_m.zyt_y += zyt_m.zyt_vy;
+        if (zyt_m.zyt_y > zyt_H + 40) {
+          zyt_meteors.splice(zyt_i, 1);
+          continue;
+        }
+        const zyt_grad = zyt_ctx.createLinearGradient(
+          zyt_m.zyt_x, zyt_m.zyt_y,
+          zyt_m.zyt_x + zyt_m.zyt_vx / Math.hypot(zyt_m.zyt_vx, zyt_m.zyt_vy) * zyt_m.zyt_len,
+          zyt_m.zyt_y + zyt_m.zyt_vy / Math.hypot(zyt_m.zyt_vx, zyt_m.zyt_vy) * zyt_m.zyt_len
+        );
+        zyt_grad.addColorStop(0, 'rgba(255,255,255,0.9)');
+        zyt_grad.addColorStop(1, 'rgba(255,255,255,0)');
+        zyt_ctx.strokeStyle = zyt_grad;
+        zyt_ctx.lineWidth = 2;
+        zyt_ctx.beginPath();
+        zyt_ctx.moveTo(zyt_m.zyt_x, zyt_m.zyt_y);
+        zyt_ctx.lineTo(
+          zyt_m.zyt_x + zyt_m.zyt_vx / Math.hypot(zyt_m.zyt_vx, zyt_m.zyt_vy) * zyt_m.zyt_len,
+          zyt_m.zyt_y + zyt_m.zyt_vy / Math.hypot(zyt_m.zyt_vx, zyt_m.zyt_vy) * zyt_m.zyt_len
+        );
+        zyt_ctx.stroke();
+        zyt_ctx.lineWidth = 1;
+      }
+
+      // 呼吸发光大字「张语桐」
+      const zyt_breath = Math.sin(zyt_frame / 60) * 0.5 + 0.5;         // 0~1
+      const zyt_fontSize = 84 + zyt_breath * 10;                        // 字号呼吸
+      const zyt_glow = 18 + zyt_breath * 26;                            // 光晕呼吸
+
+      zyt_ctx.save();
+      zyt_ctx.textAlign = 'center';
+      zyt_ctx.textBaseline = 'middle';
+      zyt_ctx.font = '700 ' + zyt_fontSize + 'px "Microsoft YaHei", sans-serif';
+      zyt_ctx.shadowColor = '#5f8cff';
+      zyt_ctx.shadowBlur = zyt_glow;
+      zyt_ctx.fillStyle = 'rgba(255,255,255,' + (0.82 + zyt_breath * 0.18) + ')';
+      zyt_ctx.fillText('张语桐', zyt_cx, zyt_cy);
+      // 二次描画增强光感
+      zyt_ctx.shadowColor = '#9fb8ff';
+      zyt_ctx.shadowBlur = zyt_glow * 0.6;
+      zyt_ctx.fillText('张语桐', zyt_cx, zyt_cy);
+      zyt_ctx.restore();
+
+      // 副标题
+      zyt_ctx.save();
+      zyt_ctx.textAlign = 'center';
+      zyt_ctx.font = '14px "Microsoft YaHei", sans-serif';
+      zyt_ctx.fillStyle = 'rgba(150,175,235,' + (0.5 + zyt_breath * 0.3) + ')';
+      zyt_ctx.fillText('Zhang Yutong · Canvas Animation', zyt_cx, zyt_cy + 70);
+      zyt_ctx.restore();
+
+      requestAnimationFrame(zyt_draw);
+    }
+
+    zyt_draw();
+
+    // ---------- 暂停/继续 ----------
+    zyt_toggleBtn.addEventListener('click', function () {
+      zyt_running = !zyt_running;
+      if (zyt_running) {
+        zyt_toggleBtn.textContent = '⏸ 暂停';
+        zyt_draw();
+      } else {
+        zyt_toggleBtn.textContent = '▶ 继续';
+      }
+    });
+  </script>
+</body>
+</html>

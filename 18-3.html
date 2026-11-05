@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>18-3 基于知识库的智能客服系统架构图</title>
+  <!--
+  姓名：张语桐
+  日期：2026-11-05
+  功能名称：基于知识库的智能客服系统 SVG 架构图（科研方向，RAG 检索增强生成）
+  -->
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background: #eef1f6;
+      color: #2c3e50;
+      padding: 28px 16px 40px;
+    }
+    .zyt_page { max-width: 1280px; margin: 0 auto; }
+    .zyt_head { text-align: center; margin-bottom: 20px; }
+    .zyt_head h1 { font-size: 26px; letter-spacing: 1px; }
+    .zyt_head p { margin-top: 8px; font-size: 13px; color: #7a8699; }
+    .zyt_card {
+      background: #fff;
+      border: 1px solid #e2e8f2;
+      border-radius: 14px;
+      padding: 22px 18px 14px;
+      box-shadow: 0 6px 18px rgba(60, 80, 120, .08);
+    }
+    .zyt_card svg { display: block; width: 100%; height: auto; }
+    .zyt_svgText { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; }
+
+    .zyt_bandRect { fill: #f5f7fb; stroke: #dde5ef; stroke-width: 1.5; }
+    .zyt_bandTitle { font-size: 14px; font-weight: bold; fill: #33415c; }
+    .zyt_tagText { font-size: 12px; font-weight: bold; fill: #fff; }
+    .zyt_mod rect { fill: #ffffff; stroke-width: 1.5; transition: fill .2s; }
+    .zyt_mod:hover rect { fill: #eef5ff; stroke-width: 2.2; }
+    .zyt_modName { font-size: 14px; font-weight: bold; fill: #2c3e50; text-anchor: middle; }
+    .zyt_modSub { font-size: 11px; fill: #8a94a6; text-anchor: middle; }
+
+    .zyt_g1 .zyt_mod rect { stroke: #6b9ac4; } .zyt_g1 .zyt_tag { fill: #6b9ac4; }
+    .zyt_g2 .zyt_mod rect { stroke: #57a6a2; } .zyt_g2 .zyt_tag { fill: #57a6a2; }
+    .zyt_g3 .zyt_mod rect { stroke: #5470c6; } .zyt_g3 .zyt_tag { fill: #5470c6; }
+    .zyt_g4 .zyt_mod rect { stroke: #3ba272; } .zyt_g4 .zyt_tag { fill: #3ba272; }
+    .zyt_g5 .zyt_mod rect { stroke: #e6974f; } .zyt_g5 .zyt_tag { fill: #e6974f; }
+    .zyt_g6 .zyt_mod rect { stroke: #9a6fb8; } .zyt_g6 .zyt_tag { fill: #9a6fb8; }
+
+    .zyt_q {
+      fill: none; stroke: #5470c6; stroke-width: 2;
+      stroke-dasharray: 7 4; animation: zyt_flow 1.1s linear infinite;
+    }
+    @keyframes zyt_flow { to { stroke-dashoffset: -11; } }
+    .zyt_qLabel { font-size: 11px; fill: #5470c6; }
+    .zyt_return {
+      fill: none; stroke: #e6974f; stroke-width: 2; marker-end: url(#zyt_aOrange);
+    }
+    .zyt_returnLabel { font-size: 11px; fill: #e6974f; text-anchor: end; }
+    .zyt_dash {
+      fill: none; stroke: #c0392b; stroke-width: 1.8;
+      stroke-dasharray: 6 4;
+    }
+    .zyt_dashBranch { fill: none; stroke: #c0392b; stroke-width: 1.8; stroke-dasharray: 6 4; marker-end: url(#zyt_aRed); }
+    .zyt_dashLabel { font-size: 11px; fill: #c0392b; }
+    .zyt_dashLabelV { font-size: 11px; fill: #c0392b; text-anchor: middle; }
+    .zyt_title { font-size: 20px; font-weight: bold; fill: #1f2d3d; text-anchor: middle; }
+    .zyt_subTitle { font-size: 12px; fill: #7a8699; text-anchor: middle; }
+    .zyt_legend { font-size: 11px; fill: #5a6474; }
+    .zyt_pBox { fill: #ffffff; stroke: #c9d4e4; stroke-width: 1.2; }
+    .zyt_pName { font-size: 13px; font-weight: bold; fill: #2c3e50; text-anchor: middle; }
+    .zyt_pSub { font-size: 10.5px; fill: #8a94a6; text-anchor: middle; }
+    .zyt_panel { fill: #fbfcfe; stroke: #dbe3ee; stroke-width: 1.5; }
+    .zyt_panelTitle { font-size: 14px; font-weight: bold; fill: #33415c; text-anchor: middle; }
+    .zyt_kLine { font-size: 12px; fill: #5a6474; }
+    .zyt_kLineDot { fill: #5470c6; }
+
+    .zyt_notes { margin-top: 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+    .zyt_note {
+      background: #fff; border: 1px solid #e2e8f2; border-left: 4px solid #5470c6;
+      border-radius: 10px; padding: 14px 16px; font-size: 13px; color: #5a6474; line-height: 1.7;
+    }
+    .zyt_note b { color: #2c3e50; }
+    .zyt_footer { text-align: center; margin-top: 22px; font-size: 12px; color: #9aa4b5; }
+    @media (max-width: 760px) {
+      .zyt_head h1 { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="zyt_page">
+    <div class="zyt_head">
+      <h1>🧠 基于知识库的智能客服系统架构图</h1>
+      <p>科研方向 · 检索增强生成（RAG）· SVG 矢量架构图（悬停模块可高亮）</p>
+    </div>
+
+    <div class="zyt_card">
+      <svg class="zyt_svgText" viewBox="0 0 1240 950" role="img" aria-label="基于知识库的智能客服系统架构图" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="zyt_aBlue" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0,0 L8,4.5 L0,9 Z" fill="#5470c6"></path>
+          </marker>
+          <marker id="zyt_aRed" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0,0 L8,4.5 L0,9 Z" fill="#c0392b"></path>
+          </marker>
+          <marker id="zyt_aOrange" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0,0 L8,4.5 L0,9 Z" fill="#e6974f"></path>
+          </marker>
+        </defs>
+
+        <text class="zyt_title" x="465" y="36">基于知识库的智能客服系统架构图</text>
+        <text class="zyt_subTitle" x="465" y="57">科研方向 · Retrieval-Augmented Generation（RAG）架构</text>
+
+        <path class="zyt_q" d="M700 52 h26" marker-end="url(#zyt_aBlue)"></path>
+        <text class="zyt_legend" x="732" y="56">在线查询流</text>
+        <path class="zyt_dash" d="M812 52 h26"></path>
+        <text class="zyt_legend" x="844" y="56">离线更新</text>
+
+        <!-- ① 用户层 -->
+        <g class="zyt_g1">
+          <rect class="zyt_bandRect" x="50" y="74" width="830" height="78" rx="10"></rect>
+          <rect class="zyt_tag" x="58" y="82" width="22" height="20" rx="5"></rect>
+          <text class="zyt_tagText" x="69" y="97" text-anchor="middle">1</text>
+          <text class="zyt_bandTitle" x="88" y="97">用户层 · User Layer</text>
+          <g class="zyt_mod">
+            <rect x="80" y="106" width="180" height="40" rx="8"></rect>
+            <text class="zyt_modName" x="170" y="131">Web 网页端</text>
+          </g>
+          <g class="zyt_mod">
+            <rect x="275" y="106" width="180" height="40" rx="8"></rect>
+            <text class="zyt_modName" x="365" y="131">App 移动端</text>
+          </g>
+          <g class="zyt_mod">
+            <rect x="470" y="106" width="180" height="40" rx="8"></rect>
+            <text class="zyt_modName" x="560" y="131">微信小程序</text>
+          </g>
+          <g class="zyt_mod">
+            <rect x="665" y="106" width="180" height="40" rx="8"></rect>
+            <text class="zyt_modName" x="755" y="131">语音入口</text>
+          </g>
+        </g>
+
+        <!-- ② 接入层 -->
+        <g class="zyt_g2">
+          <rect class="zyt_bandRect" x="50" y="192" width="830" height="78" rx="10"></rect>
+          <rect class="zyt_tag" x="58" y="200" width="22" height="20" rx="5"></rect>
+          <text class="zyt_tagText" x="69" y="215" text-anchor="middle">2</text>
+          <text class="zyt_bandTitle" x="88" y="215">接入层 · Access Layer</text>
+          <g class="zyt_mod">
+            <rect x="80" y="224" width="180" height="40" rx="8"></rect>
+            <text class="zyt_modName" x="170" y="249" style="font-size:13px">API 网关 · 鉴权限流</text>
+          </g>
+          <g class="zyt_mod">
+            <rect x="275" y="224" width="180" height="40" rx="8"></rect>
+            <text class="zyt_modName" x="365" y="249">Nginx 负载均衡</text>
+          </g>
+          <g class="zyt_mod">
+            <rect x="470" y="224" width="180" height="40" rx="8"></rect>
+            <text class="zyt_modName" x="560" y="249" style="font-size:13px">会话路由 · 多轮管理</text>
+          </g>
+          <g class="zyt_mod">
+            <rect x="665" y="224" width="180" height="40" rx="8"></rect>
+            <text class="zyt_modName" x="755" y="249">日志埋点</text>
+          </g>
+        </g>
+
+        <path class="zyt_q" d="M465 152 L465 188" marker-end="url(#zyt_aBlue)"></path>
+        <text class="zyt_qLabel" x="474" y="175">用户问题</text>
+        <path class="zyt_return" d="M150 190 L150 156"></path>
+        <text class="zyt_returnLabel" x="144" y="178">答案返回</text>
+
+        <!-- ③ 对话核心层 -->
+        <g class="zyt_g3">
+          <rect class="zyt_bandRect" x="50" y="310" width="830" height="130" rx="10"></rect>
+          <rect class="zyt_tag" x="58" y="318" width="22" height="20" rx="5"></rect>
+          <text class="zyt_tagText" x="69" y="333" text-anchor="middle">3</text>
+          <text class="zyt_bandTitle" x="88" y="333">对话核心层 · Dialogue Core</text>
+          <g class="zyt_mod">
+            <rect x="70" y="344" width="250" height="84" rx="8"></rect>
+            <text class="zyt_modName" x="195" y="372">NLU 问题理解</text>
+            <text class="zyt_modSub" x="195" y="394">意图识别 · 实体抽取</text>
+            <text class="zyt_modSub" x="195" y="412">情感分析 · 指代消解</text>
+          </g>
+          <g class="zyt_mod">
+            <rect x="340" y="344" width="250" height="84" rx="8"></rect>
+            <text class="zyt_modName" x="465" y="372">DM 对话管理</text>
+            <text class="zyt_modSub" x="465" y="394">DST 多轮状态跟踪</text>
+            <text class="zyt_modSub" x="465" y="412">对话策略 POL</text>
+          </g>
+          <g class="zyt_mod">
+            <rect x="610" y="344" width="250" height="84" rx="8"></rect>
+            <text class="zyt_modName" x="735" y="372">NLG 答案生成</text>
+            <text class="zyt_modSub" x="735" y="394">检索式 / 模板 / LLM 改写</text>
+            <text class="zyt_modSub" x="735" y="412">答案溯源 · 引用标注</text>
+          </g>
+        </g>
+
+        <path class="zyt_q" d="M465 270 L465 306" marker-end="url(#zyt_aBlue)"></path>
+        <text class="zyt_qLabel" x="474" y="293">请求转发</text>
+
+        <!-- ④ 知识检索引擎层 -->
+        <g class="zyt_g4">
+          <rect class="zyt_bandRect" x="50" y="480" width="830" height="130" rx="10"></rect>
+          <rect class="zyt_tag" x="58" y="488" width="22" height="20" rx="5"></rect>
+          <text class="zyt_tagText" x="69" y="503" text-anchor="middle">4</text>
+          <text class="zyt_bandTitle" x="88" y="503">知识检索引擎层 · Retrieval Engine</text>
+          <g class="zyt_mod">
+            <rect x="70" y="514" width="250" height="84" rx="8"></rect>
+            <text class="zyt_modName" x="195" y="542">向量召回</text>
+            <text class="zyt_modSub" x="195" y="564">Dense Retrieval</text>
+            <text class="zyt_modSub" x="195" y="582">Milvus / FAISS Top-50</text>
+          </g>
+          <g class="zyt_mod">
+            <rect x="340" y="514" width="250" height="84" rx="8"></rect>
+            <text class="zyt_modName" x="465" y="542">稀疏召回</text>
+            <text class="zyt_modSub" x="465" y="564">BM25 / Elasticsearch</text>
+            <text class="zyt_modSub" x="465" y="582">关键词精确匹配 Top-50</text>
+          </g>
+          <g class="zyt_mod">
+            <rect x="610" y="514" width="250" height="84" rx="8"></rect>
+            <text class="zyt_modName" x="735" y="542">重排序 Rerank</text>
+            <text class="zyt_modSub" x="735" y="564">Cross-Encoder 精排</text>
+            <text class="zyt_modSub" x="735" y="582">融合输出 Top-5 答案</text>
+          </g>
+        </g>
+
+        <path class="zyt_q" d="M465 440 L465 476" marker-end="url(#zyt_aBlue)"></path>
+        <text class="zyt_qLabel" x="474" y="463">检索请求</text>
+
+        <!-- ⑤ 知识库层 -->
+        <g class="zyt_g5">
+          <rect class="zyt_bandRect" x="50" y="650" width="830" height="110" rx="10"></rect>
+          <rect class="zyt_tag" x="58" y="658" width="22" height="20" rx="5"></rect>
+          <text class="zyt_tagText" x="69" y="673" text-anchor="middle">5</text>
+          <text class="zyt_bandTitle" x="88" y="673">知识库层 · Knowledge Base</text>
+          <g class="zyt_mod">
+            <rect x="80" y="684" width="180" height="56" rx="8"></rect>
+            <text class="zyt_modName" x="170" y="708">FAQ 问答对</text>
+            <text class="zyt_modSub" x="170" y="726">高频问题标准答案</text>
+          </g>
+          <g class="zyt_mod">
+            <rect x="275" y="684" width="180" height="56" rx="8"></rect>
+            <text class="zyt_modName" x="365" y="708">文档切片</text>
+            <text class="zyt_modSub" x="365" y="726">Chunk 分块入库</text>
+          </g>
+          <g class="zyt_mod">
+            <rect x="470" y="684" width="180" height="56" rx="8"></rect>
+            <text class="zyt_modName" x="560" y="708">知识图谱</text>
+            <text class="zyt_modSub" x="560" y="726">Neo4j 三元组</text>
+          </g>
+          <g class="zyt_mod">
+            <rect x="665" y="684" width="180" height="56" rx="8"></rect>
+            <text class="zyt_modName" x="755" y="708">向量索引</text>
+            <text class="zyt_modSub" x="755" y="726">Embedding 检索</text>
+          </g>
+        </g>
+
+        <path class="zyt_q" d="M465 610 L465 646" marker-end="url(#zyt_aBlue)"></path>
+        <text class="zyt_qLabel" x="474" y="633">多路召回结果</text>
+
+        <!-- ⑥ 数据与训练支撑层 -->
+        <g class="zyt_g6">
+          <rect class="zyt_bandRect" x="50" y="800" width="830" height="110" rx="10"></rect>
+          <rect class="zyt_tag" x="58" y="808" width="22" height="20" rx="5"></rect>
+          <text class="zyt_tagText" x="69" y="823" text-anchor="middle">6</text>
+          <text class="zyt_bandTitle" x="88" y="823">数据与训练支撑层 · Data &amp; Training</text>
+          <g class="zyt_mod">
+            <rect x="80" y="834" width="180" height="56" rx="8"></rect>
+            <text class="zyt_modName" x="170" y="858">语料标注平台</text>
+            <text class="zyt_modSub" x="170" y="876">对话日志 · 人工校对</text>
+          </g>
+          <g class="zyt_mod">
+            <rect x="275" y="834" width="180" height="56" rx="8"></rect>
+            <text class="zyt_modName" x="365" y="858">模型微调</text>
+            <text class="zyt_modSub" x="365" y="876">LoRA / SFT</text>
+          </g>
+          <g class="zyt_mod">
+            <rect x="470" y="834" width="180" height="56" rx="8"></rect>
+            <text class="zyt_modName" x="560" y="858">效果评估</text>
+            <text class="zyt_modSub" x="560" y="876">Acc / F1 / EM</text>
+          </g>
+          <g class="zyt_mod">
+            <rect x="665" y="834" width="180" height="56" rx="8"></rect>
+            <text class="zyt_modName" x="755" y="858">监控与发布</text>
+            <text class="zyt_modSub" x="755" y="876">灰度 · A/B 测试</text>
+          </g>
+        </g>
+
+        <!-- 离线更新虚线：面板 → 主架构 -->
+        <path class="zyt_dash" d="M940 250 H900 V798"></path>
+        <path class="zyt_dashBranch" d="M900 365 H884"></path>
+        <path class="zyt_dashBranch" d="M900 545 H884"></path>
+        <path class="zyt_dashBranch" d="M900 720 H884"></path>
+        <text class="zyt_dashLabelV" x="916" y="600" transform="rotate(-90 916 600)">离线训练 · 知识更新</text>
+
+        <!-- 右侧面板一：离线训练与评估流程 -->
+        <g>
+          <rect class="zyt_panel" x="940" y="74" width="250" height="396" rx="12"></rect>
+          <text class="zyt_panelTitle" x="1065" y="102">离线训练与评估流程</text>
+          <g class="zyt_mod">
+            <rect class="zyt_pBox" x="960" y="118" width="210" height="56" rx="8"></rect>
+            <text class="zyt_pName" x="1065" y="142">语料采集与标注</text>
+            <text class="zyt_pSub" x="1065" y="160">对话日志 · 人工校对</text>
+          </g>
+          <path class="zyt_dashBranch" d="M1065 176 V204"></path>
+          <g class="zyt_mod">
+            <rect class="zyt_pBox" x="960" y="208" width="210" height="56" rx="8"></rect>
+            <text class="zyt_pName" x="1065" y="232">增量微调 LoRA / SFT</text>
+            <text class="zyt_pSub" x="1065" y="250">领域知识适配训练</text>
+          </g>
+          <path class="zyt_dashBranch" d="M1065 266 V294"></path>
+          <g class="zyt_mod">
+            <rect class="zyt_pBox" x="960" y="298" width="210" height="56" rx="8"></rect>
+            <text class="zyt_pName" x="1065" y="322">离线评估</text>
+            <text class="zyt_pSub" x="1065" y="340">Accuracy · F1 · EM · MRR</text>
+          </g>
+          <path class="zyt_dashBranch" d="M1065 356 V384"></path>
+          <g class="zyt_mod">
+            <rect class="zyt_pBox" x="960" y="388" width="210" height="56" rx="8"></rect>
+            <text class="zyt_pName" x="1065" y="412">灰度发布与 A/B 测试</text>
+            <text class="zyt_pSub" x="1065" y="430">指标回归后全量上线</text>
+          </g>
+          <path class="zyt_dash" d="M1170 416 C1216 404 1216 152 1176 146"></path>
+          <text class="zyt_dashLabelV" x="1204" y="286" transform="rotate(-90 1204 286)">迭代优化</text>
+        </g>
+
+        <!-- 右侧面板二：关键技术要点 -->
+        <g>
+          <rect class="zyt_panel" x="940" y="540" width="250" height="190" rx="12"></rect>
+          <text class="zyt_panelTitle" x="1065" y="566">关键技术要点</text>
+          <circle class="zyt_kLineDot" cx="958" cy="588" r="3"></circle>
+          <text class="zyt_kLine" x="968" y="592">RAG 检索增强生成</text>
+          <circle class="zyt_kLineDot" cx="958" cy="614" r="3"></circle>
+          <text class="zyt_kLine" x="968" y="618">多路召回 + Cross-Encoder 重排</text>
+          <circle class="zyt_kLineDot" cx="958" cy="640" r="3"></circle>
+          <text class="zyt_kLine" x="968" y="644">语义向量索引 Milvus / FAISS</text>
+          <circle class="zyt_kLineDot" cx="958" cy="666" r="3"></circle>
+          <text class="zyt_kLine" x="968" y="670">多轮对话 DST 状态跟踪</text>
+          <circle class="zyt_kLineDot" cx="958" cy="692" r="3"></circle>
+          <text class="zyt_kLine" x="968" y="696">在线 - 离线效果闭环</text>
+        </g>
+
+        <!-- 右侧面板三：科研评估维度 -->
+        <g>
+          <rect class="zyt_panel" x="940" y="760" width="250" height="150" rx="12"></rect>
+          <text class="zyt_panelTitle" x="1065" y="786">科研评估维度</text>
+          <circle class="zyt_kLineDot" cx="958" cy="808" r="3" style="fill:#3ba272"></circle>
+          <text class="zyt_kLine" x="968" y="812">Recall@K / MRR 检索指标</text>
+          <circle class="zyt_kLineDot" cx="958" cy="830" r="3" style="fill:#3ba272"></circle>
+          <text class="zyt_kLine" x="968" y="834">Accuracy / F1 / EM 生成指标</text>
+          <circle class="zyt_kLineDot" cx="958" cy="852" r="3" style="fill:#3ba272"></circle>
+          <text class="zyt_kLine" x="968" y="856">响应时延 P95 · 并发 QPS</text>
+          <circle class="zyt_kLineDot" cx="958" cy="874" r="3" style="fill:#3ba272"></circle>
+          <text class="zyt_kLine" x="968" y="878">用户满意度 CSAT</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="zyt_notes">
+      <div class="zyt_note">
+        <b>检索增强生成（RAG）</b>：用户问题经语义向量化后在知识库中多路召回，重排序后将 Top-5 知识片段注入生成模块，有效抑制大模型幻觉。
+      </div>
+      <div class="zyt_note">
+        <b>在线 - 离线双闭环</b>：蓝色实线为在线查询主链路；红色虚线为离线训练链路——语料标注、增量微调、离线评估、灰度发布持续反哺线上服务。
+      </div>
+      <div class="zyt_note">
+        <b>科研可评估性</b>：检索侧采用 Recall@K / MRR，生成侧采用 Accuracy / F1 / EM，工程侧关注 P95 时延与 CSAT，形成完整指标体系。
+      </div>
+    </div>
+
+    <div class="zyt_footer">张语桐 · 高级网页设计I · 18-3 SVG 系统架构图</div>
+  </div>
+</body>
+</html>

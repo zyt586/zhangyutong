@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>18-2 电商全站系统架构图</title>
+  <!--
+  姓名：张语桐
+  日期：2026-11-05
+  功能名称：基于 Canvas 的电商全站系统架构图——分层绘制 + 动态数据流光点 + 鼠标悬停高亮
+  -->
+  <style>
+    :root {
+      --zyt_bg: #f7f3ef;
+      --zyt_line: #f0e8e2;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background-color: var(--zyt_bg);
+      color: #333;
+      line-height: 1.7;
+      padding-bottom: 40px;
+    }
+
+    .zyt_header {
+      background: linear-gradient(135deg, #fdf1e7, #fbe2dc);
+      padding: 24px 20px;
+      text-align: center;
+      border-bottom: 1px solid var(--zyt_line);
+    }
+
+    .zyt_title { font-size: 26px; font-weight: 700; color: #b83333; letter-spacing: 1px; }
+    .zyt_sub { margin-top: 6px; font-size: 14px; color: #8a5a4a; }
+
+    .zyt_main { max-width: 1080px; margin: 0 auto; padding: 18px 14px; }
+
+    .zyt_stage {
+      border: 1px solid var(--zyt_line);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+      background: #fffdfb;
+    }
+
+    .zyt_canvas { display: block; width: 100%; }
+
+    .zyt_card {
+      background: #fff;
+      border: 1px solid var(--zyt_line);
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin-top: 16px;
+    }
+
+    .zyt_cardTitle { font-size: 15px; font-weight: 700; color: #b83333; margin-bottom: 10px; }
+
+    .zyt_points { font-size: 13px; color: #7c736d; }
+    .zyt_points li { margin: 4px 0 4px 18px; }
+    .zyt_points code {
+      background: #faf5f0;
+      border: 1px solid #ecdfd5;
+      border-radius: 4px;
+      padding: 0 6px;
+      font-family: "Consolas", monospace;
+      font-size: 12px;
+      color: #b83333;
+    }
+
+    .zyt_foot { text-align: center; font-size: 12px; color: #a89f99; margin-top: 22px; }
+  </style>
+</head>
+<body>
+
+  <header class="zyt_header">
+    <h1 class="zyt_title">🏬 电商全站系统架构图</h1>
+    <p class="zyt_sub">Canvas 绘制 · 六层架构 · 光点沿链路流动表示请求/数据的流转，鼠标悬停可高亮各层</p>
+  </header>
+
+  <main class="zyt_main">
+
+    <div class="zyt_stage">
+      <canvas class="zyt_canvas" data-zyt-canvas width="1040" height="760"></canvas>
+    </div>
+
+    <section class="zyt_card">
+      <div class="zyt_cardTitle">📐 架构说明</div>
+      <ul class="zyt_points">
+        <li><b>用户层</b>：PC 网页 / 移动 App / 微信小程序 / H5，多端接入；</li>
+        <li><b>接入层</b>：CDN 静态加速 → Nginx 负载均衡 → API 网关（鉴权/限流/路由）；</li>
+        <li><b>应用服务层</b>：用户、商品、订单、支付、库存、搜索推荐等微服务，可独立部署扩容；</li>
+        <li><b>中间件层</b>：Redis 缓存热点数据、消息队列削峰填谷、Elasticsearch 商品检索；</li>
+        <li><b>数据层</b>：MySQL 主从读写分离、OSS 对象存储商品图片、大数据分析报表；</li>
+        <li><b>外部服务</b>：第三方支付（微信/支付宝）、物流、短信验证；</li>
+        <li>动画中的光点表示一次下单请求自上而下贯穿各层，橙点为请求、绿点为数据返回。</li>
+      </ul>
+    </section>
+
+    <p class="zyt_foot">张语桐 · 高级网页设计I · Canvas 系统架构图</p>
+  </main>
+
+  <script>
+    // ---------- 元素 ----------
+    const zyt_canvas = document.querySelector('[data-zyt-canvas]');
+    const zyt_ctx = zyt_canvas.getContext('2d');
+    const zyt_W = zyt_canvas.width;
+    const zyt_H = zyt_canvas.height;
+
+    // ---------- 图层定义 ----------
+    // 每层: 名称 / y 起点 / 高度 / 主题色 / 内部小模块
+    const zyt_layers = [
+      {
+        zyt_name: '用 户 层', zyt_y: 30, zyt_h: 84, zyt_color: '#4f7fd9', zyt_light: '#e8effc',
+        zyt_mods: ['PC 网页', '移动 App', '微信小程序', 'H5 商城']
+      },
+      {
+        zyt_name: '接 入 层', zyt_y: 150, zyt_h: 84, zyt_color: '#3fa08a', zyt_light: '#e6f6f1',
+        zyt_mods: ['CDN 加速', 'Nginx 负载均衡', 'API 网关（鉴权/限流）']
+      },
+      {
+        zyt_name: '应用服务层', zyt_y: 270, zyt_h: 108, zyt_color: '#d5813d', zyt_light: '#fdf0e3',
+        zyt_mods: ['用户服务', '商品服务', '订单服务', '支付服务', '库存服务', '搜索推荐']
+      },
+      {
+        zyt_name: '中间件层', zyt_y: 414, zyt_h: 84, zyt_color: '#9a6fd0', zyt_light: '#f2ecfb',
+        zyt_mods: ['Redis 缓存', '消息队列 MQ', 'Elasticsearch']
+      },
+      {
+        zyt_name: '数 据 层', zyt_y: 534, zyt_h: 84, zyt_color: '#c2564f', zyt_light: '#fbeae9',
+        zyt_mods: ['MySQL 主从', 'OSS 对象存储', '大数据分析']
+      },
+      {
+        zyt_name: '外部服务', zyt_y: 654, zyt_h: 78, zyt_color: '#6a89a8', zyt_light: '#edf3f8',
+        zyt_mods: ['第三方支付', '物流接口', '短信服务']
+      }
+    ];
+
+    // ---------- 光点（请求/响应） ----------
+    // 主链路：用户层中心 → 接入层 → 应用层 → 中间件 → 数据层；再到外部服务支线
+    const zyt_paths = [];
+
+    function zyt_buildPaths() {
+      zyt_paths.length = 0;
+      // 相邻层中心之间的竖直链路
+      for (let zyt_i = 0; zyt_i < zyt_layers.length - 1; zyt_i++) {
+        const zyt_a = zyt_layers[zyt_i];
+        const zyt_b = zyt_layers[zyt_i + 1];
+        zyt_paths.push({
+          zyt_x: zyt_W / 2 + (zyt_i % 2 === 0 ? -40 : 40),
+          zyt_y1: zyt_a.zyt_y + zyt_a.zyt_h,
+          zyt_y2: zyt_b.zyt_y,
+          zyt_dir: 1    // 1 向下(请求), -1 向上(响应)
+        });
+      }
+    }
+    zyt_buildPaths();
+
+    const zyt_dots = [];
+    function zyt_spawnDot() {
+      const zyt_isReq = Math.random() < 0.6;   // 60% 请求 40% 响应
+      zyt_dots.push({
+        zyt_path: Math.floor(Math.random() * (zyt_layers.length - 1)),
+        zyt_t: 0,
+        zyt_speed: 0.012 + Math.random() * 0.01,
+        zyt_dir: zyt_isReq ? 1 : -1,
+        zyt_color: zyt_isReq ? '#ff9f43' : '#4cc97b'
+      });
+    }
+    for (let zyt_i = 0; zyt_i < 10; zyt_i++) {
+      zyt_dots.push({
+        zyt_path: Math.floor(Math.random() * (zyt_layers.length - 1)),
+        zyt_t: Math.random(),
+        zyt_speed: 0.012 + Math.random() * 0.01,
+        zyt_dir: Math.random() < 0.6 ? 1 : -1,
+        zyt_color: Math.random() < 0.6 ? '#ff9f43' : '#4cc97b'
+      });
+    }
+    setInterval(zyt_spawnDot, 700);
+
+    // ---------- 悬停检测 ----------
+    let zyt_hoverIndex = -1;
+    zyt_canvas.addEventListener('mousemove', function (zyt_e) {
+      const zyt_rect = zyt_canvas.getBoundingClientRect();
+      const zyt_mx = (zyt_e.clientX - zyt_rect.left) * (zyt_W / zyt_rect.width);
+      const zyt_my = (zyt_e.clientY - zyt_rect.top) * (zyt_H / zyt_rect.height);
+      zyt_hoverIndex = -1;
+      for (let zyt_i = 0; zyt_i < zyt_layers.length; zyt_i++) {
+        const zyt_L = zyt_layers[zyt_i];
+        if (zyt_my >= zyt_L.zyt_y - 4 && zyt_my <= zyt_L.zyt_y + zyt_L.zyt_h + 4) {
+          zyt_hoverIndex = zyt_i;
+          break;
+        }
+      }
+      zyt_canvas.style.cursor = zyt_hoverIndex >= 0 ? 'pointer' : 'default';
+    });
+
+    // ---------- 绘制 ----------
+    function zyt_roundRect(zyt_x, zyt_y, zyt_w, zyt_h, zyt_r) {
+      zyt_ctx.beginPath();
+      zyt_ctx.moveTo(zyt_x + zyt_r, zyt_y);
+      zyt_ctx.arcTo(zyt_x + zyt_w, zyt_y, zyt_x + zyt_w, zyt_y + zyt_h, zyt_r);
+      zyt_ctx.arcTo(zyt_x + zyt_w, zyt_y + zyt_h, zyt_x, zyt_y + zyt_h, zyt_r);
+      zyt_ctx.arcTo(zyt_x, zyt_y + zyt_h, zyt_x, zyt_y, zyt_r);
+      zyt_ctx.arcTo(zyt_x, zyt_y, zyt_x + zyt_w, zyt_y, zyt_r);
+      zyt_ctx.closePath();
+    }
+
+    function zyt_drawLayer(zyt_L, zyt_index, zyt_frame) {
+      const zyt_margin = 60;
+      const zyt_boxW = zyt_W - zyt_margin * 2;
+      const zyt_hover = zyt_hoverIndex === zyt_index;
+
+      // 底板
+      zyt_ctx.save();
+      if (zyt_hover) {
+        zyt_ctx.shadowColor = zyt_L.zyt_color;
+        zyt_ctx.shadowBlur = 22;
+      }
+      zyt_ctx.fillStyle = zyt_L.zyt_light;
+      zyt_roundRect(zyt_margin, zyt_L.zyt_y, zyt_boxW, zyt_L.zyt_h, 10);
+      zyt_ctx.fill();
+      zyt_ctx.restore();
+
+      zyt_ctx.strokeStyle = zyt_hover ? zyt_L.zyt_color : zyt_L.zyt_color + '66';
+      zyt_ctx.lineWidth = zyt_hover ? 2.4 : 1.4;
+      zyt_roundRect(zyt_margin, zyt_L.zyt_y, zyt_boxW, zyt_L.zyt_h, 10);
+      zyt_ctx.stroke();
+      zyt_ctx.lineWidth = 1;
+
+      // 左侧竖排层名
+      zyt_ctx.save();
+      zyt_ctx.translate(zyt_margin + 24, zyt_L.zyt_y + zyt_L.zyt_h / 2);
+      zyt_ctx.rotate(-Math.PI / 2);
+      zyt_ctx.textAlign = 'center';
+      zyt_ctx.textBaseline = 'middle';
+      zyt_ctx.font = '700 14px "Microsoft YaHei", sans-serif';
+      zyt_ctx.fillStyle = '#fff';
+      zyt_ctx.fillStyle = zyt_L.zyt_color;
+      zyt_ctx.fillText(zyt_L.zyt_name, 0, 0);
+      zyt_ctx.restore();
+
+      // 层名左侧小色条
+      zyt_ctx.fillStyle = zyt_L.zyt_color;
+      zyt_ctx.fillRect(zyt_margin + 12, zyt_L.zyt_y + 8, 5, zyt_L.zyt_h - 16);
+
+      // 内部模块
+      const zyt_mods = zyt_L.zyt_mods;
+      const zyt_zoneX = zyt_margin + 48;
+      const zyt_zoneW = zyt_boxW - 60;
+      const zyt_gap = 10;
+      const zyt_modW = (zyt_zoneW - zyt_gap * (zyt_mods.length - 1)) / zyt_mods.length;
+      const zyt_modH = Math.min(52, zyt_L.zyt_h - 26);
+      const zyt_modY = zyt_L.zyt_y + (zyt_L.zyt_h - zyt_modH) / 2;
+
+      zyt_mods.forEach(function (zyt_m, zyt_j) {
+        const zyt_mx = zyt_zoneX + zyt_j * (zyt_modW + zyt_gap);
+        zyt_ctx.fillStyle = '#fff';
+        zyt_roundRect(zyt_mx, zyt_modY, zyt_modW, zyt_modH, 8);
+        zyt_ctx.fill();
+        zyt_ctx.strokeStyle = zyt_L.zyt_color + '88';
+        zyt_roundRect(zyt_mx, zyt_modY, zyt_modW, zyt_modH, 8);
+        zyt_ctx.stroke();
+
+        // 悬停时模块顶部微光条
+        if (zyt_hover) {
+          zyt_ctx.fillStyle = zyt_L.zyt_color;
+          zyt_ctx.globalAlpha = 0.35 + 0.25 * Math.sin(zyt_frame / 14 + zyt_j);
+          zyt_ctx.fillRect(zyt_mx + 8, zyt_modY, zyt_modW - 16, 3);
+          zyt_ctx.globalAlpha = 1;
+        }
+
+        // 模块文字（自动缩字号防溢出）
+        zyt_ctx.fillStyle = '#3d3a38';
+        zyt_ctx.textAlign = 'center';
+        zyt_ctx.textBaseline = 'middle';
+        let zyt_fs = 13;
+        zyt_ctx.font = '600 ' + zyt_fs + 'px "Microsoft YaHei", sans-serif';
+        while (zyt_ctx.measureText(zyt_m).width > zyt_modW - 12 && zyt_fs > 9) {
+          zyt_fs--;
+          zyt_ctx.font = '600 ' + zyt_fs + 'px "Microsoft YaHei", sans-serif';
+        }
+        zyt_ctx.fillText(zyt_m, zyt_mx + zyt_modW / 2, zyt_modY + zyt_modH / 2);
+      });
+    }
+
+    function zyt_drawArrows() {
+      // 相邻层之间的双向小箭头
+      for (let zyt_i = 0; zyt_i < zyt_layers.length - 1; zyt_i++) {
+        const zyt_a = zyt_layers[zyt_i];
+        const zyt_b = zyt_layers[zyt_i + 1];
+        const zyt_x = zyt_W / 2 + (zyt_i % 2 === 0 ? -40 : 40);
+        const zyt_y1 = zyt_a.zyt_y + zyt_a.zyt_h;
+        const zyt_y2 = zyt_b.zyt_y;
+
+        zyt_ctx.strokeStyle = 'rgba(150,130,110,0.45)';
+        zyt_ctx.beginPath();
+        zyt_ctx.moveTo(zyt_x, zyt_y1);
+        zyt_ctx.lineTo(zyt_x, zyt_y2);
+        zyt_ctx.stroke();
+
+        // 下箭头
+        zyt_ctx.fillStyle = '#c9a98f';
+        zyt_ctx.beginPath();
+        zyt_ctx.moveTo(zyt_x - 4, zyt_y2 - 7);
+        zyt_ctx.lineTo(zyt_x + 4, zyt_y2 - 7);
+        zyt_ctx.lineTo(zyt_x, zyt_y2 - 1);
+        zyt_ctx.closePath();
+        zyt_ctx.fill();
+
+        // 上箭头
+        zyt_ctx.beginPath();
+        zyt_ctx.moveTo(zyt_x - 4, zyt_y1 + 7);
+        zyt_ctx.lineTo(zyt_x + 4, zyt_y1 + 7);
+        zyt_ctx.lineTo(zyt_x, zyt_y1 + 1);
+        zyt_ctx.closePath();
+        zyt_ctx.fill();
+      }
+    }
+
+    function zyt_draw() {
+      const zyt_frame = performance.now() / 16.7;
+
+      // 背景
+      zyt_ctx.fillStyle = '#fffdfb';
+      zyt_ctx.fillRect(0, 0, zyt_W, zyt_H);
+
+      // 顶部标题
+      zyt_ctx.textAlign = 'center';
+      zyt_ctx.textBaseline = 'middle';
+      zyt_ctx.font = '700 20px "Microsoft YaHei", sans-serif';
+      zyt_ctx.fillStyle = '#4a3f38';
+      zyt_ctx.fillText('电商全站系统架构', zyt_W / 2, 12);
+
+      // 连线箭头
+      zyt_drawArrows();
+
+      // 各层
+      zyt_layers.forEach(function (zyt_L, zyt_i) {
+        zyt_drawLayer(zyt_L, zyt_i, zyt_frame);
+      });
+
+      // 流动光点
+      zyt_dots.forEach(function (zyt_d) {
+        const zyt_p = zyt_paths[zyt_d.zyt_path];
+        zyt_d.zyt_t += zyt_d.zyt_speed;
+        if (zyt_d.zyt_t > 1) zyt_d.zyt_t = 0;
+        const zyt_y = zyt_d.zyt_dir === 1
+          ? zyt_p.zyt_y1 + (zyt_p.zyt_y2 - zyt_p.zyt_y1) * zyt_d.zyt_t
+          : zyt_p.zyt_y2 - (zyt_p.zyt_y2 - zyt_p.zyt_y1) * zyt_d.zyt_t;
+
+        zyt_ctx.save();
+        zyt_ctx.shadowColor = zyt_d.zyt_color;
+        zyt_ctx.shadowBlur = 8;
+        zyt_ctx.fillStyle = zyt_d.zyt_color;
+        zyt_ctx.beginPath();
+        zyt_ctx.arc(zyt_p.zyt_x, zyt_y, 3.4, 0, Math.PI * 2);
+        zyt_ctx.fill();
+        zyt_ctx.restore();
+      });
+
+      // 悬停提示
+      if (zyt_hoverIndex >= 0) {
+        const zyt_L = zyt_layers[zyt_hoverIndex];
+        zyt_ctx.font = '12px "Microsoft YaHei", sans-serif';
+        const zyt_tip = zyt_L.zyt_mods.join(' · ');
+        const zyt_tw = zyt_ctx.measureText(zyt_tip).width + 24;
+        const zyt_tx = zyt_W / 2 - zyt_tw / 2;
+        const zyt_ty = zyt_H - 26;
+        zyt_ctx.fillStyle = 'rgba(60,50,45,0.88)';
+        zyt_roundRect(zyt_tx, zyt_ty, zyt_tw, 22, 6);
+        zyt_ctx.fill();
+        zyt_ctx.fillStyle = '#fff';
+        zyt_ctx.fillText(zyt_tip, zyt_W / 2, zyt_ty + 11);
+      }
+
+      requestAnimationFrame(zyt_draw);
+    }
+
+    zyt_draw();
+  </script>
+</body>
+</html>

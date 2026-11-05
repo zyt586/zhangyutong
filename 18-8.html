@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>18-8 智能客服数据监控大屏</title>
+  <!--
+  姓名：张语桐
+  日期：2026-11-05
+  功能名称：基于 ECharts 的智能客服数据大屏（三列布局，中间上方为中国地图地理信息图，本地 cdn 引入）
+  -->
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background: radial-gradient(ellipse at 50% -10%, #123a6e 0%, #0a1930 55%, #061024 100%);
+      color: #cfe6ff;
+      min-height: 100vh;
+      padding: 14px 16px 10px;
+      overflow-x: hidden;
+    }
+    .zyt_page { max-width: 1680px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; min-height: calc(100vh - 24px); }
+
+    /* 头部 */
+    .zyt_header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 22px;
+      background: linear-gradient(90deg, rgba(20,70,130,.15), rgba(30,110,190,.35), rgba(20,70,130,.15));
+      border: 1px solid #1b4a7a; border-radius: 12px;
+    }
+    .zyt_header h1 {
+      font-size: 24px; letter-spacing: 4px; font-weight: bold;
+      background: linear-gradient(180deg, #eaf6ff, #6fc6ff);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .zyt_clock { font-size: 14px; color: #7fb8e6; font-variant-numeric: tabular-nums; }
+    .zyt_clock b { color: #00d4ff; font-weight: normal; }
+
+    /* KPI 行 */
+    .zyt_kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .zyt_kpi {
+      background: rgba(12, 42, 82, .45); border: 1px solid #1b4a7a; border-radius: 12px;
+      padding: 12px 18px; display: flex; align-items: center; gap: 14px;
+    }
+    .zyt_kpiIcon {
+      width: 44px; height: 44px; border-radius: 10px; flex: none;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: bold; color: #061024;
+    }
+    .zyt_kpiLabel { font-size: 12px; color: #7fb8e6; }
+    .zyt_kpiValue { font-size: 24px; font-weight: bold; font-variant-numeric: tabular-nums; }
+    .zyt_kpiUnit { font-size: 12px; font-weight: normal; color: #7fb8e6; margin-left: 2px; }
+
+    /* 三列主区 */
+    .zyt_main { display: grid; grid-template-columns: 1fr 1.4fr 1fr; gap: 12px; flex: 1; min-height: 0; }
+    .zyt_col { display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+    .zyt_card {
+      background: rgba(12, 42, 82, .42);
+      border: 1px solid #1b4a7a; border-radius: 12px;
+      padding: 10px 12px 8px;
+      display: flex; flex-direction: column; min-height: 0;
+      box-shadow: inset 0 0 24px rgba(0, 120, 220, .06);
+    }
+    .zyt_cardHead {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 15px; font-weight: bold; color: #d9f1ff;
+      padding-bottom: 6px; margin-bottom: 4px;
+      border-bottom: 1px solid rgba(27, 74, 122, .8);
+    }
+    .zyt_cardHead::before {
+      content: ''; width: 4px; height: 14px; border-radius: 2px;
+      background: linear-gradient(180deg, #00d4ff, #1b6fc4);
+      box-shadow: 0 0 8px rgba(0, 212, 255, .8);
+    }
+    .zyt_cardHead span { margin-left: auto; font-size: 11px; font-weight: normal; color: #5f8fc0; }
+    .zyt_chart { flex: 1; min-height: 0; }
+    .zyt_mapCard { flex: 1.5; }
+    .zyt_mapChart { flex: 1; min-height: 0; }
+
+    /* 实时滚动列表 */
+    .zyt_listWrap { flex: 1; min-height: 0; overflow: hidden; position: relative; }
+    .zyt_listWrap::after {
+      content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 26px;
+      background: linear-gradient(transparent, rgba(8, 26, 52, .95)); pointer-events: none;
+    }
+    .zyt_listRow {
+      display: grid; grid-template-columns: 62px 1fr 64px; gap: 8px; align-items: center;
+      font-size: 12px; padding: 5px 4px; border-bottom: 1px dashed rgba(27, 74, 122, .6);
+      animation: zyt_rowIn .5s ease;
+    }
+    @keyframes zyt_rowIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+    .zyt_listTime { color: #5f8fc0; font-variant-numeric: tabular-nums; }
+    .zyt_listText { color: #cfe6ff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .zyt_listTag {
+      justify-self: end; font-size: 11px; padding: 1px 8px; border-radius: 9px;
+    }
+    .zyt_tagAI { color: #6ef0a8; background: rgba(110, 240, 168, .12); border: 1px solid rgba(110, 240, 168, .4); }
+    .zyt_tagHuman { color: #ffd856; background: rgba(255, 216, 86, .1); border: 1px solid rgba(255, 216, 86, .4); }
+
+    .zyt_footer { text-align: center; font-size: 12px; color: #4d7cb0; padding: 4px 0 2px; }
+    @media (max-width: 900px) {
+      .zyt_main { grid-template-columns: 1fr; }
+      .zyt_kpis { grid-template-columns: repeat(2, 1fr); }
+      .zyt_header h1 { font-size: 18px; letter-spacing: 2px; }
+      .zyt_card { min-height: 320px; }
+      .zyt_mapCard { min-height: 380px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="zyt_page">
+    <div class="zyt_header">
+      <h1>🛰 智能客服数据监控大屏</h1>
+      <div class="zyt_clock">当前时间 <b data-zyt-clock>----/--/-- --:--:--</b></div>
+    </div>
+
+    <div class="zyt_kpis">
+      <div class="zyt_kpi">
+        <div class="zyt_kpiIcon" style="background:#00d4ff">💬</div>
+        <div><div class="zyt_kpiLabel">今日咨询总量</div>
+        <div class="zyt_kpiValue" style="color:#00d4ff">12,846<span class="zyt_kpiUnit">次</span></div></div>
+      </div>
+      <div class="zyt_kpi">
+        <div class="zyt_kpiIcon" style="background:#6ef0a8">🤖</div>
+        <div><div class="zyt_kpiLabel">AI 独立解决率</div>
+        <div class="zyt_kpiValue" style="color:#6ef0a8">87.6<span class="zyt_kpiUnit">%</span></div></div>
+      </div>
+      <div class="zyt_kpi">
+        <div class="zyt_kpiIcon" style="background:#ffd856">⚡</div>
+        <div><div class="zyt_kpiLabel">平均响应时长</div>
+        <div class="zyt_kpiValue" style="color:#ffd856">1.2<span class="zyt_kpiUnit">s</span></div></div>
+      </div>
+      <div class="zyt_kpi">
+        <div class="zyt_kpiIcon" style="background:#ff8f9c">👤</div>
+        <div><div class="zyt_kpiLabel">在线坐席</div>
+        <div class="zyt_kpiValue" style="color:#ff8f9c">128<span class="zyt_kpiUnit">人</span></div></div>
+      </div>
+    </div>
+
+    <div class="zyt_main">
+      <!-- 左列 -->
+      <div class="zyt_col">
+        <div class="zyt_card">
+          <div class="zyt_cardHead">24 小时咨询量趋势<span>今日 vs 昨日</span></div>
+          <div class="zyt_chart" data-zyt-trend></div>
+        </div>
+        <div class="zyt_card">
+          <div class="zyt_cardHead">各业务线咨询量<span>单位：次</span></div>
+          <div class="zyt_chart" data-zyt-biz></div>
+        </div>
+      </div>
+
+      <!-- 中列 -->
+      <div class="zyt_col">
+        <div class="zyt_card zyt_mapCard">
+          <div class="zyt_cardHead">全国咨询热度地图<span>悬停查看各省数据</span></div>
+          <div class="zyt_mapChart" data-zyt-map></div>
+        </div>
+        <div class="zyt_card">
+          <div class="zyt_cardHead">实时咨询流<span>自动滚动</span></div>
+          <div class="zyt_listWrap" data-zyt-list></div>
+        </div>
+      </div>
+
+      <!-- 右列 -->
+      <div class="zyt_col">
+        <div class="zyt_card">
+          <div class="zyt_cardHead">咨询渠道占比<span>环形图</span></div>
+          <div class="zyt_chart" data-zyt-channel></div>
+        </div>
+        <div class="zyt_card">
+          <div class="zyt_cardHead">热点问题 Top5<span>知识库检索量</span></div>
+          <div class="zyt_chart" data-zyt-hot></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="zyt_footer">张语桐 · 高级网页设计I · 18-8 ECharts 数据大屏 · 中国地图 GeoJSON：cdn/china.js</div>
+  </div>
+
+  <script src="cdn/echarts.min.js"></script>
+  <script src="cdn/china.js"></script>
+  <script>
+    var zyt_axisText = { color: '#7fb8e6', fontSize: 11 };
+    var zyt_splitLine = { lineStyle: { color: 'rgba(27,74,122,.7)' } };
+    echarts.registerMap('zytChina', window.zyt_chinaGeo);
+
+    /* 头部时钟 */
+    function zyt_pad(zyt_n) { return zyt_n < 10 ? '0' + zyt_n : '' + zyt_n; }
+    function zyt_tickClock() {
+      var zyt_d = new Date();
+      var zyt_el = document.querySelector('[data-zyt-clock]');
+      zyt_el.textContent = zyt_d.getFullYear() + '/' + zyt_pad(zyt_d.getMonth() + 1) + '/' + zyt_pad(zyt_d.getDate()) +
+        ' ' + zyt_pad(zyt_d.getHours()) + ':' + zyt_pad(zyt_d.getMinutes()) + ':' + zyt_pad(zyt_d.getSeconds());
+    }
+    zyt_tickClock();
+    setInterval(zyt_tickClock, 1000);
+
+    /* 左上：24 小时咨询量趋势 */
+    var zyt_trendChart = echarts.init(document.querySelector('[data-zyt-trend]'));
+    zyt_trendChart.setOption({
+      tooltip: { trigger: 'axis', backgroundColor: 'rgba(8,30,60,.92)', borderColor: '#1b6fc4', textStyle: { color: '#cfe6ff' } },
+      legend: { data: ['今日', '昨日'], top: 0, right: 6, textStyle: zyt_axisText, itemWidth: 14, itemHeight: 8 },
+      grid: { left: 42, right: 14, top: 30, bottom: 24 },
+      xAxis: { type: 'category', boundaryGap: false, data: Array.from({ length: 24 }, function (z_, z_i) { return z_i + '时'; }), axisLabel: zyt_axisText, axisLine: { lineStyle: { color: '#1b4a7a' } } },
+      yAxis: { type: 'value', axisLabel: zyt_axisText, splitLine: zyt_splitLine },
+      series: [
+        {
+          name: '今日', type: 'line', smooth: true, symbol: 'none',
+          data: [180, 120, 90, 70, 65, 80, 160, 320, 520, 680, 760, 830, 790, 810, 780, 750, 820, 900, 860, 700, 560, 420, 320, 240],
+          lineStyle: { width: 2.5, color: '#00d4ff' },
+          areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(0,212,255,.4)' }, { offset: 1, color: 'rgba(0,212,255,0)' }]) }
+        },
+        {
+          name: '昨日', type: 'line', smooth: true, symbol: 'none',
+          data: [150, 110, 85, 62, 60, 75, 140, 290, 480, 640, 720, 790, 750, 770, 740, 700, 780, 850, 800, 660, 520, 380, 290, 210],
+          lineStyle: { width: 1.5, color: '#ffd856', type: 'dashed' }
+        }
+      ]
+    });
+
+    /* 左下：各业务线咨询量 */
+    var zyt_bizChart = echarts.init(document.querySelector('[data-zyt-biz]'));
+    zyt_bizChart.setOption({
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, backgroundColor: 'rgba(8,30,60,.92)', borderColor: '#1b6fc4', textStyle: { color: '#cfe6ff' } },
+      grid: { left: 90, right: 40, top: 10, bottom: 10 },
+      xAxis: { type: 'value', axisLabel: zyt_axisText, splitLine: zyt_splitLine },
+      yAxis: {
+        type: 'category', inverse: true,
+        data: ['售前咨询', '订单物流', '售后退换', '账户安全', '发票财务'],
+        axisLabel: { color: '#cfe6ff', fontSize: 12 }, axisLine: { show: false }, axisTick: { show: false }
+      },
+      series: [{
+        type: 'bar', barWidth: 14,
+        data: [3620, 2980, 2470, 2130, 1646],
+        itemStyle: {
+          borderRadius: [0, 8, 8, 0],
+          color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{ offset: 0, color: '#1b6fc4' }, { offset: 1, color: '#00d4ff' }])
+        },
+        label: { show: true, position: 'right', color: '#7fb8e6', fontSize: 11 }
+      }]
+    });
+
+    /* 中上：全国咨询热度地图 */
+    var zyt_mapChart = echarts.init(document.querySelector('[data-zyt-map]'));
+    zyt_mapChart.setOption({
+      tooltip: {
+        trigger: 'item', backgroundColor: 'rgba(8,30,60,.92)', borderColor: '#1b6fc4', textStyle: { color: '#cfe6ff' },
+        formatter: function (zyt_p) {
+          if (zyt_p.seriesType === 'effectScatter') return zyt_p.name + '：' + zyt_p.value[2] + ' 次咨询';
+          return (zyt_p.name || '—') + '：' + (zyt_p.value || 0) + ' 次咨询';
+        }
+      },
+      visualMap: {
+        min: 0, max: 3200, left: 8, bottom: 8,
+        text: ['高', '低'], textStyle: { color: '#7fb8e6', fontSize: 11 },
+        inRange: { color: ['#0d2f55', '#1b6fc4', '#00d4ff', '#ffd856'] },
+        calculable: false
+      },
+      geo: {
+        map: 'zytChina', roam: false, top: 8, bottom: 20,
+        itemStyle: { areaColor: '#0d2f55', borderColor: '#2a6db0', borderWidth: 1 },
+        emphasis: { itemStyle: { areaColor: '#ffd856' }, label: { show: false } }
+      },
+      series: [
+        {
+          name: '咨询热度', type: 'map', geoIndex: 0,
+          data: [
+            { name: '广东省', value: 3200 }, { name: '浙江省', value: 2750 }, { name: '北京市', value: 2480 },
+            { name: '上海市', value: 2360 }, { name: '江苏省', value: 2180 }, { name: '四川省', value: 1720 },
+            { name: '山东省', value: 1580 }, { name: '湖北省', value: 1420 }, { name: '河南省', value: 1350 },
+            { name: '福建省', value: 1180 }, { name: '湖南省', value: 1060 }, { name: '安徽省', value: 980 },
+            { name: '河北省', value: 920 }, { name: '陕西省', value: 860 }, { name: '重庆市', value: 820 },
+            { name: '辽宁省', value: 740 }, { name: '江西省', value: 610 }, { name: '云南省', value: 560 },
+            { name: '广西壮族自治区', value: 520 }, { name: '山西省', value: 430 }, { name: '贵州省', value: 410 },
+            { name: '黑龙江省', value: 350 }, { name: '吉林省', value: 320 }, { name: '天津市', value: 300 },
+            { name: '内蒙古自治区', value: 240 }, { name: '新疆维吾尔自治区', value: 210 }, { name: '甘肃省', value: 190 },
+            { name: '海南省', value: 180 }, { name: '宁夏回族自治区', value: 120 }, { name: '青海省', value: 95 },
+            { name: '西藏自治区', value: 45 }, { name: '香港', value: 160 }, { name: '澳门', value: 40 }, { name: '台湾', value: 130 }
+          ]
+        },
+        {
+          name: '重点城市', type: 'effectScatter', coordinateSystem: 'geo',
+          symbolSize: function (zyt_v) { return 6 + zyt_v[2] / 3200 * 14; },
+          rippleEffect: { brushType: 'stroke', scale: 3 },
+          itemStyle: { color: '#ff8f9c', shadowBlur: 10, shadowColor: '#ff8f9c' },
+          data: [
+            { name: '广州', value: [113.26, 23.13, 3200] },
+            { name: '杭州', value: [120.15, 30.28, 2750] },
+            { name: '北京', value: [116.40, 39.90, 2480] },
+            { name: '上海', value: [121.47, 31.23, 2360] },
+            { name: '成都', value: [104.06, 30.57, 1720] }
+          ]
+        }
+      ]
+    });
+
+    /* 中下：实时咨询流 */
+    var zyt_listData = [
+      { ch: '网页', q: '订单什么时候发货？', ai: true },
+      { ch: 'App', q: '如何申请七天无理由退货', ai: true },
+      { ch: '小程序', q: '优惠券无法使用怎么办', ai: true },
+      { ch: '电话', q: '投诉物流派送超时', ai: false },
+      { ch: '网页', q: '发票抬头如何修改', ai: true },
+      { ch: 'App', q: '账号被锁定无法登录', ai: false },
+      { ch: '小程序', q: '会员积分兑换规则咨询', ai: true },
+      { ch: '网页', q: '修改收货地址', ai: true },
+      { ch: 'App', q: '退款进度查询', ai: true },
+      { ch: '电话', q: '大宗商品企业采购咨询', ai: false }
+    ];
+    var zyt_listWrap = document.querySelector('[data-zyt-list]');
+    var zyt_listIdx = 0;
+    function zyt_pad2(zyt_n) { return zyt_n < 10 ? '0' + zyt_n : '' + zyt_n; }
+    function zyt_pushRow() {
+      var zyt_d = zyt_listData[zyt_listIdx % zyt_listData.length];
+      zyt_listIdx++;
+      var zyt_now = new Date();
+      var zyt_row = document.createElement('div');
+      zyt_row.className = 'zyt_listRow';
+      zyt_row.innerHTML =
+        '<span class="zyt_listTime">' + zyt_pad2(zyt_now.getHours()) + ':' + zyt_pad2(zyt_now.getMinutes()) + ':' + zyt_pad2(zyt_now.getSeconds()) + '</span>' +
+        '<span class="zyt_listText">[' + zyt_d.ch + '] ' + zyt_d.q + '</span>' +
+        '<span class="zyt_listTag ' + (zyt_d.ai ? 'zyt_tagAI">AI 接管' : 'zyt_tagHuman">转人工') + '</span>';
+      zyt_listWrap.insertBefore(zyt_row, zyt_listWrap.firstChild);
+      while (zyt_listWrap.children.length > 12) zyt_listWrap.removeChild(zyt_listWrap.lastChild);
+    }
+    for (var zyt_r = 0; zyt_r < 8; zyt_r++) zyt_pushRow();
+    setInterval(zyt_pushRow, 2600);
+
+    /* 右上：咨询渠道占比 */
+    var zyt_channelChart = echarts.init(document.querySelector('[data-zyt-channel]'));
+    zyt_channelChart.setOption({
+      tooltip: { trigger: 'item', backgroundColor: 'rgba(8,30,60,.92)', borderColor: '#1b6fc4', textStyle: { color: '#cfe6ff' }, formatter: '{b}：{c} 次（{d}%）' },
+      legend: { bottom: 0, textStyle: zyt_axisText, itemWidth: 14, itemHeight: 8 },
+      series: [{
+        type: 'pie', radius: ['44%', '68%'], center: ['50%', '44%'],
+        itemStyle: { borderColor: '#0a1930', borderWidth: 2 },
+        label: { show: true, color: '#7fb8e6', fontSize: 11, formatter: '{b}\n{d}%' },
+        labelLine: { lineStyle: { color: '#2a6db0' } },
+        data: [
+          { name: '网页端', value: 4620, itemStyle: { color: '#00d4ff' } },
+          { name: 'App 移动端', value: 3480, itemStyle: { color: '#6ef0a8' } },
+          { name: '微信小程序', value: 2710, itemStyle: { color: '#ffd856' } },
+          { name: '电话渠道', value: 1286, itemStyle: { color: '#ff8f9c' } },
+          { name: '其他渠道', value: 750, itemStyle: { color: '#9a8cf0' } }
+        ]
+      }]
+    });
+
+    /* 右下：热点问题 Top5 */
+    var zyt_hotChart = echarts.init(document.querySelector('[data-zyt-hot]'));
+    zyt_hotChart.setOption({
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, backgroundColor: 'rgba(8,30,60,.92)', borderColor: '#1b6fc4', textStyle: { color: '#cfe6ff' } },
+      grid: { left: 110, right: 46, top: 12, bottom: 6 },
+      xAxis: { type: 'value', axisLabel: zyt_axisText, splitLine: zyt_splitLine },
+      yAxis: {
+        type: 'category', inverse: true,
+        data: ['退款进度查询', '物流派送查询', '七天无理由退货', '发票开具流程', '优惠券使用规则'],
+        axisLabel: { color: '#cfe6ff', fontSize: 12 }, axisLine: { show: false }, axisTick: { show: false }
+      },
+      series: [{
+        type: 'bar', barWidth: 13,
+        data: [
+          { value: 1866, itemStyle: { color: '#ff8f9c' } },
+          { value: 1542, itemStyle: { color: '#ffd856' } },
+          { value: 1288, itemStyle: { color: '#6ef0a8' } },
+          { value: 1046, itemStyle: { color: '#00d4ff' } },
+          { value: 836, itemStyle: { color: '#9a8cf0' } }
+        ],
+        itemStyle: { borderRadius: [0, 8, 8, 0] },
+        label: { show: true, position: 'right', color: '#7fb8e6', fontSize: 11 },
+        showBackground: true,
+        backgroundStyle: { color: 'rgba(27,74,122,.35)', borderRadius: [0, 8, 8, 0] }
+      }]
+    });
+
+    window.addEventListener('resize', function () {
+      [zyt_trendChart, zyt_bizChart, zyt_mapChart, zyt_channelChart, zyt_hotChart].forEach(function (zyt_c) { zyt_c.resize(); });
+    });
+  </script>
+</body>
+</html>

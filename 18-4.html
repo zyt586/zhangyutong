@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>18-4 数据可视化图表集</title>
+  <!--
+  姓名：张语桐
+  日期：2026-11-05
+  功能名称：原生 Canvas 复刻 ECharts 经典图表示例——极坐标折线、矩阵迷你图、堆叠圆角柱、平行坐标、伪 3D 柱
+  -->
+  <style>
+    :root {
+      --zyt_bg: #f5f6f9;
+      --zyt_line: #e4e8f0;
+      --zyt_ink: #333a4a;
+      --zyt_sub: #7b8499;
+      --zyt_blue: #5470c6;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background-color: var(--zyt_bg);
+      color: var(--zyt_ink);
+      line-height: 1.7;
+      padding-bottom: 46px;
+    }
+
+    .zyt_header {
+      background: linear-gradient(135deg, #eef2fb, #eaf5f1);
+      border-bottom: 1px solid var(--zyt_line);
+      padding: 26px 20px;
+      text-align: center;
+    }
+
+    .zyt_title { font-size: 26px; font-weight: 700; color: #33477f; letter-spacing: 1px; }
+    .zyt_sub { margin-top: 6px; font-size: 14px; color: #6d7b9c; }
+
+    .zyt_main { max-width: 1080px; margin: 0 auto; padding: 20px 14px; }
+
+    .zyt_card {
+      background: #fff;
+      border: 1px solid var(--zyt_line);
+      border-radius: 14px;
+      padding: 16px 18px 18px;
+      margin-bottom: 18px;
+      box-shadow: 0 4px 14px rgba(40, 60, 120, 0.05);
+    }
+
+    .zyt_chartHead {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 10px;
+      border-bottom: 1px solid #f0f3f8;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+
+    .zyt_num {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: var(--zyt_blue);
+      color: #fff;
+      font-size: 13px; font-weight: 700;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex: 0 0 auto;
+    }
+
+    .zyt_chartTitle { font-size: 17px; font-weight: 700; }
+    .zyt_chartDesc { font-size: 12.5px; color: var(--zyt_sub); margin-left: auto; }
+
+    .zyt_canvasWrap { position: relative; width: 100%; overflow: hidden; }
+    .zyt_canvas { display: block; width: 100%; height: auto; }
+
+    .zyt_hint {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #9aa3b8;
+      padding-left: 2px;
+    }
+
+    .zyt_hint b { color: #6d7b9c; }
+
+    .zyt_foot { text-align: center; font-size: 12px; color: #a3abbd; margin-top: 20px; }
+
+    @media (max-width: 640px) {
+      .zyt_title { font-size: 20px; }
+      .zyt_chartDesc { margin-left: 0; flex-basis: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="zyt_header">
+    <h1 class="zyt_title">📊 数据可视化图表集</h1>
+    <p class="zyt_sub">原生 Canvas 复刻 ECharts 经典示例 · 无任何第三方库与 CDN · 鼠标悬停可查看数据</p>
+  </header>
+
+  <main class="zyt_main">
+
+    <!-- ① 极坐标折线 -->
+    <section class="zyt_card">
+      <div class="zyt_chartHead">
+        <span class="zyt_num">1</span>
+        <h2 class="zyt_chartTitle">极坐标折线图（line-polar）</h2>
+        <span class="zyt_chartDesc">radiusAxis + angleAxis · 一条心形极坐标曲线</span>
+      </div>
+      <div class="zyt_canvasWrap">
+        <canvas class="zyt_canvas" data-zyt-polar width="960" height="460"></canvas>
+      </div>
+      <p class="zyt_hint"><b>公式：</b>r = 5 × (1 + sin(θ))，θ 从 0° 到 360°，共 101 个点。外圈为角度轴（0°~360°），放射线为半径轴（0~10）。</p>
+    </section>
+
+    <!-- ② 矩阵迷你图 -->
+    <section class="zyt_card">
+      <div class="zyt_chartHead">
+        <span class="zyt_num">2</span>
+        <h2 class="zyt_chartTitle">矩阵迷你图（matrix-sparkline）</h2>
+        <span class="zyt_chartDesc">matrix 坐标系 · 5 天 × 6 个时段，每格一条迷你柱状图</span>
+      </div>
+      <div class="zyt_canvasWrap">
+        <canvas class="zyt_canvas" data-zyt-matrix width="960" height="470"></canvas>
+      </div>
+      <p class="zyt_hint"><b>读法：</b>横轴为星期一到星期五，纵轴为 2 小时一时段；每格内 8 根迷你柱表示该时段的 8 次采样流量，数值越高柱越高，颜色深浅表示均值高低。</p>
+    </section>
+
+    <!-- ③ 堆叠圆角柱 -->
+    <section class="zyt_card">
+      <div class="zyt_chartHead">
+        <span class="zyt_num">3</span>
+        <h2 class="zyt_chartTitle">堆叠柱状图（圆角，bar-stack-borderRadius）</h2>
+        <span class="zyt_chartDesc">两组堆叠 a/b/c 与 d/e · 仅最顶层带圆角</span>
+      </div>
+      <div class="zyt_canvasWrap">
+        <canvas class="zyt_canvas" data-zyt-bar width="960" height="430"></canvas>
+      </div>
+      <p class="zyt_hint"><b>要点：</b>同一 stack 内各段首尾相接，只有每一列最上面的那段绘制 4px 圆角；"-" 表示无数据（跳过该段）。</p>
+    </section>
+
+    <!-- ④ 平行坐标 -->
+    <section class="zyt_card">
+      <div class="zyt_chartHead">
+        <span class="zyt_num">4</span>
+        <h2 class="zyt_chartTitle">平行坐标图（parallel-nutrients）</h2>
+        <span class="zyt_chartDesc">每种食物一条折线 · 多营养指标对比</span>
+      </div>
+      <div class="zyt_canvasWrap">
+        <canvas class="zyt_canvas" data-zyt-parallel width="960" height="470"></canvas>
+      </div>
+      <p class="zyt_hint"><b>说明：</b>每根竖轴代表一种营养成分（protein / calcium / sodium / fiber / vitaminc / potassium / carbohydrate / fat / water / calories），每种食物是一条贯穿各轴的折线，颜色区分食物类别。</p>
+    </section>
+
+    <!-- ⑤ 伪 3D 柱 -->
+    <section class="zyt_card">
+      <div class="zyt_chartHead">
+        <span class="zyt_num">5</span>
+        <h2 class="zyt_chartTitle">透明 3D 柱状图（transparent-bar3d）</h2>
+        <span class="zyt_chartDesc">7 天 × 24 小时 · 数值用蓝→红渐变色映射</span>
+      </div>
+      <div class="zyt_canvasWrap">
+        <canvas class="zyt_canvas" data-zyt-bar3d width="960" height="520"></canvas>
+      </div>
+      <p class="zyt_hint"><b>说明：</b>用等距投影模拟 echarts-gl 的坐标系，每根柱子由顶面、正面、侧面三块半透明多边形拼成；颜色按 visualMap（0~20）从深蓝渐变到深红。</p>
+    </section>
+
+    <p class="zyt_foot">张语桐 · 高级网页设计I · Canvas 数据可视化</p>
+  </main>
+
+  <script>
+    /* ========== 通用工具 ========== */
+    const zyt_palette = ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452', '#9a60b4', '#ea7ccc'];
+
+    function zyt_setup(canvas) {
+      const zyt_ctx = canvas.getContext('2d');
+      const zyt_dpr = window.devicePixelRatio || 1;
+      const zyt_w = canvas.width;
+      const zyt_h = canvas.height;
+      // 高清屏：放大像素缓冲，绘制坐标仍用逻辑宽高
+      canvas.width = zyt_w * zyt_dpr;
+      canvas.height = zyt_h * zyt_dpr;
+      zyt_ctx.scale(zyt_dpr, zyt_dpr);
+      return { zyt_ctx: zyt_ctx, zyt_w: zyt_w, zyt_h: zyt_h };
+    }
+
+    function zyt_roundRectPath(zyt_ctx, zyt_x, zyt_y, zyt_w, zyt_h, zyt_r) {
+      const zyt_rr = Math.min(zyt_r, Math.abs(zyt_w) / 2, Math.abs(zyt_h));
+      zyt_ctx.beginPath();
+      zyt_ctx.moveTo(zyt_x + zyt_rr, zyt_y);
+      zyt_ctx.lineTo(zyt_x + zyt_w - zyt_rr, zyt_y);
+      zyt_ctx.quadraticCurveTo(zyt_x + zyt_w, zyt_y, zyt_x + zyt_w, zyt_y + zyt_rr);
+      zyt_ctx.lineTo(zyt_x + zyt_w, zyt_y + zyt_h);
+      zyt_ctx.lineTo(zyt_x, zyt_y + zyt_h);
+      zyt_ctx.lineTo(zyt_x, zyt_y + zyt_rr);
+      zyt_ctx.quadraticCurveTo(zyt_x, zyt_y, zyt_x + zyt_rr, zyt_y);
+      zyt_ctx.closePath();
+    }
+
+    function zyt_axisStyle(zyt_ctx) {
+      zyt_ctx.strokeStyle = '#d9dee9';
+      zyt_ctx.lineWidth = 1;
+      zyt_ctx.font = '12px "Microsoft YaHei", sans-serif';
+      zyt_ctx.fillStyle = '#8b93a7';
+    }
+
+    // ============ ① 极坐标折线 ============
+    function zyt_drawPolar(canvas) {
+      const zyt_s = zyt_setup(canvas);
+      const zyt_ctx = zyt_s.zyt_ctx;
+      const zyt_W = zyt_s.zyt_w;
+      const zyt_H = zyt_s.zyt_h;
+      const zyt_cx = zyt_W / 2;
+      const zyt_cy = 260;
+      const zyt_R = 165;          // 半径轴最大值 10 对应的像素半径
+
+      // 数据：r = 5*(1+sin θ)
+      const zyt_data = [];
+      for (let zyt_i = 0; zyt_i <= 100; zyt_i++) {
+        const zyt_theta = (zyt_i / 100) * 360;
+        const zyt_r = 5 * (1 + Math.sin((zyt_theta / 180) * Math.PI));
+        zyt_data.push({ zyt_r: zyt_r, zyt_theta: zyt_theta });
+      }
+
+      function zyt_pos(zyt_r, zyt_theta) {
+        const zyt_a = ((zyt_theta - 90) * Math.PI) / 180;
+        return {
+          zyt_x: zyt_cx + (zyt_r / 10) * zyt_R * Math.cos(zyt_a),
+          zyt_y: zyt_cy + (zyt_r / 10) * zyt_R * Math.sin(zyt_a)
+        };
+      }
+
+      let zyt_hover = null;
+
+      function zyt_render() {
+        zyt_ctx.clearRect(0, 0, zyt_W, zyt_H);
+        zyt_ctx.fillStyle = '#fff';
+        zyt_ctx.fillRect(0, 0, zyt_W, zyt_H);
+
+        // 标题
+        zyt_ctx.textAlign = 'left';
+        zyt_ctx.textBaseline = 'middle';
+        zyt_ctx.font = '700 16px "Microsoft YaHei", sans-serif';
+        zyt_ctx.fillStyle = '#2f3a55';
+        zyt_ctx.fillText('Two Value-Axes in Polar', 42, 30);
+
+        // 图例
+        zyt_ctx.fillStyle = zyt_palette[0];
+        zyt_ctx.beginPath();
+        zyt_ctx.arc(zyt_W - 96, 30, 6, 0, Math.PI * 2);
+        zyt_ctx.fill();
+        zyt_ctx.font = '13px "Microsoft YaHei", sans-serif';
+        zyt_ctx.fillStyle = '#5a6478';
+        zyt_ctx.fillText('line', zyt_W - 82, 31);
+
+        // 半径轴线（0°方向，水平向右）
+        zyt_axisStyle(zyt_ctx);
+        zyt_ctx.beginPath();
+        zyt_ctx.moveTo(zyt_cx, zyt_cy);
+        zyt_ctx.lineTo(zyt_cx + zyt_R + 10, zyt_cy);
+        zyt_ctx.stroke();
+
+        // 半径刻度环 + 刻度值
+        for (let zyt_r = 2; zyt_r <= 10; zyt_r += 2) {
+          const zyt_pr = (zyt_r / 10) * zyt_R;
+          zyt_ctx.strokeStyle = '#e8ebf2';
+          zyt_ctx.beginPath();
+          zyt_ctx.arc(zyt_cx, zyt_cy, zyt_pr, 0, Math.PI * 2);
+          zyt_ctx.stroke();
+
+          zyt_ctx.font = '11px "Microsoft YaHei", sans-serif';
+          zyt_ctx.fillStyle = '#98a0b3';
+          zyt_ctx.fillText(String(zyt_r), zyt_cx + zyt_pr + 3, zyt_cy + 12);
+        }
+
+        // 角度轴：每 30° 一条辐条，每 45° 标注
+        for (let zyt_a = 0; zyt_a < 360; zyt_a += 30) {
+          const zyt_rad = ((zyt_a - 90) * Math.PI) / 180;
+          zyt_ctx.strokeStyle = '#eef1f6';
+          zyt_ctx.beginPath();
+          zyt_ctx.moveTo(zyt_cx, zyt_cy);
+          zyt_ctx.lineTo(zyt_cx + Math.cos(zyt_rad) * zyt_R, zyt_cy + Math.sin(zyt_rad) * zyt_R);
+          zyt_ctx.stroke();
+        }
+        zyt_ctx.textAlign = 'center';
+        zyt_ctx.textBaseline = 'middle';
+        zyt_ctx.font = '12px "Microsoft YaHei", sans-serif';
+        zyt_ctx.fillStyle = '#98a0b3';
+        for (let zyt_a = 0; zyt_a < 360; zyt_a += 45) {
+          const zyt_rad = ((zyt_a - 90) * Math.PI) / 180;
+          zyt_ctx.fillText(zyt_a + '°',
+            zyt_cx + Math.cos(zyt_rad) * (zyt_R + 28),
+            zyt_cy + Math.sin(zyt_rad) * (zyt_R + 28));
+        }
+
+        // 折线
+        zyt_ctx.strokeStyle = zyt_palette[0];
+        zyt_ctx.lineWidth = 2;
+        zyt_ctx.beginPath();
+        zyt_data.forEach(function (zyt_d, zyt_i) {
+          const zyt_p = zyt_pos(zyt_d.zyt_r, zyt_d.zyt_theta);
+          if (zyt_i === 0) zyt_ctx.moveTo(zyt_p.zyt_x, zyt_p.zyt_y);
+          else zyt_ctx.lineTo(zyt_p.zyt_x, zyt_p.zyt_y);
+        });
+        zyt_ctx.stroke();
+        zyt_ctx.lineWidth = 1;
+
+        // 采样点
+        zyt_data.forEach(function (zyt_d, zyt_i) {
+          if (zyt_i % 4 !== 0) return;
+          const zyt_p = zyt_pos(zyt_d.zyt_r, zyt_d.zyt_theta);
+          zyt_ctx.fillStyle = '#fff';
+          zyt_ctx.strokeStyle = zyt_palette[0];
+          zyt_ctx.beginPath();
+          zyt_ctx.arc(zyt_p.zyt_x, zyt_p.zyt_y, 3, 0, Math.PI * 2);
+          zyt_ctx.fill();
+          zyt_ctx.stroke();
+        });
+
+        // 悬停高亮
+        if (zyt_hover !== null) {
+          const zyt_d = zyt_data[zyt_hover];
+          const zyt_p = zyt_pos(zyt_d.zyt_r, zyt_d.zyt_theta);
+          zyt_ctx.fillStyle = zyt_palette[0];
+          zyt_ctx.beginPath();
+          zyt_ctx.arc(zyt_p.zyt_x, zyt_p.zyt_y, 5, 0, Math.PI * 2);
+          zyt_ctx.fill();
+
+          const zyt_tip = 'θ=' + zyt_d.zyt_theta.toFixed(0) + '°  r=' + zyt_d.zyt_r.toFixed(2);
+          zyt_ctx.font = '12px "Microsoft YaHei", sans-serif';
+          const zyt_tw = zyt_ctx.measureText(zyt_tip).width + 18;
+          let zyt_tx = zyt_p.zyt_x + 12;
+          let zyt_ty = zyt_p.zyt_y - 30;
+          if (zyt_tx + zyt_tw > zyt_W - 8) zyt_tx = zyt_p.zyt_x - 12 - zyt_tw;
+          if (zyt_ty < 46) zyt_ty = zyt_p.zyt_y + 12;
+          zyt_ctx.fillStyle = 'rgba(50,60,85,0.9)';
+          zyt_roundRectPath(zyt_ctx, zyt_tx, zyt_ty, zyt_tw, 24, 6);
+          zyt_ctx.fill();
+          zyt_ctx.fillStyle = '#fff';
+          zyt_ctx.fillText(zyt_tip, zyt_tx + zyt_tw / 2, zyt_ty + 13);
+        }
+      }
+
+      zyt_render();
+
+      canvas.addEventListener('mousemove', function (zyt_e) {
+        const zyt_rect = canvas.getBoundingClientRect();
+        const zyt_mx = (zyt_e.clientX - zyt_rect.left) * (zyt_W / zyt_rect.width);
+        const zyt_my = (zyt_e.clientY - zyt_rect.top) * (zyt_H / zyt_rect.height);
+        let zyt_best = null;
+        let zyt_bestD = 14;
+        zyt_data.forEach(function (zyt_d, zyt_i) {
+          const zyt_p = zyt_pos(zyt_d.zyt_r, zyt_d.zyt_theta);
+          const zyt_dd = Math.hypot(zyt_p.zyt_x - zyt_mx, zyt_p.zyt_y - zyt_my);
+          if (zyt_dd < zyt_bestD) { zyt_bestD = zyt_dd; zyt_best = zyt_i; }
+        });
+        if (zyt_best !== zyt_hover) {
+          zyt_hover = zyt_best;
+          zyt_render();
+        }
+      });
+
+      canvas.addEventListener('mouseleave', function () {
+        if (zyt_hover !== null) {
+          zyt_hover = null;
+          zyt_render();
+        }
+      });
+    }
+
+    // ============ ② 矩阵迷你图 ============
+    function zyt_drawMatrix(canvas) {
+      const zyt_s = zyt_setup(canvas);
+      const zyt_ctx = zyt_s.zyt_ctx;
+      const zyt_W = zyt_s.zyt_w;
+      const zyt_H = zyt_s.zyt_h;
+
+      const zyt_days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+      const zyt_slots = [
+        ['8:00', '10:00'], ['10:00', '12:00'], ['12:00', '14:00'],
+        ['14:00', '16:00'], ['16:00', '18:00'], ['18:00', '20:00']
+      ];
+
+      const zyt_left = 150;
+      const zyt_top = 78;
+      const zyt_right = 26;
+      const zyt_bottom = 26;
+      const zyt_cellW = (zyt_W - zyt_left - zyt_right) / zyt_days.length;
+      const zyt_cellH = (zyt_H - zyt_top - zyt_bottom) / zyt_slots.length;
+      const zyt_barCount = 8;
+
+      // 每格 8 个采样值（确定性伪随机，保证每次刷新一致）
+      const zyt_cells = [];
+      for (let zyt_r = 0; zyt_r < zyt_slots.length; zyt_r++) {
+        for (let zyt_c = 0; zyt_c < zyt_days.length; zyt_c++) {
+          const zyt_vals = [];
+          for (let zyt_k = 0; zyt_k < zyt_barCount; zyt_k++) {
+            const zyt_v = ((zyt_r * 53 + zyt_c * 31 + zyt_k * 17 + 11) % 23 + 3) / 26;
+            zyt_vals.push(zyt_v);
+          }
+          zyt_cells.push({ zyt_row: zyt_r, zyt_col: zyt_c, zyt_vals: zyt_vals });
+        }
+      }
+
+      let zyt_hover = null;
+
+      function zyt_render() {
+        zyt_ctx.clearRect(0, 0, zyt_W, zyt_H);
+        zyt_ctx.fillStyle = '#fff';
+        zyt_ctx.fillRect(0, 0, zyt_W, zyt_H);
+
+        // 标题
+        zyt_ctx.textAlign = 'left';
+        zyt_ctx.textBaseline = 'middle';
+        zyt_ctx.font = '700 16px "Microsoft YaHei", sans-serif';
+        zyt_ctx.fillStyle = '#2f3a55';
+        zyt_ctx.fillText('Matrix Sparkline', 40, 32);
+        zyt_ctx.font = '12px "Microsoft YaHei", sans-serif';
+        zyt_ctx.fillStyle = '#98a0b3';
+        zyt_ctx.fillText('5 × 6 矩阵 · 每格 8 次采样', 196, 33);
+
+        // 顶部星期标签
+        zyt_ctx.textAlign = 'center';
+        zyt_ctx.textBaseline = 'middle';
+        zyt_ctx.font = '600 14px "Microsoft YaHei", sans-serif';
+        zyt_ctx.fillStyle = '#555f75';
+        zyt_days.forEach(function (zyt_d, zyt_c) {
+          zyt_ctx.fillText(zyt_d, zyt_left + zyt_c * zyt_cellW + zyt_cellW / 2, zyt_top - 24);
+        });
+
+        // 左侧时段标签（两行）
+        zyt_ctx.textAlign = 'right';
+        zyt_ctx.font = '12px "Microsoft YaHei", sans-serif';
+        zyt_ctx.fillStyle = '#7d8698';
+        zyt_slots.forEach(function (zyt_ts, zyt_r) {
+          const zyt_cy = zyt_top + zyt_r * zyt_cellH + zyt_cellH / 2;
+          zyt_ctx.fillText(zyt_ts[0] + '~', zyt_left - 14, zyt_cy - 9);
+          zyt_ctx.fillText(zyt_ts[1], zyt_left - 14, zyt_cy + 9);
+        });
+
+        // 单元格
+        zyt_cells.forEach(function (zyt_cell) {
+          const zyt_x = zyt_left + zyt_cell.zyt_col * zyt_cellW;
+          const zyt_y = zyt_top + zyt_cell.zyt_row * zyt_cellH;
+          const zyt_padX = 12;
+          const zyt_padY = 10;
+          const zyt_inW = zyt_cellW - zyt_padX * 2;
+          const zyt_inH = zyt_cellH - zyt_padY * 2;
+
+          const zyt_isHover = zyt_hover === zyt_cell;
+          zyt_ctx.fillStyle = zyt_isHover ? '#eef3ff' : ((zyt_cell.zyt_row + zyt_cell.zyt_col) % 2 === 0 ? '#fbfcff' : '#f7f9fd');
+          zyt_roundRectPath(zyt_ctx, zyt_x + 3, zyt_y + 3, zyt_cellW - 6, zyt_cellH - 6, 6);
+          zyt_ctx.fill();
+
+          // 迷你柱
+          const zyt_barW = Math.min(10, (zyt_inW - (zyt_barCount - 1) * 4) / zyt_barCount);
+          const zyt_gap = (zyt_inW - zyt_barW * zyt_barCount) / (zyt_barCount - 1);
+          const zyt_baseY = zyt_y + zyt_padY + zyt_inH;
+          zyt_cell.zyt_vals.forEach(function (zyt_v, zyt_k) {
+            const zyt_bh = Math.max(2, zyt_v * zyt_inH);
+            const zyt_bx = zyt_x + zyt_padX + zyt_k * (zyt_barW + zyt_gap);
+            zyt_ctx.fillStyle = zyt_palette[zyt_k % 3];
+            zyt_ctx.globalAlpha = zyt_isHover ? 1 : 0.82;
+            zyt_roundRectPath(zyt_ctx, zyt_bx, zyt_baseY - zyt_bh, zyt_barW, zyt_bh, 2);
+            zyt_ctx.fill();
+          });
+          zyt_ctx.globalAlpha = 1;
+
+          if (zyt_isHover) {
+            zyt_ctx.strokeStyle = zyt_palette[0];
+            zyt_ctx.lineWidth = 1.6;
+            zyt_roundRectPath(zyt_ctx, zyt_x + 3, zyt_y + 3, zyt_cellW - 6, zyt_cellH - 6, 6);
+            zyt_ctx.stroke();
+            zyt_ctx.lineWidth = 1;
+          }
+        });
+
+        // 悬停提示
+        if (zyt_hover !== null) {
+          const zyt_cell = zyt_hover;
+          const zyt_avg = zyt_cell.zyt_vals.reduce(function (a, b) { return a + b; }, 0) / zyt_cell.zyt_vals.length;
+          const zyt_max = Math.max.apply(null, zyt_cell.zyt_vals);
+          const zyt_tip = zyt_days[zyt_cell.zyt_col] + ' ' + zyt_slots[zyt_cell.zyt_row].join('~') +
+            '  均值 ' + (zyt_avg * 100).toFixed(0) + ' / 峰值 ' + (zyt_max * 100).toFixed(0);
+          zyt_ctx.font = '12px "Microsoft YaHei", sans-serif';
+          const zyt_tw = zyt_ctx.measureText(zyt_tip).width + 20;
+          const zyt_tx = Math.min(Math.max(zyt_left, zyt_W / 2 - zyt_tw / 2), zyt_W - zyt_tw - 10);
+          const zyt_ty = zyt_H - 4;
+          zyt_ctx.fillStyle = 'rgba(50,60,85,0.9)';
+          zyt_roundRectPath(zyt_ctx, zyt_tx, zyt_ty - 26, zyt_tw, 24, 6);
+          zyt_ctx.fill();
+          zyt_ctx.fillStyle = '#fff';
+          zyt_ctx.textAlign = 'center';
+          zyt_ctx.fillText(zyt_tip, zyt_tx + zyt_tw / 2, zyt_ty - 13);
+        }
+      }
+
+      zyt_render();
+
+      canvas.addEventListener('mousemove', function (zyt_e) {
+        const zyt_rect = canvas.getBoundingClientRect();
+        const zyt_mx = (zyt_e.clientX - zyt_rect.left) * (zyt_W / zyt_rect.width);
+        const zyt_my = (zyt_e.clientY - zyt_rect.top) * (zyt_H / zyt_rect.height);
+        let zyt_found = null;
+        if (zyt_mx > zyt_left && zyt_my > zyt_top) {
+          const zyt_col = Math.floor((zyt_mx - zyt_left) / zyt_cellW);
+          const zyt_row = Math.floor((zyt_my - zyt_top) / zyt_cellH);
+          if (zyt_col >= 0 && zyt_col < zyt_days.length && zyt_row >= 0 && zyt_row < zyt_slots.length) {
+            zyt_found = zyt_cells[zyt_row * zyt_days.length + zyt_col];
+          }
+        }
+        if (zyt_found !== zyt_hover) {
+          zyt_hover = zyt_found;
+          canvas.style.cursor = zyt_found ? 'pointer' : 'default';
+          zyt_render();
+        }
+      });
+
+      canvas.addEventListener('mouseleave', function () {
+        if (zyt_hover !== null) {
+          zyt_hover = null;
+          zyt_render();
+        }
+      });
+    }
+
+    // ============ ③ 堆叠圆角柱 ============
+    function zyt_drawBar(canvas) {
+      const zyt_s = zyt_setup(canvas);
+      const zyt_ctx = zyt_s.zyt_ctx;
+      const zyt_W = zyt_s.zyt_w;
+      const zyt_H = zyt_s.zyt_h;
+
+      const zyt_cats = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      const zyt_series = [
+        { zyt_name: 'a', zyt_stack: 'a', zyt_data: [120, 200, 150, 80, 70, 110, 130], zyt_color: zyt_palette[0] },
+        { zyt_name: 'b', zyt_stack: 'a', zyt_data: [10, 46, 64, null, 0, null, 0], zyt_color: zyt_palette[1] },
+        { zyt_name: 'c', zyt_stack: 'a', zyt_data: [30, null, 0, 20, 10, null, 0], zyt_color: zyt_palette[2] },
+        { zyt_name: 'd', zyt_stack: 'b', zyt_data: [30, null, 0, 20, 10, null, 0], zyt_color: zyt_palette[3] },
+        { zyt_name: 'e', zyt_stack: 'b', zyt_data: [10, 20, 150, 0, null, 50, 10], zyt_color: zyt_palette[4] }
+      ];
+
+      // 计算每列两组堆叠的总高，用于取 y 轴上限
+      let zyt_maxTotal = 0;
+      zyt_cats.forEach(function (zyt_c, zyt_ci) {
+        const zyt_sa = zyt_series.filter(function (zyt_item) { return zyt_item.zyt_stack === 'a'; })
+          .reduce(function (zyt_sum, zyt_item) { return zyt_sum + (zyt_item.zyt_data[zyt_ci] || 0); }, 0);
+        const zyt_sb = zyt_series.filter(function (zyt_item) { return zyt_item.zyt_stack === 'b'; })
+          .reduce(function (zyt_sum, zyt_item) { return zyt_sum + (zyt_item.zyt_data[zyt_ci] || 0); }, 0);
+        zyt_maxTotal = Math.max(zyt_maxTotal, zyt_sa, zyt_sb);
+      });
+      const zyt_yMax = Math.ceil(zyt_maxTotal / 50) * 50;
+
+      const zyt_left = 72;
+      const zyt_top = 76;
+      const zyt_right = 42;
+      const zyt_bottom = 52;
+      const zyt_plotW = zyt_W - zyt_left - zyt_right;
+      const zyt_plotH = zyt_H - zyt_top - zyt_bottom;
+      const zyt_groupW = zyt_plotW / zyt_cats.length;
+
+      function zyt_mapY(zyt_v) {
+        return zyt_top + zyt_plotH - (zyt_v / zyt_yMax) * zyt_plotH;
+      }
+
+      function zyt_topRoundedRect(zyt_x, zyt_y, zyt_w, zyt_h, zyt_r) {
+        const zyt_rr = Math.min(zyt_r, zyt_w / 2, Math.abs(zyt_h));
+        zyt_ctx.beginPath();
+        zyt_ctx.moveTo(zyt_x, zyt_y + zyt_h);
+        zyt_ctx.lineTo(zyt_x, zyt_y + zyt_rr);
+        zyt_ctx.quadraticCurveTo(zyt_x, zyt_y, zyt_x + zyt_rr, zyt_y);
+        zyt_ctx.lineTo(zyt_x + zyt_w - zyt_rr, zyt_y);
+        zyt_ctx.quadraticCurveTo(zyt_x + zyt_w, zyt_y, zyt_x + zyt_w, zyt_y + zyt_rr);
+        zyt_ctx.lineTo(zyt_x + zyt_w, zyt_y + zyt_h);
+        zyt_ctx.closePath();
+      }
+
+      let zyt_hoverCat = -1;
+
+      function zyt_render() {
+        zyt_ctx.clearRect(0, 0, zyt_W, zyt_H);
+        zyt_ctx.fillStyle = '#fff';
+        zyt_ctx.fillRect(0, 0, zyt_W, zyt_H);
+
+        // 标题
+        zyt_ctx.textAlign = 'left';
+        zyt_ctx.textBaseline = 'middle';
+        zyt_ctx.font = '700 16px "Microsoft YaHei", sans-serif';
+        zyt_ctx.fillStyle = '#2f3a55';
+        zyt_ctx.fillText('Stacked Bar with Rounded Top', 40, 32);
+
+        // 图例
+        const zyt_legendW = zyt_series.length * 62;
+        let zyt_lx = zyt_W / 2 - zyt_legendW / 2;
+        zyt_ctx.font = '13px "Microsoft YaHei", sans-serif';
+        zyt_series.forEach(function (zyt_item) {
+          zyt_ctx.fillStyle = zyt_item.zyt_color;
+          zyt_roundRectPath(zyt_ctx, zyt_lx, 54, 14, 10, 3);
+          zyt_ctx.fill();
+          zyt_ctx.fillStyle = '#5a6478';
+          zyt_ctx.textAlign = 'left';
+          zyt_ctx.fillText(zyt_item.zyt_name, zyt_lx + 20, 60);
+          zyt_lx += 62;
+        });
+
+        // 悬停背景
+        if (zyt_hoverCat >= 0) {
+          zyt_ctx.fillStyle = 'rgba(84,112,198,0.07)';
+          zyt_ctx.fillRect(zyt_left + zyt_hoverCat * zyt_groupW, zyt_top, zyt_groupW, zyt_plotH);
+        }
+
+        // y 轴刻度
+        zyt_ctx.textAlign = 'right';
+        zyt_ctx.textBaseline = 'middle';
+        zyt_ctx.font = '12px "Microsoft YaHei", sans-serif';
+        for (let zyt_v = 0; zyt_v <= zyt_yMax; zyt_v += 50) {
+          const zyt_y = zyt_mapY(zyt_v);
+          zyt_ctx.strokeStyle = zyt_v === 0 ? '#cdd4e2' : '#eef1f7';
+          zyt_ctx.beginPath();
+          zyt_ctx.moveTo(zyt_left, zyt_y);
+          zyt_ctx.lineTo(zyt_W - zyt_right, zyt_y);
+          zyt_ctx.stroke();
+          zyt_ctx.fillStyle = '#98a0b3';
+          zyt_ctx.fillText(String(zyt_v), zyt_left - 10, zyt_y);
+        }
+
+        // 柱子
+        zyt_cats.forEach(function (zyt_c, zyt_ci) {
+          const zyt_gx = zyt_left + zyt_groupW * zyt_ci;
+          const zyt_barW = Math.min(30, zyt_groupW * 0.26);
+          const zyt_gap = 10;
+          const zyt_stacks = ['a', 'b'];
+          const zyt_startX = zyt_gx + zyt_groupW / 2 - (zyt_barW * 2 + zyt_gap) / 2;
+
+          zyt_stacks.forEach(function (zyt_stackKey, zyt_si) {
+            const zyt_x = zyt_startX + zyt_si * (zyt_barW + zyt_gap);
+            let zyt_baseVal = 0;
+            const zyt_segments = zyt_series.filter(function (zyt_item) { return zyt_item.zyt_stack === zyt_stackKey; });
+
+            // 找出该堆叠最后一个有效值，用于顶部圆角
+            let zyt_lastIdx = -1;
+            zyt_segments.forEach(function (zyt_item, zyt_k) {
+              if (zyt_item.zyt_data[zyt_ci] !== null && zyt_item.zyt_data[zyt_ci] > 0) zyt_lastIdx = zyt_k;
+            });
+
+            zyt_segments.forEach(function (zyt_item, zyt_k) {
+              const zyt_v = zyt_item.zyt_data[zyt_ci];
+              if (zyt_v === null || zyt_v === 0) return;
+              const zyt_yTop = zyt_mapY(zyt_baseVal + zyt_v);
+              const zyt_yBottom = zyt_mapY(zyt_baseVal);
+              const zyt_h = zyt_yBottom - zyt_yTop;
+              zyt_baseVal += zyt_v;
+
+              zyt_ctx.fillStyle = zyt_item.zyt_color;
+              zyt_ctx.globalAlpha = zyt_hoverCat >= 0 && zyt_hoverCat !== zyt_ci ? 0.45 : 1;
+              if (zyt_k === zyt_lastIdx) {
+                zyt_topRoundedRect(zyt_x, zyt_yTop, zyt_barW, zyt_h, 4);
+                zyt_ctx.fill();
+              } else {
+                zyt_ctx.fillRect(zyt_x, zyt_yTop, zyt_barW, zyt_h);
+              }
+            });
+            zyt_ctx.globalAlpha = 1;
+          });
+
+          // 类目标签
+          zyt_ctx.fillStyle = zyt_hoverCat === zyt_ci ? '#33477f' : '#7d8698';
+          zyt_ctx.font = (zyt_hoverCat === zyt_ci ? '600 ' : '') + '13px "Microsoft YaHei", sans-serif';
+          zyt_ctx.textAlign = 'center';
+          zyt_ctx.fillText(zyt_c, zyt_gx + zyt_groupW / 2, zyt_H - 24);
+        });
+
+        // 悬停提示
+        if (zyt_hoverCat >= 0) {
+          const zyt_ci = zyt_hoverCat;
+          const zyt_lines = zyt_series.map(function (zyt_item) {
+            const zyt_v = zyt_item.zyt_data[zyt_ci];
+            return zyt_item.zyt_name + ': ' + (zyt_v === null ? '-' : zyt_v);
+          });
+          const zyt_tip = zyt_cats[zyt_ci] + '   ' + zyt_lines.join('  ');
+          zyt_ctx.font = '12px "Microsoft YaHei", sans-serif';
+          const zyt_tw = zyt_ctx.measureText(zyt_tip).width + 22;
+          const zyt_tx = Math.min(Math.max(8, zyt_gxCenter(zyt_ci) - zyt_tw / 2), zyt_W - zyt_tw - 8);
+          const zyt_ty = zyt_top - 14;
+          zyt_ctx.fillStyle = 'rgba(50,60,85,0.9)';
+          zyt_roundRectPath(zyt_ctx, zyt_tx, zyt_ty - 12, zyt_tw, 24, 6);
+          zyt_ctx.fill();
+          zyt_ctx.fillStyle = '#fff';
+          zyt_ctx.textAlign = 'center';
+          zyt_ctx.fillText(zyt_tip, zyt_tx + zyt_tw / 2, zyt_ty);
+        }
+
+        function zyt_gxCenter(zyt_index) {
+          return zyt_left + zyt_groupW * zyt_index + zyt_groupW / 2;
+        }
+      }
+
+      zyt_render();
+
+      canvas.addEventListener('mousemove', function (zyt_e) {
+        const zyt_rect = canvas.getBoundingClientRect();
+        const zyt_mx = (zyt_e.clientX - zyt_rect.left) * (zyt_W / zyt_rect.width);
+        const zyt_my = (zyt_e.clientY - zyt_rect.top) * (zyt_H / zyt_rect.height);
+        let zyt_cat = -1;
+        if (zyt_my >= zyt_top - 6 && zyt_my <= zyt_top + zyt_plotH + 6 && zyt_mx >= zyt_left && zyt_mx <= zyt_W - zyt_right) {
+          zyt_cat = Math.floor((zyt_mx - zyt_left) / zyt_groupW);
+        }
+        if (zyt_cat !== zyt_hoverCat) {
+          zyt_hoverCat = zyt_cat;
+          canvas.style.cursor = zyt_cat >= 0 ? 'pointer' : 'default';
+          zyt_render();
+        }
+      });
+
+      canvas.addEventListener('mouseleave', function () {
+        if (zyt_hoverCat >= 0) {
+          zyt_hoverCat = -1;
+          zyt_render();
+        }
+      });
+    }
+
+    // ============ ④ 平行坐标 ============
+    function zyt_drawParallel(canvas) {
+      const zyt_s = zyt_setup(canvas);
+      const zyt_ctx = zyt_s.zyt_ctx;
+      const zyt_W = zyt_s.zyt_w;
+      const zyt_H = zyt_s.zyt_h;
+
+      const zyt_axes = [
+        { zyt_key: 'protein', zyt_label: 'protein' },
+        { zyt_key: 'calcium', zyt_label: 'calcium' },
+        { zyt_key: 'sodium', zyt_label: 'sodium' },
+        { zyt_key: 'fiber', zyt_label: 'fiber' },
+        { zyt_key: 'vitaminc', zyt_label: 'vitaminc' },
+        { zyt_key: 'potassium', zyt_label: 'potassium' },
+        { zyt_key: 'carbohydrate', zyt_label: 'carbs' },
+        { zyt_key: 'fat', zyt_label: 'fat' },
+        { zyt_key: 'water', zyt_label: 'water' },
+        { zyt_key: 'calories', zyt_label: 'calories' }
+      ];
+
+      const zyt_foods = [
+        { zyt_name: 'Butter', zyt_group: 'Dairy', protein: 0.85, calcium: 0.024, sodium: 0.714, fiber: 0, vitaminc: 0, potassium: 0.024, carbohydrate: 0.06, fat: 81.11, water: 15.87, calories: 717 },
+        { zyt_name: 'Cheddar', zyt_group: 'Dairy', protein: 22.87, calcium: 0.721, sodium: 0.653, fiber: 0, vitaminc: 0, potassium: 0.098, carbohydrate: 3.09, fat: 33.31, water: 36.75, calories: 402 },
+        { zyt_name: 'Chicken breast', zyt_group: 'Poultry', protein: 31, calcium: 0.015, sodium: 0.074, fiber: 0, vitaminc: 0, potassium: 0.256, carbohydrate: 0, fat: 3.6, water: 64.8, calories: 165 },
+        { zyt_name: 'Ground beef', zyt_group: 'Meat', protein: 25.9, calcium: 0.018, sodium: 0.066, fiber: 0, vitaminc: 0, potassium: 0.318, carbohydrate: 0, fat: 15, water: 58, calories: 250 },
+        { zyt_name: 'Salmon', zyt_group: 'Fish', protein: 20.4, calcium: 0.009, sodium: 0.059, fiber: 0, vitaminc: 0.0039, potassium: 0.363, carbohydrate: 0, fat: 13.4, water: 64.9, calories: 208 },
+        { zyt_name: 'Broccoli', zyt_group: 'Vegetable', protein: 2.82, calcium: 0.047, sodium: 0.033, fiber: 2.6, vitaminc: 0.0892, potassium: 0.316, carbohydrate: 6.64, fat: 0.37, water: 89.3, calories: 34 },
+        { zyt_name: 'Apple', zyt_group: 'Fruit', protein: 0.26, calcium: 0.006, sodium: 0.0013, fiber: 2.4, vitaminc: 0.0046, potassium: 0.107, carbohydrate: 13.81, fat: 0.17, water: 85.6, calories: 52 },
+        { zyt_name: 'Banana', zyt_group: 'Fruit', protein: 1.09, calcium: 0.005, sodium: 0.001, fiber: 2.6, vitaminc: 0.0087, potassium: 0.358, carbohydrate: 22.84, fat: 0.33, water: 74.9, calories: 89 },
+        { zyt_name: 'White rice', zyt_group: 'Grain', protein: 6.7, calcium: 0.028, sodium: 0.005, fiber: 1.3, vitaminc: 0, potassium: 0.115, carbohydrate: 79, fat: 0.66, water: 12.6, calories: 365 },
+        { zyt_name: 'Oats', zyt_group: 'Grain', protein: 16.9, calcium: 0.054, sodium: 0.002, fiber: 10.6, vitaminc: 0, potassium: 0.429, carbohydrate: 66.3, fat: 6.9, water: 8.2, calories: 389 },
+        { zyt_name: 'Egg', zyt_group: 'Egg', protein: 12.6, calcium: 0.056, sodium: 0.142, fiber: 0, vitaminc: 0, potassium: 0.126, carbohydrate: 0.77, fat: 9.51, water: 76.2, calories: 143 },
+        { zyt_name: 'Almonds', zyt_group: 'Nut', protein: 21.15, calcium: 0.269, sodium: 0.001, fiber: 12.5, vitaminc: 0, potassium: 0.733, carbohydrate: 21.63, fat: 49.93, water: 4.41, calories: 579 }
+      ];
+
+      const zyt_groupColors = {
+        Dairy: '#fac858', Poultry: '#91cc75', Meat: '#ee6666', Fish: '#73c0de',
+        Vegetable: '#3ba272', Fruit: '#fc8452', Grain: '#5470c6', Egg: '#ea7ccc', Nut: '#9a60b4'
+      };
+
+      // 各轴取值范围
+      const zyt_ranges = {};
+      zyt_axes.forEach(function (zyt_ax) {
+        const zyt_vals = zyt_foods.map(function (zyt_food) { return zyt_food[zyt_ax.zyt_key]; });
+        zyt_ranges[zyt_ax.zyt_key] = { min: Math.min.apply(null, zyt_vals), max: Math.max.apply(null, zyt_vals) };
+      });
+
+      const zyt_left = 58;
+      const zyt_right = 34;
+      const zyt_top = 120;
+      const zyt_bottom = 96;
+      const zyt_plotW = zyt_W - zyt_left - zyt_right;
+      const zyt_plotH = zyt_H - zyt_top - zyt_bottom;
+      const zyt_step = zyt_plotW / (zyt_axes.length - 1);
+
+      // 用平方根归一化，避免极小值全部挤在底部
+      function zyt_norm(zyt_key, zyt_val) {
+        const zyt_rg = zyt_ranges[zyt_key];
+        if (zyt_rg.max === zyt_rg.min) return 0.5;
+        const zyt_lo = Math.sqrt(zyt_rg.min);
+        const zyt_hi = Math.sqrt(zyt_rg.max);
+        return (Math.sqrt(zyt_val) - zyt_lo) / (zyt_hi - zyt_lo);
+      }
+
+      let zyt_hoverAxis = -1;
+
+      function zyt_render() {
+        zyt_ctx.clearRect(0, 0, zyt_W, zyt_H);
+        zyt_ctx.fillStyle = '#fff';
+        zyt_ctx.fillRect(0, 0, zyt_W, zyt_H);
+
+        // 标题
+        zyt_ctx.textAlign = 'left';
+        zyt_ctx.textBaseline = 'middle';
+        zyt_ctx.font = '700 16px "Microsoft YaHei", sans-serif';
+        zyt_ctx.fillStyle = '#2f3a55';
+        zyt_ctx.fillText('Parallel Coordinates · Nutrients', 40, 32);
+        zyt_ctx.font = '12px "Microsoft YaHei", sans-serif';
+        zyt_ctx.fillStyle = '#98a0b3';
+        zyt_ctx.fillText('12 种食物 × 10 项营养指标（每 100g）', 40, 54);
+
+        // 悬停轴背景
+        if (zyt_hoverAxis >= 0) {
+          const zyt_x = zyt_left + zyt_hoverAxis * zyt_step;
+          zyt_ctx.fillStyle = 'rgba(84,112,198,0.06)';
+          zyt_ctx.fillRect(zyt_x - 22, zyt_top - 8, 44, zyt_plotH + 16);
+        }
+
+        // 轴与标签
+        zyt_axes.forEach(function (zyt_ax, zyt_ai) {
+          const zyt_x = zyt_left + zyt_ai * zyt_step;
+          zyt_ctx.strokeStyle = zyt_hoverAxis === zyt_ai ? '#8fa3d8' : '#e6eaf3';
+          zyt_ctx.beginPath();
+          zyt_ctx.moveTo(zyt_x, zyt_top);
+          zyt_ctx.lineTo(zyt_x, zyt_top + zyt_plotH);
+          zyt_ctx.stroke();
+
+          // 顶/底小刻度
+          zyt_ctx.fillStyle = '#c9d0e0';
+          for (let zyt_t = 0; zyt_t <= 4; zyt_t++) {
+            const zyt_ty = zyt_top + (zyt_plotH / 4) * zyt_t;
+            zyt_ctx.fillRect(zyt_x - 3, zyt_ty - 0.5, 6, 1);
+          }
+
+          // 轴名（旋转 -38°）
+          zyt_ctx.save();
+          zyt_ctx.translate(zyt_x + 4, zyt_top - 12);
+          zyt_ctx.rotate(-Math.PI / 4.2);
+          zyt_ctx.textAlign = 'left';
+          zyt_ctx.textBaseline = 'middle';
+          zyt_ctx.font = zyt_hoverAxis === zyt_ai ? '700 12px "Microsoft YaHei", sans-serif' : '12px "Microsoft YaHei", sans-serif';
+          zyt_ctx.fillStyle = zyt_hoverAxis === zyt_ai ? '#33477f' : '#7d8698';
+          zyt_ctx.fillText(zyt_ax.zyt_label, 0, 0);
+          zyt_ctx.restore();
+        });
+
+        // 折线
+        zyt_foods.forEach(function (zyt_food) {
+          zyt_ctx.strokeStyle = zyt_groupColors[zyt_food.zyt_group];
+          zyt_ctx.globalAlpha = 0.72;
+          zyt_ctx.lineWidth = 1.8;
+          zyt_ctx.beginPath();
+          zyt_axes.forEach(function (zyt_ax, zyt_ai) {
+            const zyt_x = zyt_left + zyt_ai * zyt_step;
+            const zyt_y = zyt_top + zyt_plotH - zyt_norm(zyt_ax.zyt_key, zyt_food[zyt_ax.zyt_key]) * zyt_plotH;
+            if (zyt_ai === 0) zyt_ctx.moveTo(zyt_x, zyt_y);
+            else zyt_ctx.lineTo(zyt_x, zyt_y);
+          });
+          zyt_ctx.stroke();
+        });
+        zyt_ctx.globalAlpha = 1;
+        zyt_ctx.lineWidth = 1;
+
+        // 图例（两组一行）
+        const zyt_groups = Object.keys(zyt_groupColors);
+        const zyt_rows = 2;
+        const zyt_perRow = Math.ceil(zyt_groups.length / zyt_rows);
+        const zyt_legendY = zyt_top + zyt_plotH + 26;
+        zyt_ctx.font = '12px "Microsoft YaHei", sans-serif';
+        zyt_groups.forEach(function (zyt_g, zyt_gi) {
+          const zyt_row = Math.floor(zyt_gi / zyt_perRow);
+          const zyt_col = zyt_gi % zyt_perRow;
+          const zyt_lx = zyt_left + zyt_col * 104;
+          const zyt_ly = zyt_legendY + zyt_row * 22;
+          zyt_ctx.fillStyle = zyt_groupColors[zyt_g];
+          zyt_roundRectPath(zyt_ctx, zyt_lx, zyt_ly - 5, 16, 10, 3);
+          zyt_ctx.fill();
+          zyt_ctx.fillStyle = '#6b7488';
+          zyt_ctx.textAlign = 'left';
+          zyt_ctx.fillText(zyt_g, zyt_lx + 22, zyt_ly);
+        });
+
+        // 悬停轴数值范围
+        if (zyt_hoverAxis >= 0) {
+          const zyt_ax = zyt_axes[zyt_hoverAxis];
+          const zyt_rg = zyt_ranges[zyt_ax.zyt_key];
+          const zyt_tip = zyt_ax.zyt_label + '：' + zyt_rg.min + ' ~ ' + zyt_rg.max;
+          zyt_ctx.textAlign = 'right';
+          zyt_ctx.font = '12px "Microsoft YaHei", sans-serif';
+          zyt_ctx.fillStyle = '#7d8698';
+          zyt_ctx.fillText(zyt_tip, zyt_W - 36, 54);
+        }
+      }
+
+      zyt_render();
+
+      canvas.addEventListener('mousemove', function (zyt_e) {
+        const zyt_rect = canvas.getBoundingClientRect();
+        const zyt_mx = (zyt_e.clientX - zyt_rect.left) * (zyt_W / zyt_rect.width);
+        const zyt_my = (zyt_e.clientY - zyt_rect.top) * (zyt_H / zyt_rect.height);
+        let zyt_ax = -1;
+        if (zyt_my >= zyt_top - 10 && zyt_my <= zyt_top + zyt_plotH + 10) {
+          const zyt_idx = Math.round((zyt_mx - zyt_left) / zyt_step);
+          if (zyt_idx >= 0 && zyt_idx < zyt_axes.length && Math.abs(zyt_mx - (zyt_left + zyt_idx * zyt_step)) < 24) {
+            zyt_ax = zyt_idx;
+          }
+        }
+        if (zyt_ax !== zyt_hoverAxis) {
+          zyt_hoverAxis = zyt_ax;
+          canvas.style.cursor = zyt_ax >= 0 ? 'pointer' : 'default';
+          zyt_render();
+        }
+      });
+
+      canvas.addEventListener('mouseleave', function () {
+        if (zyt_hoverAxis >= 0) {
+          zyt_hoverAxis = -1;
+          zyt_render();
+        }
+      });
+    }
+
+    // ============ ⑤ 伪 3D 柱 ============
+    function zyt_drawBar3D(canvas) {
+      const zyt_s = zyt_setup(canvas);
+      const zyt_ctx = zyt_s.zyt_ctx;
+      const zyt_W = zyt_s.zyt_w;
+      const zyt_H = zyt_s.zyt_h;
+
+      const zyt_days = ['Saturday', 'Friday', 'Thursday', 'Wednesday', 'Tuesday', 'Monday', 'Sunday'];
+      const zyt_hours = ['12a', '1a', '2a', '3a', '4a', '5a', '6a', '7a', '8a', '9a', '10a', '11a',
+        '12p', '1p', '2p', '3p', '4p', '5p', '6p', '7p', '8p', '9p', '10p', '11p'];
+
+      // 7 天 × 24 小时的数据（对应 echarts-gl 示例）
+      const zyt_values = [
+        [5, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4, 1, 1, 3, 4, 6, 4, 4, 3, 3, 2, 5],
+        [7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 2, 2, 6, 9, 11, 6, 7, 8, 12, 5, 5, 7, 2],
+        [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 1, 9, 8, 10, 6, 5, 5, 5, 7, 4, 2, 4],
+        [7, 3, 0, 0, 0, 0, 0, 0, 1, 0, 5, 4, 7, 14, 13, 12, 9, 5, 5, 10, 6, 4, 4, 1],
+        [1, 3, 0, 0, 0, 1, 0, 0, 0, 2, 4, 4, 2, 4, 4, 14, 12, 1, 8, 5, 3, 7, 3, 0],
+        [2, 1, 0, 3, 0, 0, 0, 0, 2, 0, 4, 1, 5, 10, 5, 7, 11, 6, 0, 5, 3, 4, 2, 0],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 1, 3, 4, 0, 0, 0, 0, 1, 2, 2, 6]
+      ];
+
+      // visualMap 色带（蓝 → 红，max = 20）
+      const zyt_colors = [
+        [49, 54, 149], [69, 117, 180], [116, 173, 209], [171, 217, 233], [224, 243, 248],
+        [255, 255, 191], [254, 224, 144], [253, 174, 97], [244, 109, 67], [215, 48, 39], [165, 0, 38]
+      ];
+
+      function zyt_colorOf(zyt_v) {
+        const zyt_t = Math.min(Math.max(zyt_v / 20, 0), 1) * (zyt_colors.length - 1);
+        const zyt_i = Math.min(Math.floor(zyt_t), zyt_colors.length - 2);
+        const zyt_f = zyt_t - zyt_i;
+        const zyt_c1 = zyt_colors[zyt_i];
+        const zyt_c2 = zyt_colors[zyt_i + 1];
+        const zyt_rgb = zyt_c1.map(function (zyt_cc, zyt_k) {
+          return Math.round(zyt_cc + (zyt_c2[zyt_k] - zyt_cc) * zyt_f);
+        });
+        return 'rgb(' + zyt_rgb.join(',') + ')';
+      }
+
+      // 等距投影参数
+      const zyt_ox = 372;
+      const zyt_oy = 372;
+      const zyt_ux = { x: 9.4, y: 3.1 };     // 每小时步进
+      const zyt_uz = { x: -6.6, y: -2.7 };    // 每天步进
+      const zyt_unitH = 10.6;                 // 每单位高度像素
+      const zyt_barW = 0.82;                  // 柱宽（步进比例）
+      const zyt_barD = 0.72;                  // 柱深
+
+      const zyt_bars = [];
+      zyt_days.forEach(function (zyt_day, zyt_di) {
+        zyt_hours.forEach(function (zyt_hour, zyt_hi) {
+          const zyt_v = zyt_values[zyt_di][zyt_hi];
+          const zyt_baseX = zyt_ox + zyt_hi * zyt_ux.x + zyt_di * zyt_uz.x;
+          const zyt_baseY = zyt_oy + zyt_hi * zyt_ux.y + zyt_di * zyt_uz.y;
+          zyt_bars.push({
+            zyt_day: zyt_day,
+            zyt_dayIndex: zyt_di,
+            zyt_hour: zyt_hour,
+            zyt_value: zyt_v,
+            zyt_bx: zyt_baseX,
+            zyt_by: zyt_baseY
+          });
+        });
+      });
+      // 由远及近绘制
+      zyt_bars.sort(function (zyt_a, zyt_b) { return zyt_a.zyt_by - zyt_b.zyt_by; });
+
+      let zyt_hover = null;
+
+      function zyt_barH(zyt_v) { return zyt_v * zyt_unitH; }
+
+      function zyt_drawBar(zyt_bar) {
+        const zyt_h = zyt_barH(zyt_bar.zyt_value);
+        if (zyt_h <= 0) return;
+        const zyt_hx = zyt_ux.x * zyt_barW;
+        const zyt_hy = zyt_ux.y * zyt_barW;
+        const zyt_dx = zyt_uz.x * zyt_barD;
+        const zyt_dy = zyt_uz.y * zyt_barD;
+
+        const zyt_ax = zyt_bar.zyt_bx - zyt_hx / 2 - zyt_dx / 2;
+        const zyt_ay = zyt_bar.zyt_by - zyt_hy / 2 - zyt_dy / 2;
+        const zyt_ex = zyt_bar.zyt_bx + zyt_hx / 2 - zyt_dx / 2;
+        const zyt_ey = zyt_bar.zyt_by + zyt_hy / 2 - zyt_dy / 2;
+        const zyt_fx = zyt_bar.zyt_bx + zyt_hx / 2 + zyt_dx / 2;
+        const zyt_fy = zyt_bar.zyt_by + zyt_hy / 2 + zyt_dy / 2;
+        const zyt_gx = zyt_bar.zyt_bx - zyt_hx / 2 + zyt_dx / 2;
+        const zyt_gy = zyt_bar.zyt_by - zyt_hy / 2 + zyt_dy / 2;
+
+        const zyt_color = zyt_colorOf(zyt_bar.zyt_value);
+        const zyt_isHover = zyt_hover === zyt_bar;
+
+        // 顶面
+        zyt_ctx.globalAlpha = zyt_isHover ? 0.95 : 0.72;
+        zyt_ctx.fillStyle = zyt_color;
+        zyt_ctx.beginPath();
+        zyt_ctx.moveTo(zyt_ax, zyt_ay - zyt_h);
+        zyt_ctx.lineTo(zyt_ex, zyt_ey - zyt_h);
+        zyt_ctx.lineTo(zyt_fx, zyt_fy - zyt_h);
+        zyt_ctx.lineTo(zyt_gx, zyt_gy - zyt_h);
+        zyt_ctx.closePath();
+        zyt_ctx.fill();
+
+        // 正面
+        zyt_ctx.globalAlpha = zyt_isHover ? 0.9 : 0.6;
+        zyt_ctx.beginPath();
+        zyt_ctx.moveTo(zyt_ax, zyt_ay);
+        zyt_ctx.lineTo(zyt_ex, zyt_ey);
+        zyt_ctx.lineTo(zyt_ex, zyt_ey - zyt_h);
+        zyt_ctx.lineTo(zyt_ax, zyt_ay - zyt_h);
+        zyt_ctx.closePath();
+        zyt_ctx.fill();
+
+        // 侧面
+        zyt_ctx.globalAlpha = zyt_isHover ? 0.85 : 0.48;
+        zyt_ctx.beginPath();
+        zyt_ctx.moveTo(zyt_ex, zyt_ey);
+        zyt_ctx.lineTo(zyt_fx, zyt_fy);
+        zyt_ctx.lineTo(zyt_fx, zyt_fy - zyt_h);
+        zyt_ctx.lineTo(zyt_ex, zyt_ey - zyt_h);
+        zyt_ctx.closePath();
+        zyt_ctx.fill();
+        zyt_ctx.globalAlpha = 1;
+
+        if (zyt_isHover) {
+          zyt_ctx.strokeStyle = '#33477f';
+          zyt_ctx.lineWidth = 1.2;
+          zyt_ctx.stroke();
+          zyt_ctx.lineWidth = 1;
+        }
+      }
+
+      function zyt_render() {
+        zyt_ctx.clearRect(0, 0, zyt_W, zyt_H);
+        zyt_ctx.fillStyle = '#fff';
+        zyt_ctx.fillRect(0, 0, zyt_W, zyt_H);
+
+        // 标题
+        zyt_ctx.textAlign = 'left';
+        zyt_ctx.textBaseline = 'middle';
+        zyt_ctx.font = '700 16px "Microsoft YaHei", sans-serif';
+        zyt_ctx.fillStyle = '#2f3a55';
+        zyt_ctx.fillText('Transparent 3D Bar · Weekly Activity', 40, 32);
+
+        // 底面边框（时间轴 × 星期轴）
+        zyt_ctx.strokeStyle = '#e0e5ef';
+        const zyt_hx24 = zyt_ox + 23 * zyt_ux.x;
+        const zyt_hy24 = zyt_oy + 23 * zyt_ux.y;
+        zyt_ctx.beginPath();
+        zyt_ctx.moveTo(zyt_ox, zyt_oy);
+        zyt_ctx.lineTo(zyt_hx24, zyt_hy24);
+        zyt_ctx.lineTo(zyt_hx24 + 6 * zyt_uz.x, zyt_hy24 + 6 * zyt_uz.y);
+        zyt_ctx.lineTo(zyt_ox + 6 * zyt_uz.x, zyt_oy + 6 * zyt_uz.y);
+        zyt_ctx.closePath();
+        zyt_ctx.stroke();
+
+        // 柱体
+        zyt_bars.forEach(zyt_drawBar);
+
+        // 小时标签（每 3 小时一个）
+        zyt_ctx.font = '10px "Microsoft YaHei", sans-serif';
+        zyt_ctx.fillStyle = '#98a0b3';
+        zyt_ctx.textAlign = 'center';
+        zyt_ctx.textBaseline = 'middle';
+        zyt_hours.forEach(function (zyt_h, zyt_hi) {
+          if (zyt_hi % 3 !== 0 && zyt_hi !== 23) return;
+          zyt_ctx.fillText(zyt_h, zyt_ox + zyt_hi * zyt_ux.x, zyt_oy + zyt_hi * zyt_ux.y + 14);
+        });
+
+        // 星期标签
+        zyt_ctx.textAlign = 'right';
+        zyt_days.forEach(function (zyt_d, zyt_di) {
+          if (zyt_di % 2 !== 0) return;
+          zyt_ctx.fillText(zyt_d,
+            zyt_ox + zyt_di * zyt_uz.x - 8,
+            zyt_oy + zyt_di * zyt_uz.y + 4);
+        });
+
+        // 颜色条图例（visualMap）
+        const zyt_lx = 70;
+        const zyt_ly = zyt_H - 34;
+        const zyt_lw = 230;
+        const zyt_grad = zyt_ctx.createLinearGradient(zyt_lx, 0, zyt_lx + zyt_lw, 0);
+        for (let zyt_i = 0; zyt_i < zyt_colors.length; zyt_i++) {
+          zyt_grad.addColorStop(zyt_i / (zyt_colors.length - 1), 'rgb(' + zyt_colors[zyt_i].join(',') + ')');
+        }
+        zyt_ctx.fillStyle = zyt_grad;
+        zyt_ctx.fillRect(zyt_lx, zyt_ly - 6, zyt_lw, 10);
+        zyt_ctx.font = '11px "Microsoft YaHei", sans-serif';
+        zyt_ctx.fillStyle = '#8b93a7';
+        zyt_ctx.textAlign = 'left';
+        zyt_ctx.fillText('0', zyt_lx, zyt_ly + 16);
+        zyt_ctx.textAlign = 'right';
+        zyt_ctx.fillText('20', zyt_lx + zyt_lw, zyt_ly + 16);
+
+        // 悬停提示
+        if (zyt_hover !== null) {
+          const zyt_tip = zyt_hover.zyt_day + ' ' + zyt_hover.zyt_hour + '  值：' + zyt_hover.zyt_value;
+          zyt_ctx.font = '12px "Microsoft YaHei", sans-serif';
+          const zyt_tw = zyt_ctx.measureText(zyt_tip).width + 20;
+          const zyt_tx = Math.min(Math.max(8, zyt_W / 2 - zyt_tw / 2), zyt_W - zyt_tw - 8);
+          zyt_ctx.fillStyle = 'rgba(50,60,85,0.9)';
+          zyt_roundRectPath(zyt_ctx, zyt_tx, 50, zyt_tw, 24, 6);
+          zyt_ctx.fill();
+          zyt_ctx.fillStyle = '#fff';
+          zyt_ctx.textAlign = 'center';
+          zyt_ctx.fillText(zyt_tip, zyt_tx + zyt_tw / 2, 63);
+        }
+      }
+
+      zyt_render();
+
+      canvas.addEventListener('mousemove', function (zyt_e) {
+        const zyt_rect = canvas.getBoundingClientRect();
+        const zyt_mx = (zyt_e.clientX - zyt_rect.left) * (zyt_W / zyt_rect.width);
+        const zyt_my = (zyt_e.clientY - zyt_rect.top) * (zyt_H / zyt_rect.height);
+        let zyt_best = null;
+        let zyt_bestD = 13;
+        zyt_bars.forEach(function (zyt_bar) {
+          const zyt_topY = zyt_bar.zyt_by - zyt_barH(zyt_bar.zyt_value) / 2;
+          const zyt_dd = Math.hypot(zyt_bar.zyt_bx - zyt_mx, zyt_topY - zyt_my);
+          if (zyt_dd < zyt_bestD && zyt_bar.zyt_value > 0) {
+            zyt_bestD = zyt_dd;
+            zyt_best = zyt_bar;
+          }
+        });
+        if (zyt_best !== zyt_hover) {
+          zyt_hover = zyt_best;
+          canvas.style.cursor = zyt_best ? 'pointer' : 'default';
+          zyt_render();
+        }
+      });
+
+      canvas.addEventListener('mouseleave', function () {
+        if (zyt_hover !== null) {
+          zyt_hover = null;
+          zyt_render();
+        }
+      });
+    }
+
+    /* ========== 初始化 ========== */
+    zyt_drawPolar(document.querySelector('[data-zyt-polar]'));
+    zyt_drawMatrix(document.querySelector('[data-zyt-matrix]'));
+    zyt_drawBar(document.querySelector('[data-zyt-bar]'));
+    zyt_drawParallel(document.querySelector('[data-zyt-parallel]'));
+    zyt_drawBar3D(document.querySelector('[data-zyt-bar3d]'));
+  </script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>18-6 基于 Mermaid 的智能客服流程图与 ER 图</title>
+  <!--
+  姓名：张语桐
+  日期：2026-11-05
+  功能名称：基于 Mermaid 的智能客服系统流程图与 ER 图（本地 cdn 目录引入）
+  -->
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background: #eef1f6;
+      color: #2c3e50;
+      padding: 28px 16px 40px;
+    }
+    .zyt_page { max-width: 1180px; margin: 0 auto; }
+    .zyt_head { text-align: center; margin-bottom: 20px; }
+    .zyt_head h1 { font-size: 26px; letter-spacing: 1px; }
+    .zyt_head p { margin-top: 8px; font-size: 13px; color: #7a8699; }
+    .zyt_card {
+      background: #fff;
+      border: 1px solid #e2e8f2;
+      border-radius: 14px;
+      padding: 22px 18px;
+      margin-bottom: 22px;
+      box-shadow: 0 6px 18px rgba(60, 80, 120, .08);
+    }
+    .zyt_cardTitle {
+      font-size: 18px; font-weight: bold; margin-bottom: 6px;
+      padding-left: 10px; border-left: 4px solid #5470c6;
+    }
+    .zyt_cardDesc { font-size: 13px; color: #8a94a6; margin-bottom: 14px; }
+    .zyt_mermaidBox {
+      background: #fbfcfe; border: 1px dashed #d5deec; border-radius: 10px;
+      padding: 18px 10px; overflow-x: auto;
+      display: flex; justify-content: center;
+    }
+    .zyt_mermaidBox svg { max-width: 100%; height: auto; }
+    .zyt_footer { text-align: center; margin-top: 10px; font-size: 12px; color: #9aa4b5; }
+    @media (max-width: 760px) { .zyt_head h1 { font-size: 20px; } }
+  </style>
+</head>
+<body>
+  <div class="zyt_page">
+    <div class="zyt_head">
+      <h1>🧩 基于 Mermaid 的智能客服系统建模</h1>
+      <p>流程图（flowchart）+ 实体关系图（erDiagram）· Mermaid 本地库：cdn/mermaid.min.js</p>
+    </div>
+
+    <div class="zyt_card">
+      <div class="zyt_cardTitle">一、智能客服在线服务流程图</div>
+      <div class="zyt_cardDesc">用户咨询 → 问题理解 → 知识检索 → 置信度决策 → 答案/转人工 → 语料沉淀 → 离线更新闭环</div>
+      <div class="zyt_mermaidBox">
+        <pre class="mermaid">
+flowchart TD
+    U([用户发起咨询]) --> N[NLU 问题理解<br/>意图识别 · 实体抽取]
+    N --> R[知识库多路召回<br/>向量检索 + BM25]
+    R --> RR[Cross-Encoder 重排序]
+    RR --> C{Top-1 置信度 >= 0.8 ?}
+    C -->|是| G[NLG 生成答案<br/>附知识溯源引用]
+    C -->|否| H[转人工坐席<br/>排队 · 分配]
+    G --> S[会话记录入库]
+    H --> S
+    S --> A[人工标注语料]
+    A --> T[离线增量训练<br/>LoRA / SFT 微调]
+    T --> K[(知识库更新<br/>FAQ / 文档 / 图谱)]
+    K -. 热加载 .-> R
+    K -. 模型热更新 .-> N
+        </pre>
+      </div>
+    </div>
+
+    <div class="zyt_card">
+      <div class="zyt_cardTitle">二、智能客服系统数据库 ER 图</div>
+      <div class="zyt_cardDesc">核心实体：用户、会话、消息、意图、知识条目、评价 —— 描述消息命中意图与引用知识的关联</div>
+      <div class="zyt_mermaidBox">
+        <pre class="mermaid">
+erDiagram
+    USER ||--o{ SESSION : "发起"
+    SESSION ||--|{ MESSAGE : "包含"
+    MESSAGE }o--|| INTENT : "命中"
+    MESSAGE }o--o{ KNOWLEDGE : "引用"
+    KNOWLEDGE }o--|| CATEGORY : "归属"
+    MESSAGE ||--o| FEEDBACK : "获得"
+    USER ||--o{ FEEDBACK : "评价"
+
+    USER {
+        bigint user_id PK "用户ID"
+        varchar nickname "昵称"
+        varchar channel "注册渠道"
+        datetime created_at "注册时间"
+    }
+    SESSION {
+        bigint session_id PK "会话ID"
+        bigint user_id FK "所属用户"
+        varchar status "进行中/已结束"
+        datetime started_at "开始时间"
+    }
+    MESSAGE {
+        bigint message_id PK "消息ID"
+        bigint session_id FK "所属会话"
+        varchar role "user/bot/agent"
+        text content "消息内容"
+        float confidence "检索置信度"
+        tinyint is_transfer "是否转人工"
+    }
+    INTENT {
+        bigint intent_id PK "意图ID"
+        varchar intent_name "意图名称"
+        float threshold "置信度阈值"
+    }
+    KNOWLEDGE {
+        bigint kb_id PK "知识ID"
+        varchar title "标题"
+        text answer "标准答案"
+        vector embedding "语义向量"
+        datetime updated_at "更新时间"
+    }
+    CATEGORY {
+        bigint category_id PK "分类ID"
+        varchar category_name "分类名称"
+    }
+    FEEDBACK {
+        bigint feedback_id PK "评价ID"
+        bigint message_id FK "关联消息"
+        tinyint score "满意度1-5"
+        text comment "补充意见"
+    }
+        </pre>
+      </div>
+    </div>
+
+    <div class="zyt_footer">张语桐 · 高级网页设计I · 18-6 Mermaid 流程图与 ER 图</div>
+  </div>
+
+  <script src="cdn/mermaid.min.js"></script>
+  <script>
+    var zyt_mermaidConfig = {
+      startOnLoad: true,
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#e8f0fe',
+        primaryTextColor: '#2c3e50',
+        primaryBorderColor: '#5470c6',
+        lineColor: '#5470c6',
+        secondaryColor: '#e6f7ef',
+        tertiaryColor: '#fdf3e7',
+        fontSize: '14px',
+        fontFamily: '"Microsoft YaHei", "PingFang SC", sans-serif'
+      },
+      flowchart: { curve: 'basis', htmlLabels: true },
+      er: { useMaxWidth: true }
+    };
+    mermaid.initialize(zyt_mermaidConfig);
+  </script>
+</body>
+</html>

@@ -135,3 +135,35 @@
 ## 2026-11-02-16-31
 模型: GLM-5.3-Flash
 提示词: 完成17-6.html，使用promise和async完成异步操作的演示包饺子的流程。先买原料(线上线下同时购买，完成任何一个即可进行下一步)，取原料，买完原料之后同时和面、和馅，两个活动都完成之后包饺子，包完饺子煮饺子，然后吃饺子。使用settimeout模拟每一个流程，如买原料6s，在页面上显示流程。
+
+## 2026-11-05-15-33
+模型: GLM-5.3-Flash
+提示词: 完成18-1.html和18-2.html，第一个显示canvas动画，包括文字袁磊，第二个显示基于canvas的全站系统的系统架构图（电商系统）。
+
+## 2026-11-05-15-40
+模型: GLM-5.3-Flash
+提示词: 1、完成18-1.html和18-2.html，第一个显示canvas动画，包括文字张语桐，第二个显示基于canvas的全站系统的系统架构图（电商系统）。（更正：动画文字为"张语桐"）
+
+## 2026-11-05-15-42
+模型: GLM-5.3-Flash
+提示词: 完成18-3.html，其中包括基于知识库智能客服的系统的系统架构图，图的格式为svg，科研方向。
+
+## 2026-11-05-15-51
+模型: DeepSeek-V4.1-Flash
+提示词: 我要这些链接的图修改18-3`https://echarts.apache.org/examples/zh/editor.html?c=line-polar``https://echarts.apache.org/examples/zh/editor.html?c=matrix-sparkline``https://echarts.apache.org/examples/zh/editor.html?c=bar-stack-borderRadius``https://echarts.apache.org/examples/zh/editor.html?c=parallel-nutrients``https://echarts.apache.org/examples/zh/editor.html?c=transparent-bar3d&gl=1`
+
+## 2026-11-05-04-13
+模型: DeepSeek-V4.1-Flash
+提示词: 重命名18-3改为18-4
+
+## 2026-11-05-04-16
+模型: GLM-5.3-Flash
+提示词: 完成18-3.html，其中包括基于知识库智能客服的系统的系统架构图，图的格式为svg，科研方向。
+
+## 2026-11-05-04-26
+模型: GLM-5.3-Flash
+提示词: 4、实现18-6.html，实现基于mermaid的智能客服系统的流程图和er图，cdn文件下载到cdn目录下。5、实现18-7.html，实现基于three.js的两个图表，cdn文件下载到cdn目录下。
+
+## 2026-11-05-04-37
+模型: GLM-5.3-Flash
+提示词: 6、实现18-8.html，实现基于three.js或echarts的数据大屏，大屏要求：三列，中间上面是某种地理信息的图，cdn文件下载到cdn目录下。

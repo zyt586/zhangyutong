@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>18-7 基于 Three.js 的 3D 数据图表</title>
+  <!--
+  姓名：张语桐
+  日期：2026-11-05
+  功能名称：基于 Three.js 的 3D 柱状图与 3D 饼图（本地 cdn 目录引入，支持拖拽旋转与悬停交互）
+  -->
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background: #eef1f6;
+      color: #2c3e50;
+      padding: 28px 16px 40px;
+    }
+    .zyt_page { max-width: 1180px; margin: 0 auto; }
+    .zyt_head { text-align: center; margin-bottom: 20px; }
+    .zyt_head h1 { font-size: 26px; letter-spacing: 1px; }
+    .zyt_head p { margin-top: 8px; font-size: 13px; color: #7a8699; }
+    .zyt_card {
+      background: #fff;
+      border: 1px solid #e2e8f2;
+      border-radius: 14px;
+      padding: 22px 18px;
+      margin-bottom: 22px;
+      box-shadow: 0 6px 18px rgba(60, 80, 120, .08);
+    }
+    .zyt_cardTitle {
+      font-size: 18px; font-weight: bold; margin-bottom: 6px;
+      padding-left: 10px; border-left: 4px solid #3ba272;
+    }
+    .zyt_cardDesc { font-size: 13px; color: #8a94a6; margin-bottom: 14px; }
+    .zyt_canvasWrap {
+      position: relative; background: #f7f9fc;
+      border: 1px dashed #d5deec; border-radius: 10px; overflow: hidden;
+    }
+    .zyt_canvasWrap canvas { display: block; width: 100%; height: 430px; cursor: grab; }
+    .zyt_canvasWrap canvas:active { cursor: grabbing; }
+    .zyt_tip {
+      position: absolute; pointer-events: none; display: none;
+      background: rgba(44, 62, 80, .92); color: #fff; font-size: 12px;
+      padding: 6px 10px; border-radius: 6px; white-space: nowrap; z-index: 5;
+    }
+    .zyt_legend {
+      display: flex; flex-wrap: wrap; gap: 10px 18px; margin-top: 12px; font-size: 13px; color: #5a6474;
+    }
+    .zyt_legendItem { display: flex; align-items: center; gap: 6px; }
+    .zyt_legendDot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+    .zyt_footer { text-align: center; margin-top: 10px; font-size: 12px; color: #9aa4b5; }
+    @media (max-width: 760px) { .zyt_head h1 { font-size: 20px; } .zyt_canvasWrap canvas { height: 320px; } }
+  </style>
+</head>
+<body>
+  <div class="zyt_page">
+    <div class="zyt_head">
+      <h1>🧊 基于 Three.js 的 3D 数据图表</h1>
+      <p>3D 柱状图 + 3D 饼图 · 拖拽旋转 · 悬停查看数值 · Three.js 本地库：cdn/three.min.js</p>
+    </div>
+
+    <div class="zyt_card">
+      <div class="zyt_cardTitle">一、3D 柱状图 —— 全年销售额（万元）</div>
+      <div class="zyt_cardDesc">鼠标左键拖拽旋转视角，悬停柱体查看对应月份与数值</div>
+      <div class="zyt_canvasWrap" data-zyt-bar>
+        <canvas data-zyt-barCanvas></canvas>
+        <div class="zyt_tip" data-zyt-barTip></div>
+      </div>
+      <div class="zyt_legend" data-zyt-barLegend></div>
+    </div>
+
+    <div class="zyt_card">
+      <div class="zyt_cardTitle">二、3D 饼图 —— 客服咨询来源占比</div>
+      <div class="zyt_cardDesc">悬停扇区自动外移放大，左侧图例对应各来源渠道</div>
+      <div class="zyt_canvasWrap" data-zyt-pie>
+        <canvas data-zyt-pieCanvas></canvas>
+        <div class="zyt_tip" data-zyt-pieTip></div>
+      </div>
+      <div class="zyt_legend" data-zyt-pieLegend></div>
+    </div>
+
+    <div class="zyt_footer">张语桐 · 高级网页设计I · 18-7 Three.js 3D 图表</div>
+  </div>
+
+  <script src="cdn/three.min.js"></script>
+  <script>
+    var zyt_palette = ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#fc8452'];
+
+    /* ---------- 通用工具 ---------- */
+    function zyt_makeLabelSprite(zyt_text, zyt_color) {
+      var zyt_cv = document.createElement('canvas');
+      zyt_cv.width = 256; zyt_cv.height = 128;
+      var zyt_c = zyt_cv.getContext('2d');
+      zyt_c.font = 'bold 56px "Microsoft YaHei", sans-serif';
+      zyt_c.textAlign = 'center'; zyt_c.textBaseline = 'middle';
+      zyt_c.fillStyle = zyt_color || '#5a6474';
+      zyt_c.fillText(zyt_text, 128, 64);
+      var zyt_tex = new THREE.CanvasTexture(zyt_cv);
+      zyt_tex.minFilter = THREE.LinearFilter;
+      var zyt_mat = new THREE.SpriteMaterial({ map: zyt_tex, transparent: true });
+      var zyt_sp = new THREE.Sprite(zyt_mat);
+      zyt_sp.scale.set(2.4, 1.2, 1);
+      return zyt_sp;
+    }
+
+    function zyt_setupScene(zyt_canvas) {
+      var zyt_wrap = zyt_canvas.parentElement;
+      var zyt_w = zyt_wrap.clientWidth;
+      var zyt_h = zyt_canvas.clientHeight || 430;
+      var zyt_renderer = new THREE.WebGLRenderer({ canvas: zyt_canvas, antialias: true });
+      zyt_renderer.setPixelRatio(window.devicePixelRatio || 1);
+      zyt_renderer.setSize(zyt_w, zyt_h, false);
+      zyt_renderer.setClearColor(0xf7f9fc);
+      var zyt_scene = new THREE.Scene();
+      var zyt_camera = new THREE.PerspectiveCamera(45, zyt_w / zyt_h, 0.1, 200);
+      var zyt_ambient = new THREE.AmbientLight(0xffffff, 0.65);
+      var zyt_dir = new THREE.DirectionalLight(0xffffff, 0.75);
+      zyt_dir.position.set(8, 14, 10);
+      zyt_scene.add(zyt_ambient); zyt_scene.add(zyt_dir);
+      return { wrap: zyt_wrap, renderer: zyt_renderer, scene: zyt_scene, camera: zyt_camera, w: zyt_w, h: zyt_h };
+    }
+
+    /* 拖拽旋转：绕 Y 轴 + 俯仰角限制 */
+    function zyt_bindDrag(zyt_group, zyt_wrap) {
+      var zyt_drag = false, zyt_lx = 0, zyt_ly = 0;
+      zyt_wrap.addEventListener('mousedown', function (e) { zyt_drag = true; zyt_lx = e.clientX; zyt_ly = e.clientY; });
+      window.addEventListener('mouseup', function () { zyt_drag = false; });
+      window.addEventListener('mousemove', function (e) {
+        if (!zyt_drag) return;
+        var zyt_dx = e.clientX - zyt_lx, zyt_dy = e.clientY - zyt_ly;
+        zyt_lx = e.clientX; zyt_ly = e.clientY;
+        zyt_group.rotation.y += zyt_dx * 0.008;
+        zyt_group.rotation.x = Math.max(-0.5, Math.min(0.5, zyt_group.rotation.x + zyt_dy * 0.005));
+      });
+      var zyt_touchDrag = false;
+      zyt_wrap.addEventListener('touchstart', function (e) { zyt_drag = true; zyt_touchDrag = true; zyt_lx = e.touches[0].clientX; zyt_ly = e.touches[0].clientY; }, { passive: true });
+      window.addEventListener('touchend', function () { if (zyt_touchDrag) { zyt_drag = false; zyt_touchDrag = false; } });
+      window.addEventListener('touchmove', function (e) {
+        if (!zyt_touchDrag) return;
+        var zyt_dx = e.touches[0].clientX - zyt_lx, zyt_dy = e.touches[0].clientY - zyt_ly;
+        zyt_lx = e.touches[0].clientX; zyt_ly = e.touches[0].clientY;
+        zyt_group.rotation.y += zyt_dx * 0.008;
+        zyt_group.rotation.x = Math.max(-0.5, Math.min(0.5, zyt_group.rotation.x + zyt_dy * 0.005));
+      }, { passive: true });
+      return function () { return zyt_drag; };
+    }
+
+    function zyt_showTip(zyt_tip, zyt_wrap, zyt_x, zyt_y, zyt_html) {
+      var zyt_rect = zyt_wrap.getBoundingClientRect();
+      zyt_tip.style.display = 'block';
+      zyt_tip.style.left = (zyt_x - zyt_rect.left + 14) + 'px';
+      zyt_tip.style.top = (zyt_y - zyt_rect.top + 10) + 'px';
+      zyt_tip.innerHTML = zyt_html;
+    }
+    function zyt_hideTip(zyt_tip) { zyt_tip.style.display = 'none'; }
+
+    /* ---------- 图表一：3D 柱状图 ---------- */
+    var zyt_barData = [
+      { m: '1月', v: 86 }, { m: '2月', v: 92 }, { m: '3月', v: 105 }, { m: '4月', v: 98 },
+      { m: '5月', v: 120 }, { m: '6月', v: 132 }, { m: '7月', v: 128 }, { m: '8月', v: 141 },
+      { m: '9月', v: 156 }, { m: '10月', v: 149 }, { m: '11月', v: 168 }, { m: '12月', v: 182 }
+    ];
+
+    function zyt_buildBarChart() {
+      var zyt_canvas = document.querySelector('[data-zyt-barCanvas]');
+      var zyt_env = zyt_setupScene(zyt_canvas);
+      zyt_env.camera.position.set(9, 8, 13);
+      zyt_env.camera.lookAt(0, 2.5, 0);
+      var zyt_group = new THREE.Group();
+      zyt_env.scene.add(zyt_group);
+
+      var zyt_grid = new THREE.GridHelper(16, 8, 0xc9d4e4, 0xe2e8f2);
+      zyt_group.add(zyt_grid);
+
+      var zyt_barGeo = new THREE.BoxGeometry(0.7, 1, 0.7);
+      zyt_barGeo.translate(0, 0.5, 0);
+      var zyt_bars = [];
+      var zyt_n = zyt_barData.length;
+      for (var zyt_i = 0; zyt_i < zyt_n; zyt_i++) {
+        var zyt_d = zyt_barData[zyt_i];
+        var zyt_h = zyt_d.v / 182 * 6;
+        var zyt_color = new THREE.Color(zyt_palette[zyt_i % zyt_palette.length]);
+        var zyt_mat = new THREE.MeshLambertMaterial({ color: zyt_color, transparent: true, opacity: 0.92 });
+        var zyt_bar = new THREE.Mesh(zyt_barGeo, zyt_mat);
+        var zyt_x = (zyt_i - (zyt_n - 1) / 2) * 1.15;
+        zyt_bar.position.set(zyt_x, 0, 0);
+        zyt_bar.scale.y = zyt_h;
+        zyt_bar.userData = { m: zyt_d.m, v: zyt_d.v, baseColor: zyt_color };
+        zyt_group.add(zyt_bar);
+        zyt_bars.push(zyt_bar);
+        var zyt_lbl = zyt_makeLabelSprite(zyt_d.m);
+        zyt_lbl.position.set(zyt_x, -0.45, 0);
+        zyt_lbl.scale.set(1.5, 0.75, 1);
+        zyt_group.add(zyt_lbl);
+      }
+
+      /* 简易坐标轴：Y 轴竖线 + 刻度标注 */
+      var zyt_axisMat = new THREE.LineBasicMaterial({ color: 0x8a94a6 });
+      var zyt_axisGeo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(-7.1, 0, -7.1), new THREE.Vector3(-7.1, 6.4, -7.1)
+      ]);
+      zyt_group.add(new THREE.Line(zyt_axisGeo, zyt_axisMat));
+      [2, 4, 6].forEach(function (zyt_v) {
+        var zyt_h = zyt_v / 182 * 6;
+        var zyt_g2 = new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(-7.1, zyt_h, -7.1), new THREE.Vector3(7.1, zyt_h, -7.1)
+        ]);
+        var zyt_gl = new THREE.Line(zyt_g2, new THREE.LineBasicMaterial({ color: 0xe2e8f2 }));
+        zyt_group.add(zyt_gl);
+        var zyt_st = zyt_makeLabelSprite(zyt_v + '万', '#9aa4b5');
+        zyt_st.position.set(-7.9, zyt_h, -7.1);
+        zyt_st.scale.set(1.6, 0.8, 1);
+        zyt_group.add(zyt_st);
+      });
+
+      var zyt_tip = document.querySelector('[data-zyt-barTip]');
+      var zyt_raycaster = new THREE.Raycaster();
+      var zyt_mouse = new THREE.Vector2();
+      var zyt_hoverIdx = -1;
+      var zyt_isDrag = zyt_bindDrag(zyt_group, zyt_env.wrap);
+
+      zyt_env.wrap.addEventListener('mousemove', function (e) {
+        if (zyt_isDrag()) { zyt_hideTip(zyt_tip); return; }
+        var zyt_rect = zyt_env.wrap.getBoundingClientRect();
+        zyt_mouse.x = ((e.clientX - zyt_rect.left) / zyt_env.w) * 2 - 1;
+        zyt_mouse.y = -((e.clientY - zyt_rect.top) / zyt_env.h) * 2 + 1;
+        zyt_raycaster.setFromCamera(zyt_mouse, zyt_env.camera);
+        var zyt_hits = zyt_raycaster.intersectObjects(zyt_bars);
+        var zyt_newIdx = zyt_hits.length ? zyt_bars.indexOf(zyt_hits[0].object) : -1;
+        if (zyt_newIdx !== zyt_hoverIdx) {
+          if (zyt_hoverIdx >= 0) {
+            zyt_bars[zyt_hoverIdx].material.color.copy(zyt_bars[zyt_hoverIdx].userData.baseColor);
+            zyt_bars[zyt_hoverIdx].material.opacity = 0.92;
+          }
+          zyt_hoverIdx = zyt_newIdx;
+          if (zyt_hoverIdx >= 0) {
+            zyt_bars[zyt_hoverIdx].material.color.set('#ee6666');
+            zyt_bars[zyt_hoverIdx].material.opacity = 1;
+          }
+        }
+        if (zyt_hoverIdx >= 0) {
+          var zyt_d2 = zyt_bars[zyt_hoverIdx].userData;
+          zyt_showTip(zyt_tip, zyt_env.wrap, e.clientX, e.clientY, zyt_d2.m + ' · 销售额 <b>' + zyt_d2.v + '</b> 万元');
+        } else { zyt_hideTip(zyt_tip); }
+      });
+      zyt_env.wrap.addEventListener('mouseleave', function () {
+        zyt_hideTip(zyt_tip);
+        if (zyt_hoverIdx >= 0) {
+          zyt_bars[zyt_hoverIdx].material.color.copy(zyt_bars[zyt_hoverIdx].userData.baseColor);
+          zyt_bars[zyt_hoverIdx].material.opacity = 0.92;
+          zyt_hoverIdx = -1;
+        }
+      });
+
+      var zyt_legend = document.querySelector('[data-zyt-barLegend]');
+      zyt_legend.innerHTML = '<span class="zyt_legendItem"><span class="zyt_legendDot" style="background:#8a94a6"></span>数据区间 86 ~ 182 万元 · 逐月配色循环</span>';
+
+      return { env: zyt_env, group: zyt_group };
+    }
+
+    /* ---------- 图表二：3D 饼图 ---------- */
+    var zyt_pieData = [
+      { name: '网页端', v: 32 }, { name: 'App 移动端', v: 27 }, { name: '微信小程序', v: 21 },
+      { name: '电话渠道', v: 12 }, { name: '其他渠道', v: 8 }
+    ];
+
+    function zyt_buildPieChart() {
+      var zyt_canvas = document.querySelector('[data-zyt-pieCanvas]');
+      var zyt_env = zyt_setupScene(zyt_canvas);
+      zyt_env.camera.position.set(0, 9, 9.5);
+      zyt_env.camera.lookAt(0, 0, 0);
+      var zyt_group = new THREE.Group();
+      zyt_group.rotation.x = 0.35;
+      zyt_env.scene.add(zyt_group);
+
+      var zyt_total = 0;
+      zyt_pieData.forEach(function (z_d) { zyt_total += z_d.v; });
+      var zyt_slices = [];
+      var zyt_start = 0;
+      zyt_pieData.forEach(function (z_d, z_i) {
+        var zyt_angle = z_d.v / zyt_total * Math.PI * 2;
+        var zyt_geo = new THREE.CylinderGeometry(3, 3, 1.1, 48, 1, false, zyt_start, zyt_angle);
+        zyt_geo.translate(0, 0.55, 0);
+        var zyt_color = new THREE.Color(zyt_palette[z_i % zyt_palette.length]);
+        var zyt_mat = new THREE.MeshLambertMaterial({ color: zyt_color, transparent: true, opacity: 0.9 });
+        var zyt_mesh = new THREE.Mesh(zyt_geo, zyt_mat);
+        zyt_mesh.userData = {
+          name: z_d.name, v: z_d.v, baseColor: zyt_color,
+          mid: zyt_start + zyt_angle / 2, out: 0
+        };
+        zyt_group.add(zyt_mesh);
+        zyt_slices.push(zyt_mesh);
+        /* 百分比标注 */
+        var zyt_lbl = zyt_makeLabelSprite(z_d.v + '%', '#ffffff');
+        zyt_lbl.scale.set(1.15, 0.58, 1);
+        zyt_lbl.position.set(Math.sin(zyt_mesh.userData.mid) * 2.05, 0.62, Math.cos(zyt_mesh.userData.mid) * 2.05);
+        zyt_group.add(zyt_lbl);
+        zyt_start += zyt_angle;
+      });
+
+      var zyt_tip = document.querySelector('[data-zyt-pieTip]');
+      var zyt_raycaster = new THREE.Raycaster();
+      var zyt_mouse = new THREE.Vector2();
+      var zyt_hoverIdx = -1;
+      var zyt_isDrag = zyt_bindDrag(zyt_group, zyt_env.wrap);
+
+      function zyt_setHover(zyt_idx) {
+        zyt_slices.forEach(function (z_s, z_i) {
+          z_s.userData.target = (z_i === zyt_idx) ? 0.55 : 0;
+        });
+      }
+
+      function zyt_updatePie() {
+        zyt_slices.forEach(function (z_s) {
+          z_s.userData.out += ((z_s.userData.target || 0) - z_s.userData.out) * 0.18;
+          z_s.position.set(Math.sin(z_s.userData.mid) * z_s.userData.out, 0, Math.cos(z_s.userData.mid) * z_s.userData.out);
+        });
+      }
+
+      zyt_env.wrap.addEventListener('mousemove', function (e) {
+        if (zyt_isDrag()) { zyt_hideTip(zyt_tip); return; }
+        var zyt_rect = zyt_env.wrap.getBoundingClientRect();
+        zyt_mouse.x = ((e.clientX - zyt_rect.left) / zyt_env.w) * 2 - 1;
+        zyt_mouse.y = -((e.clientY - zyt_rect.top) / zyt_env.h) * 2 + 1;
+        zyt_raycaster.setFromCamera(zyt_mouse, zyt_env.camera);
+        var zyt_hits = zyt_raycaster.intersectObjects(zyt_slices);
+        var zyt_newIdx = zyt_hits.length ? zyt_slices.indexOf(zyt_hits[0].object) : -1;
+        if (zyt_newIdx !== zyt_hoverIdx) {
+          zyt_hoverIdx = zyt_newIdx;
+          zyt_setHover(zyt_hoverIdx);
+        }
+        if (zyt_hoverIdx >= 0) {
+          var zyt_d = zyt_slices[zyt_hoverIdx].userData;
+          zyt_showTip(zyt_tip, zyt_env.wrap, e.clientX, e.clientY, zyt_d.name + ' · 占比 <b>' + zyt_d.v + '%</b>');
+        } else { zyt_hideTip(zyt_tip); }
+      });
+      zyt_env.wrap.addEventListener('mouseleave', function () {
+        zyt_hideTip(zyt_tip);
+        zyt_hoverIdx = -1;
+        zyt_setHover(-1);
+      });
+
+      var zyt_legend = document.querySelector('[data-zyt-pieLegend]');
+      zyt_legend.innerHTML = zyt_pieData.map(function (z_d, z_i) {
+        return '<span class="zyt_legendItem"><span class="zyt_legendDot" style="background:' + zyt_palette[z_i % zyt_palette.length] + '"></span>' + z_d.name + ' ' + z_d.v + '%</span>';
+      }).join('');
+
+      return { env: zyt_env, group: zyt_group, update: zyt_updatePie };
+    }
+
+    /* ---------- 渲染循环 ---------- */
+    var zyt_barChart = zyt_buildBarChart();
+    var zyt_pieChart = zyt_buildPieChart();
+    var zyt_clock = new THREE.Clock();
+    function zyt_animate() {
+      var zyt_dt = zyt_clock.getDelta();
+      zyt_barChart.group.rotation.y += zyt_dt * 0.25;
+      zyt_pieChart.group.rotation.y += zyt_dt * 0.35;
+      zyt_pieChart.update();
+      zyt_barChart.env.renderer.render(zyt_barChart.env.scene, zyt_barChart.env.camera);
+      zyt_pieChart.env.renderer.render(zyt_pieChart.env.scene, zyt_pieChart.env.camera);
+      requestAnimationFrame(zyt_animate);
+    }
+    zyt_animate();
+
+    window.addEventListener('resize', function () {
+      [zyt_barChart, zyt_pieChart].forEach(function (z_c) {
+        var zyt_w = z_c.env.wrap.clientWidth;
+        var zyt_h = z_c.env.wrap.querySelector('canvas').clientHeight || 430;
+        z_c.env.camera.aspect = zyt_w / zyt_h;
+        z_c.env.camera.updateProjectionMatrix();
+        z_c.env.renderer.setSize(zyt_w, zyt_h, false);
+      });
+    });
+  </script>
+</body>
+</html>
